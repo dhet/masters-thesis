@@ -1,0 +1,63 @@
+\RequirePackage[l2tabu,orthodox]{nag}
+
+% TODO: decide if one-sided/two-sided
+%\documentclass[headsepline,footsepline,footinclude=false,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc,BCOR=12mm,DIV=12]{scrbook} % two-sided
+\documentclass[headsepline,footsepline,footinclude=false,oneside,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc]{scrbook} % one-sided
+
+% TODO: change citation style in settings
+\input{settings}
+
+% TODO: change thesis information
+\newcommand*{\getUniversity}{Ludwig-Maximilians-Universität München}
+\newcommand*{\getFaculty}{Institute of Informatics}
+\newcommand*{\getTitle}{Enabling Cloud Connectivity in Cyber Physical Systems}
+\newcommand*{\getTitleGer}{Titel der Abschlussarbeit}
+\newcommand*{\getAuthor}{David Hettler}
+\newcommand*{\getDoctype}{Master's Thesis in Computer Science}
+\newcommand*{\getSupervisor}{Prof. Dr. Dr. h.c. Manfred Broy (TUM)}
+\newcommand*{\getAdvisor}{Dr. Stefan Kugele (TUM)}
+\newcommand*{\getSubmissionDate}{20/04/2018}
+\newcommand*{\getSubmissionLocation}{Munich}
+
+
+\usepackage{cleveref}
+\usepackage{crossreftools} 
+
+\begin{document}
+
+% Set page numbering to avoid "destination with the same identifier has been already used" warning for cover page.
+% (see https://en.wikibooks.org/wiki/LaTeX/Hyperlinks#Problems_with_Links_and_Pages).
+\pagenumbering{alph}
+\input{pages/cover}
+
+\frontmatter{}
+
+\input{pages/title}
+\input{pages/disclaimer}
+\input{pages/acknowledgements}
+\input{pages/abstract}
+\microtypesetup{protrusion=false}
+\tableofcontents{}
+\microtypesetup{protrusion=true}
+
+\mainmatter{}
+
+\input{chapters/macros}
+\input{chapters/introduction}
+\input{chapters/preliminaries}
+\input{chapters/related-work}
+\input{chapters/realization}
+\input{chapters/evaluation}
+\input{chapters/conclusion}
+
+\input{chapters/test}
+
+\appendix{}
+
+\microtypesetup{protrusion=false}
+\listoffigures{}
+\listoftables{}
+\microtypesetup{protrusion=true}
+\printbibliography{}
+
+\end{document}

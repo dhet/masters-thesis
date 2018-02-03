@@ -1,3 +1,9 @@
+/build/*
+!/build/main.pdf
+/logos/*.pdf
+
+main.pdf
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -125,4 +131,4 @@ sympy-plots-for-*.tex/
 *.bak
 *.sav
 /tmp/
-/thesis.pdf
+

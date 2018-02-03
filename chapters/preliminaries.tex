@@ -1,9 +1,9 @@
 
-\section{Preliminaries}
-\label{sec:preliminaries}
+
+\chapter{Preliminaries}\label{chapter:preliminaries}
 
 
-\subsection{Containerization}
+\section{Containerization}
 
 In recent years, container technology has gained widespread adoption in the software development world. By greatly simplifying the software deployment—and development workflow, containers have become a cornerstone of successful software architectures.
 Considering their advantages over hypervisor-based virtualization, such near native performance, sub-second boot times \cite{felter2015updated}\cite{morabito2015hypervisors} and minimal disk space usage, containers bring qualities to the table that are relevant specifically to embedded systems.
@@ -19,19 +19,19 @@ Cgroups is a Linux kernel feature that allows to limit the resources availabe to
 
 Docker \cite{DockerWebsite} is undoubtably the most prominent container technology and arguably the first one to make Linux containers accessible for general use. 
 
-\subsubsection{Docker Images}
+\subsection{Docker Images}
 Unique to Docker is its approach to container images. Images may be seen as the ``blueprint'' on the basis of which containers are built. 
 Images are implemented utilizing UnionFS, a Linux service that facilitates the layering of different file systems atop each other. 
 Leveraging this technology, Docker images are made of layers, with each layer adding to, or modifying, the respective underlying layer. 
 A benefit of this approach is that individual layers may be shared and reused in other containers, thereby saving tremendous amounts of disk space compared to traditional VM images.
 
-\subsubsection{Docker Networking}
+\subsection{Docker Networking}
 
-\subsection{Continuous Integration}
+\section{Continuous Integration}
 
 
 
-\subsection{Communication}
+\section{Communication}
 
 What has been discussed so far is what services are and how they can be implemented. One question that remains is how they are connected. SOA, being a pattern for distributed systems, requires its components to communicate with each other over a network.
 
@@ -47,7 +47,7 @@ PubSub enables loose coupling. No apriori knowledge of communication partners re
 No startup dependencies: The order in which services finish initializing is irrelevant. Especially important with ephemeral services.
 
 
-\subsubsection{DDS}
+\subsection{DDS}
 What is DDS?
 DDS is a messaging middleware standard for distributed applications. 
 The underlying principle of it is data centric publish-subscribe.
@@ -108,14 +108,11 @@ OpenDDS supports TCP-IP, UDP-IP, IP multicast, shared memory and RTPS\_UDP. Tran
 Two types of discovery: centralized Information Repository, distributed RTPS discovery. The latter must be used if DDS implementation compatibility is priority
 
 
-\subsection{Weave Net}
+\section{Weave Net}
 
 Weave was choses because, to this date, it is the only solution that supports multicast.
 
 
-\subsection{Cloud Computing}
-
-
-\include{include/related-work}
+\section{Cloud Computing}
 
 
