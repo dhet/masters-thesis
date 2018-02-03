@@ -1,0 +1,112 @@
+
+\section{Introduction} 
+\label{introduction}
+
+\subsection{Motivation}
+Recent trends in the automotive industry are intruducing new, increasingly complex software functions into vehicles. In particular, advanced driver-assistance systems (ADAS) are a major force behind this development. Such systems leverage modern methods coming from artificial intelligence (AI) research which are demanding, both in terms of computational power as well as in the volume of data they require. At the same time, embedded on-board computers are typically severely limited in their computational capacities. This problem may be overcome with the aid of another trend in automotive systems: cloud connectivity. Clouds may be summarized as remote data centers which have a tremendous amount computing resources and storage space available to them. In the future, computationally expensive functions enabling advanced functionality, such as autonomous driving, may be outsourced from the vehicle into the cloud. Since network connectivity is not always guaranteed, e.g. when navigating through geographically remote areas, such functions still need to work ``offline''. Hence, a method is needed to allow the same functions to run on resource constrained embedded systems as well as on servers in cloud infrastructures. Virtualization and containerization technologies are promising contenders to make such an endeavor feasible. By wrapping software artifacts in portable, self-contained execution environments, virtualization tools allow software to be deployed on a variety of operating systems and hardware platforms.
+
+A challenge of running vehicular functions within the cloud is to ensure flawless connectivity to the other components in the car. Often times, such components are connected via message bus realized by a messaging middleware.
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+\subsection{Context}
+Current Trends
+
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+\subsection{Objective}
+
+The aim of this thesis is to research the possibility of enabling cloud connectivity in future automotive software architectures.
+ 
+Furthermore, containerization technologies are evaluated regarding their aptitude in safety-critical systems. Moreover, a technical realization of a repartitioning system is presented which is deployed on a specifically-built testbed and then evaluated regarding performance and safety.
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+\subsection{Approach}
+
+In this thesis, a method is given to enable cloud connectivity for automotive software systems. 
+The method follows a service-oriented approach where functionality is split into a number of independent services connected via a messaging middleware. 
+The crux of the presented approach is that services may be deployed on ECUs within the vehicle as well as within remote data centers. At the same time, communication between the services is not affected in any way. \Ie , from the viewpoint of a service deployed within the vehicle it doesn't matter whether a peer service is deployed in the same vehicle or in a remote data center -- the way they communicate is exactly the same.
+This feat was achieved by combining several technologies, most notably \emph{Docker}\cite{DockerWebsite} as containerization solution, \emph{Data Distribution Service} (DDS) as messaging middleware and \emph{Weave Net}\cite{WeavenetWebsite} as virtual networking layer.
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+\subsection{Structure of the Thesis}
+
+This work is structured as follows. First, preliminaries are given in \cref{sec:preliminaries}, briefly explaining all concepts and technologies relevant to the given approach. Additionally, a section summarizing and discusissing related work is provided. In the subsequent section, \cref{sec:realization}, the actual realization of the approach is described, going into detail about how technologies were leveraged to implement a cloud-enabled automotive software architecture. In \cref{sec:evaluation}, the approach is evaluated. For this, benchmarks are conducted to assess the approaches' quality attributes. This section furthermore discusses limitations of the approach. The thesis concludes with \cref{sec:conclusion} where the approach is summarized and future work is suggested.
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%

@@ -1,0 +1,25 @@
+
+
+\subsection{Related Work}
+
+In their paper, Berger et. al. \cite{berger2017containerized} describe their experiences of employing containerization in a vehicular microservice architecture. 
+
+Docker advantages: accelerates software testing, quickly onboard new team members
+
+
+\subsubsection{Adaptive AUTOSAR}
+
+Adaptive AUTOSAR's underlying messaging middleware is \emph{SOME/IP}
+
+Can be used on top of AUTOSAR.
+
+Service discovery based on modes. Client: request / listen, server: offer / silent.
+Service discovery takes is pretty fast < 10 ms. Depends on parameters.
+
+Designed to be used over Ethernet.
+
+Network representation and internal representation are similar to allow for fast serialization at the expense of message size. But this is not a problem since the transport channel doesn't have stringent bandwidth and frame size limitations.
+
+Supports TCP and therefore bandwidth intensive streams.
+
+Supports several communication models: request/response, async, events, "field", event groups (PubSub)
