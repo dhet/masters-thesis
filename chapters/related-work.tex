@@ -1,11 +1,30 @@
 \chapter{Related Work}\label{chapter:related-work}
 
-In their paper, Berger et. al. \cite{berger2017containerized} describe their experiences of employing containerization in a vehicular microservice architecture. 
+In their paper, \citeauthor*{berger2017containerized} \cite{berger2017containerized} describe their experiences of employing containerization in the context of self-driving vehicles. 
+In accordance with the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services deployed on distributed nodes within the vehicle. The services are connected via \emph{OpenDaVINCI}\footnote{code.opendavinci.org}, a real-time capable middleware for publish-subscribe communication. This approach is very similar to the one proposed in this thesis in that communication is based on multicast over a middleware. However, their approach lacks cloud connectivity. The authors furthermore struggle to get multicast to work over Docker overlay networks -- a problem that was solved in this thesis. 
 
-They highlight Docker's advantages: accelerates software testing, quickly onboard new team members
+%The interplay of their services is based on a \emph{pipes-and-filters} methodology.
+%Multi platform images are achieved through different base layers employing different compilers. Disadvantage: containers cannot be moved freely between nodes of different hardware architectures.
+%questionable design decisions: Centralized configuration protocol... but decentralization is key
+%Suggest to have private registry within the vehicle.
+%To provide a high degree of tracability, they present a versioning system that allows versioning of individual image layers which seamlessly integrates into their development workflow.
 
-In accordance to the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services, each having very little responsibilities. The services are connected via a middleware
+%
+%
+%
+%
+%
 
+\citeauthor*{schneider2016achieving} \cite{schneider2016achieving} also use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that cars may connect to. Their approach does not consider the use of microservices within the vehicle and is described in rather vague terms.
+
+%
+%
+%
+
+Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) is \citeauthor*{kratzke2017microservices}'s paper \cite{kratzke2017microservices} on the performance impact of using encrypted overlay networks for Linux containers on top of hypervisors. This setup -- containers atop hypervisors -- is very common in cloud scenarios as IaaS providers often provision servers in the form of virtual machines. This is also the case for the test setup described in this thesis. The author concludes that containers add a non-negligible impact on networking performance. In Weave Net-based overlay networks, the performance is further impaired. A minimal impact was observed when using encryption.
+
+% does not consider weave fast datapath
+% argues that weave would be faster if the weave routers weren't packaged in containers
 
 
 \section{Adaptive AUTOSAR}

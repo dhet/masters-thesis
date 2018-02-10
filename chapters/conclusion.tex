@@ -1,2 +1,14 @@
 
 \chapter{Conclusion}\label{chapter:conclusion}
+
+\section{Summary}
+
+
+\section{Contributions}
+
+
+\section{Future Work}
+
+The presented approach does not consider that certain functionalities have different hardware requirements, \ie , a service requiring camera footage needs to be deployed on a node that has a camera attached to it. The approach does not yet accommodate this. Container orchestration systems such as kubernetes or Docker swarm offer a solution to this problem. Such systems may control compatibilities through \emph{tags} that may be attached to containers and nodes alike. Only if a node and a container have matching tags then the container may be deployed on that node. In the example, a tag like ``front-camera'' could be used to indicate that a service may only be deployed on a node with an attached camera. A container orchestration system could be easily integrated into the presented approach. 
+
+Integrate into real vehicle connected over 5G

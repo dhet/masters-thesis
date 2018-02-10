@@ -3,7 +3,7 @@
 \chapter{Preliminaries}\label{chapter:preliminaries}
 
 
-\section{Containerization}
+\section{Containerization with Docker}
 
 In recent years, container technology has gained widespread adoption in the software development world. By greatly simplifying the software deployment—and development workflow, containers have become a cornerstone of successful software architectures.
 Considering their advantages over hypervisor-based virtualization, such near native performance, sub-second boot times \cite{felter2015updated}\cite{morabito2015hypervisors} and minimal disk space usage, containers bring qualities to the table that are relevant specifically to embedded systems.
@@ -27,6 +27,20 @@ A benefit of this approach is that individual layers may be shared and reused in
 
 \subsection{Docker Networking}
 
+
+
+\section{Container networking with Weave Net}
+
+Weave was choses because, to this date, it is the only solution that supports both, multicast and encryption. Competing tools are flannel and dockernet.
+
+
+%\begin{figure}
+%  \centering
+%  \includegraphics[width=\textwidth]{include/sdn.pdf}
+%  \caption[SDN]{Connecting containers using Weave Net.}\label{fig:sdn}
+%\end{figure}
+
+
 \section{Continuous Integration}
 
 
@@ -47,7 +61,8 @@ PubSub enables loose coupling. No apriori knowledge of communication partners re
 No startup dependencies: The order in which services finish initializing is irrelevant. Especially important with ephemeral services.
 
 
-\subsection{DDS}
+\section{Data Distribution Service}
+
 What is DDS?
 DDS is a messaging middleware standard for distributed applications. 
 The underlying principle of it is data centric publish-subscribe.
@@ -67,7 +82,7 @@ Offers dynamic service discovery.
 
 
 \paragraph{Quality of Service}
-One of DDS's salient features is its intrinsic QoS support provided through \emph{QoS policies}.
+One of DDS's salient features is its intrinsic QoS support implemented by \emph{QoS policies}.
 QoS policies specify service attributes for controlling each participant's behavior and quality properties. They can be set for each participant and topic individually. An example for a QoS policy is the \texttt{DEADLINE} policy. It specifies the minimum message frequency of a service. If the deadline period of a hypothetical data writer is set to, e.g., 100 ms, that means that this data writer is required to send a message at least every 100 ms. If it fails to send a message at this rate, the data writer and all the respective topic's readers will need to deal with this circumstance on a code level. 
 
 In addition, QoS policies serve as service contracts. They specify non-functional requirements that services must fulfill to be able to communicate with each other. E.g., a service provider's \texttt{RELIABILITY} policy may have been set to the \texttt{BEST\_EFFORT} level, thereby allowing the service to drop samples. A service consumer, on the other hand, may require the service provider's policy to be set to \texttt{RELIABLE}, which prohibits the dropping of samples. Since the service provider only insufficiently fulfills the service consumer's QoS requirements, the services are considered incompatible with each other. QoS policies can therefore be seen as service contracts on a technical level, specifying service compatibility. It may be noteworthy, however, that these contracts do not rid the need for proper interface contracts modeled by a service designer.
@@ -106,13 +121,3 @@ What does OpenDDS run on? Only Linux.
 
 OpenDDS supports TCP-IP, UDP-IP, IP multicast, shared memory and RTPS\_UDP. Transport is controlled over config files
 Two types of discovery: centralized Information Repository, distributed RTPS discovery. The latter must be used if DDS implementation compatibility is priority
-
-
-\section{Weave Net}
-
-Weave was choses because, to this date, it is the only solution that supports multicast.
-
-
-\section{Cloud Computing}
-
-
