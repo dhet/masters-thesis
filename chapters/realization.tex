@@ -1,13 +1,58 @@
 
 \chapter{Realization}\label{chapter:realization}
 
-In this section, a discription is given how the envisioned system was realized.
+In this section, a detailed description is given how the envisioned system was realized.
+
+By combining DDS with an overlay network, a coherent distributed system \cite{tanenbaum2017distributed} was built, that from the viewpoint of each individual component, appears to be non-dispersed.
+
+
+\section{Requirements}
+
+
+
+
+\section{Service-oriented Architecture using DDS}
+
+\subsection{Separation of User Data}
+
+The presented approach relies on a single cloud infrastructure, while at the same time, a vast number of customers need to be served. This poses a challenge concerning the separation of data. Confidentiality and privacy of user-specific application data must be preserved. Similarly, the result of a computation commissioned by a specific vehicle must be returned to exactly that vehicle, and no one else. 
+
+Gladly, DDS offers a solution to this. In DDS, topics are not restricted to a single domain, \ie , they may be reused in multiple domains. If, \eg , a publisher belongs to \texttt{Domain $\alpha$} and publishes data on \texttt{Topic A}. Then, a data reader that reads from \texttt{Topic A} but belongs to \texttt{Domain $\beta$} may not read the data. Therefore, through domains, the same application may be reused several times, while keeping topic data separate. This principle is take advantage of in the presented approach: Domains are used to separate user data, such that for each user there is one user-specific domain.
+
 
 \section{Docker}
 
+\section{Multi Platform Compatibility}
+
+The main purpose of containerization is to build portable execution environments that may run on a broad range of systems. Generally speaking, portability of containers is restricted to software compatibility, \ie , containers may run on a variety of different operating systems. However, since containerized applications run directly on the kernel of the host system -- and do not employ virtualization -- they are not portable between different hardware architectures. \Ie , applications packed in containers are not binary compatible. For instance, given an application that was built to run on a x86-based processor and packaged in a container. The same container will not run on a different processor, \eg\ one which is ARM-based. This poses a challenge for the approach at hand. Embedded systems are often based on particular hardware architectures which are tailored towards operation in resource constrained environments. Computing nodes in a data centers, on the other hand, are typically based on architectures aimed at providing a maximum level of performance, such as x86. Given that the envisioned scenario exactly matches this use case, this problem is of particular interested for this thesis.
+
+Several approaches exist to tackle this problem. QEMU... This approach turned out to be unsuitable for the intended use case as multicast is not well supported by QEMU.
 
 
-\section{Continuous Integration}
+\section{Continuous Integration Pipeline}
 
 
-\section{Cloud Connectivity}
+\section{Rolling Updates via Weave?}
+
+
+
+\section{Requirement Fulfillment}
+
+\paragraph{Scalable.}
+
+\paragraph{Fault tolerant.}
+
+\paragraph{Interoperable.}
+
+\paragraph{Secure.}
+
+\paragraph{Performant.}
+
+\paragraph{Extensible.}
+
+\paragraph{Adaptable.}
+
+\paragraph{Testable.}
+
+
+

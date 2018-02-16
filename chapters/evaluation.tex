@@ -35,7 +35,7 @@ The detailed specifications of the involved computing nodes are given in \autore
       \midrule
       DDS & \multicolumn{2}{c}{OpenDDS 3.12.1}\\
       Docker  & \multicolumn{2}{c}{17.11.6-ce}\\
-      Weave Net & \multicolumn{2}{c}{2.2.0}\\
+      \wnet & \multicolumn{2}{c}{2.2.0}\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -62,17 +62,17 @@ To evaluate the aptitude of the proposed approach it is essential to consider th
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figures/ping-test}
-  \caption[Latency experiment setup]{Latency experiment setup. a) \experim{Plain}: two hosts connected without containerization. b) \experim{Weave}: two containers connected via Weave Net. c) \experim{Encrypted}: two containers connected via encrypted Weave Net channel.}\label{fig:latency-setup}
+  \caption[Latency experiment setup]{Latency experiment setup. a) \experim{Plain}: two hosts connected without containerization. b) \experim{Weave}: two containers connected via \wnet . c) \experim{Encrypted}: two containers connected via encrypted \wnet\ overlay network.}\label{fig:latency-setup}
 \end{figure}
 
 In this test, latency was measured between two hosts connected over the Internet, both with and without container networking. A constant stream of ping messages was sent from one of the Raspberry Pis to the remote host. The tests were repeated with multiple payload sizes to factor in the influence of message size on round trip times. The Linux tool \emph{ping}, which pings hosts via ICMP Echo Requests and Replies, was employed for the measurements. 
 
-Three experiments were conducted, comparing the average latencies of plain, host-to-host communication ("\experim{Plain}"), via Weave Net ("\experim{Weave}") and when employing encryption over Weave Net ("\experim{Encrypted}") (\cf \autoref{fig:latency-setup}). \experim{Plain} was used as baseline on the basis of which the two consecutive experiments were evaluated. For each experiment and message size, 300 ping messages were sent. The sending peer would wait for the response of the previous message before sending another request. Thus, only one transaction was in flight at a time.
+Three experiments were conducted, comparing the average latencies of plain, host-to-host communication ("\experim{Plain}"), via \wnet\ ("\experim{Weave}") and when employing encryption over \wnet\ ("\experim{Encrypted}") (\cf \autoref{fig:latency-setup}). \experim{Plain} was used as baseline on the basis of which the two consecutive experiments were evaluated. For each experiment and message size, 300 ping messages were sent. The sending peer would wait for the response of the previous message before sending another request. Thus, only one transaction was in flight at a time.
 
 
 \paragraph{Results.} 
 
-\autoref{fig:latency-relative} depicts the absolute and relative latency measures of the tested network modes. Values represent the average round trip time of the 300 sent messages. The relative overhead is calculated from ratio of \experim{Weave} and \experim{Encrypted} when compared to \experim{Plain}, respectively. The results show that the network latency induced by Weave Net (without encryption) is hardly measurable and therefore negligible. Message size has no influence whatsoever in this comparison. 
+\autoref{fig:latency-relative} depicts the absolute and relative latency measures of the tested network modes. Values represent the average round trip time of the 300 sent messages. The relative overhead is calculated from ratio of \experim{Weave} and \experim{Encrypted} when compared to \experim{Plain}, respectively. The results show that the network latency induced by \wnet\ (without encryption) is hardly measurable and therefore negligible. Message size has no influence whatsoever in this comparison. 
 
 
 \begin{figure}[htpb]
@@ -82,7 +82,7 @@ Three experiments were conducted, comparing the average latencies of plain, host
   \caption[Latency overhead]{Absolute (a) and relative (b) latency overhead of \experim{Weave} and \experim{Encrypted} over \experim{Plain}}\label{fig:latency-relative}
 \end{figure}
 
-However, the tests revealed that encryption over Weave Net (\experim{Encrypted}) adds quite a hefty base overhead which further increases with message size. For the smallest messages the overhead started at roughly 5\% and went up to over 15\% for messages with 30 KB payload. The encryption overhead may therefore be considered significant.
+However, the tests revealed that encryption over \wnet\ (\experim{Encrypted}) adds quite a hefty base overhead which further increases with message size. For the smallest messages the overhead started at roughly 5\% and went up to over 15\% for messages with 30 KB payload. The encryption overhead may therefore be considered significant.
 
 \begin{figure}[htpb]
   \centering
@@ -90,7 +90,7 @@ However, the tests revealed that encryption over Weave Net (\experim{Encrypted})
   \caption[Latency deviation]{Standard deviation of latencies in the scenarios \experim{Plain}, \experim{Weave} and \experim{Encrypted}}\label{fig:latency-stdev}
 \end{figure}
 
-Another insight worth mentioning is that Weave Net added significant deviations in latency that increased with message size (\cf \autoref{fig:latency-stdev}). Whether the connection was encrypted or not made little difference. Real-time systems need to behave in a predictable manner. The experiments show that routing traffic through overlay networks had a substantial, negative impact on predictability of the communication channel. From the viewpoint of real-time systems this is a serious drawback of the presented approach. 
+Another insight worth mentioning is that \wnet\ added significant deviations in latency that increased with message size (\cf \autoref{fig:latency-stdev}). Whether the connection was encrypted or not made little difference. Real-time systems need to behave in a predictable manner. The experiments show that routing traffic through overlay networks had a substantial, negative impact on predictability of the communication channel. From the viewpoint of real-time systems this is a serious drawback of the presented approach. 
 
 
 
@@ -174,7 +174,7 @@ In the process of sending data, a failure of \proda\ is simulated by abruptly sh
 
 \proda\ and \cons\ are deployed as individual applications on two of the Raspberry Pis. \prodb\ is deployed on the remote host. All communication goes through an encrypted Weave network spanning over the LAN and the cloud.
 
-\todo[inline]{which QoS settings were used? how many test runs were conducted?}
+\todo[inline]{which QoS settings were used? how many test runs were conducted? Describe how clocks are synchronized between the two producing services}
 
 
 
@@ -211,12 +211,14 @@ In the process of sending data, a failure of \proda\ is simulated by abruptly sh
 
 The benchmarks in the previous sections demonstrated that the approach to cloud connectivity presented in this thesis is fully functional. However, there are some limitation that need to be addressed.
 
-Firstly, Weave Net is not designed to be used in safety critical systems. On their website, Weaveworks make no statement about any certification efforts that make the software suitable for the use in safety-critical systems. Thus, for the time being, the given approach may only find applicability for non-safety critical functions, \eg in the context infotainment systems. However, it may be added that Weave Net is Open Source, and as such, all underlying technologies and concepts are disclosed. Thus, it is feasible to implement a thoroughly verified version of Wave Net tailored towards safety-critical systems.
+Firstly, \wnet\ is not designed to be used in safety critical systems. On their website, Weaveworks make no statement about any certification efforts that make the software suitable for the use in safety-critical systems. Thus, for the time being, the given approach may only find applicability for non-safety critical functions, \eg in the context infotainment systems. However, it may be added that \wnet\ is Open Source, and as such, all underlying technologies and concepts are disclosed. Thus, it is feasible to implement a thoroughly verified version of Wave Net tailored towards safety-critical systems.
 
 In the context of vehicles, safety is inherently connected to the software system's security. Hence, proper methods are required to ensure the system's authenticity, confidentiality, integrity and privacy properties. The presented approach was not tested regarding these attributes. A rigor security analysis is needed to be able to make a well-founded statement about its aptitude.
 
 It may also be noted that the Docker images presented in this thesis are by no means production ready. Although there was an effort to minimize the size of the images, in real scenarios, images would be shaved down to the bare minimum, both in terms of size and capabilities. Utilities such as compilers, build tools and generally everything which is not a prerequisite to execute a given service would be removed. The images used in this thesis serve the purpose of demonstration and thus, such measures were not taken to ensure a rapid progression of this work. More time would be needed to optimize the images for production use.
 
+
+How can customer specific services be created? Currently, all services for all customers are running in the same data center. Sensitive data may leak... How about DDS domains?
 
 %
 %

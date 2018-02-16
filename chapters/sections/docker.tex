@@ -1,0 +1,50 @@
+
+\section{Containerization with Docker}
+
+In recent years, container technology has gained widespread adoption in the software development world. By greatly simplifying the software deployment—and development workflow, containers have become a cornerstone of successful software architectures.
+Considering their advantages over hypervisor-based virtualization, such near native performance, sub-second boot times \cite{felter2015updated}\cite{morabito2015hypervisors} and minimal disk space usage, containers bring qualities to the table that are relevant specifically to embedded systems.
+Containers are independent units of deployment containing everything a particular application needs to run from system libraries, tools, and runtimes to application specific settings. 
+Akin to hypervisor-based virtualization, Linux containers aim to provide isolated, self-contained execution environments for applications that may be moved freely between hosts without affecting the application’s behavior.
+
+Unlike traditional virtual machines, however, applications in containers run on non-virtualized hardware, and thereby, with minimal performance overhead when properly configured \cite{felter2015updated}\cite{morabito2015hypervisors}. This is of interest particularly in the field of embedded systems where resource constraints are prevalent.
+Enabled by the concept of \emph{kernel namespaces}, multiple containers may run on the same host at the same time without affecting one another, or even having knowledge of each others existence. 
+Namespaces wrap a set of system resources and present them to the container process as if they were dedicated to it. Each aspect of a container runs in its own namespace and its access is limited to that namespace. Hence, a level of isolation is achieved that was previously only possible with virtual machines. The only thing containers share is the host’s OS kernel, and optionally, parts of the file system.
+
+To which extent a container may use the host system's resources is controlled through a mechanism called \emph{cgroups}, which is shorthand for \emph{control gorups}. 
+Cgroups is a Linux kernel feature that allows to limit the resources availabe to a group of processes. Containers, effectively being groups of processes, may therefore be alloted a certain amount of computing resources. This allows for fine-grained control over the resource utilization of individual containers running on a host system.
+
+Docker \cite{DockerWebsite} is undoubtably the most prominent container technology and arguably the first one to make Linux containers accessible for general use. 
+
+\subsection{Docker Images}
+Unique to Docker is its approach to container images. Images may be seen as the ``blueprint'' on the basis of which containers are built. 
+Images are implemented utilizing UnionFS, a Linux service that facilitates the layering of different file systems atop each other. 
+Leveraging this technology, Docker images are made of layers, with each layer adding to, or modifying, the respective underlying layer. 
+A benefit of this approach is that individual layers may be shared and reused in other containers, thereby saving tremendous amounts of disk space compared to traditional VM images.
+
+\subsection{Dockerhub}
+
+\subsection{Docker Networking}
+
+
+% https://thenewstack.io/container-networking-breakdown-explanation-analysis/
+
+\emph{libnetwork}
+
+Docker provides several methods to create network links between containers.  
+
+
+
+\paragraph{Bridge.} By default, \docker\ connects containers via a Linux bridge. Bridges are host-internal network interfaces. Through \texttt{iptables} functions like NAT\footnote{Network Address Translation} and port mapping are facilitated.
+
+\paragraph{Host.} A Container in \emph{host} mode takes over the network interface of the host system. Therefore, all capabilities that that the host system possesses also apply to that container. A disadvantage of this is that only one container may run on a given host at any time.
+
+\paragraph{Overlay.} 
+Overlay networks \cite{tarkoma2010overlay} are ...
+VXLAN as tunneling technology.
+Serf as gossip protocol.
+Implementations: flannel.
+Benefits: Cross cloud connectivity, no public ports.
+
+\paragraph{Underlay.}
+MACvlan: Separate MAC and IP address assigned to each container. Eliminates the need for bridges and NAT, making it performant. Containers are entirely isolated from the host, increasing security.
+IPvlan: Similar to MACvlan but instead of having one MAC address per container, all containers on a host share the same address. This works around a common security measure in network switches to prohibit the use of multiple MAC addresses per physical port.
