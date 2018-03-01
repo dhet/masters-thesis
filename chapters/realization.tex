@@ -109,9 +109,11 @@ DDS is a promising candidate for a middleware that fulfills requirements to a sa
 \paragraph{Platform Independence.}
 
 
-\subsubsection{Failover Mechansim}
+\subsubsection{Failover Mechanism}
 
-The failover mechanism is driven by DDS. When DDS "observes" that a given service is unresponsive it automatically instructs another service to take over, provided that one exists. This mechanism is realized via the QoS policies \ownership , \ostrength\ and \liveliness\ . 
+DDS has ways to ensure reliable communication, even over unreliable transmission channels. For example, it allows for the realization of a failover mechanism which allows a failed service to be replaced by a backup service in a smooth and performant fashion. 
+
+When DDS "observes" that a given service is unresponsive it automatically instructs another service to take over, provided that one exists. This mechanism is realized via the QoS policies \ownership , \ostrength\ and \liveliness\ . 
 
 By assigning a topic the \ownership\ value "\qos{exclusive}" one can specify that only a single data writer may write to that topic at any given time. Which data writer is given that prerogative is determined by the data writer's \ostrength\ value. The data writer that possesses the higher value is eligible to write to the topic.
 
@@ -119,8 +121,6 @@ By assigning a topic the \ownership\ value "\qos{exclusive}" one can specify tha
 
 \ownership\ can be combined with \liveliness\ to realize a failover mechanism.
 \todo[inline]{how exactly?}
-
-In the following an example is given describing how this failover meachnism was leveraged in a cloud scenario.
 
 
 \subsubsection{DDS for Automotive Systems}

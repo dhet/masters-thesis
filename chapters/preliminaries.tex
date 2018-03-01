@@ -16,8 +16,8 @@ there are open groups, which every node may join, and closed groups, which emplo
 
 The recent trend to connect vehicles to the cloud adds another dimension to their distributed nature.
 
-\subsection{Communication}
-A requirement for distributed applications is the need to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. Although communication is a prime example of a middleware's use case, there are many other important concepts for which middlewares exist, \eg , transaction management, service composition and to ensure reliability. The primary goal of middlewares is to abstract away such concepts so that programmers can focus on implementing business logic and shipping features, instead of having to deal with the underlying specifics. Middlewares are implemented as a software layer that sits between operating system and the actual applications. They are often included in the form of libraries that make the middleware's functionality available to the programmers by means of an Application Programming Interface (API).
+\subsection{Middlewares}
+A requirement for distributed applications is the need to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. Although message passing is a prime example of a middleware's use case, there are many other important concepts for which middlewares exist, \eg , transaction management, service composition and to ensure reliability. The primary goal of middlewares is to abstract away such concepts so that programmers can focus on implementing business logic and shipping features, instead of having to deal with the underlying specifics. Middlewares are implemented as a software layer that sits between operating system and the actual applications. They are often included in the form of libraries that make the middleware's functionality available to the programmers by means of an Application Programming Interface (API).
 
 
 \subsection{Distribution Transparency}
@@ -71,16 +71,6 @@ An overlay network is a logical network which connects peers in a peer-to-peer n
 
 
 Examples of overlay networks are VPNs, Peer-to-peer (P2P) networks and voice over IP (VoIP)
-
-
-
-
-\section{Communication}
-
-
-What makes PubSub especially attractive?
-PubSub enables loose coupling. No apriori knowledge of communication partners required. Hardware independence: Services may be migrated between computing nodes. Abstraction of underlying infrastructure is important.
-No startup dependencies: The order in which services finish initializing is irrelevant. Especially important with ephemeral services.
 
 
 \input{chapters/sections/dds}
