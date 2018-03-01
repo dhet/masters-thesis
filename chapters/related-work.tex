@@ -1,5 +1,7 @@
 \chapter{Related Work}\label{chapter:related-work}
 
+\paragraph{Similar Approaches}
+
 In their paper, \citeauthor*{berger2017containerized} \cite{berger2017containerized} describe their experiences of employing containerization in the context of self-driving vehicles. 
 In accordance with the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services deployed on distributed nodes within the vehicle. The services are connected via \emph{OpenDaVINCI}\footnote{code.opendavinci.org}, a real-time capable middleware for publish-subscribe communication. This approach is very similar to the one proposed in this thesis in that communication is based on multicast over a middleware. However, their approach lacks cloud connectivity. The authors furthermore struggle to get multicast to work over Docker overlay networks -- a problem that was solved in this thesis. 
 
@@ -15,11 +17,19 @@ In accordance with the microservice architecture pattern, vehicular functionalit
 %
 %
 
-\citeauthor*{schneider2016achieving} \cite{schneider2016achieving} also use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that cars may connect to. Their approach does not consider the use of microservices within the vehicle and is described in rather vague terms.
+\citeauthor*{schneider2016achieving} \cite{schneider2016achieving} also use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that cars may connect to. Their approach does not consider the use of microservices within the vehicle and is generally described in rather vague terms.
 
 %
 %
 %
+
+\paragraph{DDS over SDN}
+
+\citeauthor*{hakiri2015publish} \cite{hakiri2015publish} devise a system to interconnect IoT devices via DDS over an overlay network. However, the description of their approach lacks details and no real effort were made to evaluate it.
+
+
+
+\paragraph{Docker specific}
 
 Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) is \citeauthor*{kratzke2017microservices}'s paper \cite{kratzke2017microservices} on the performance impact of using encrypted overlay networks for Linux containers on top of hypervisors. This setup -- containers atop hypervisors -- is very common in cloud scenarios as IaaS providers often provision servers in the form of virtual machines. This is also the case for the test setup described in this thesis. The author concludes that containers add a non-negligible impact on networking performance. In Weave Net-based overlay networks, the performance is further impaired. A minimal impact was observed when using encryption.
 
@@ -27,7 +37,19 @@ Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) i
 % argues that weave would be faster if the weave routers weren't packaged in containers
 
 
-\section{Adaptive AUTOSAR}
+\paragraph{DDS + Virtualization}
+\cite{serrano2013virtualizing}: Virtualizing DDS middleware: performance challenges and measurements
+
+\cite{perez:gutierrez:ieeetpds16}: Enabling Data-Centric Distribution Technology for Partitioned Embedded Systems... DDS on top of hypervisor
+
+\cite{garcia2013benchmarking}: Benchmarking communication middleware for cloud computing virtualizers. Test performance overhead of hypervisors for DDS as well as the performance overhead of DDS compared to ICMP packets
+
+\paragraph{Publish-Subscribe in Embedded Systems}
+
+\cite{bouhouch2013dds}: DDS on top of FlexRay
+
+\cite{sommer2013race}: RACE: A centralized Platform computer based architecture for automotive applications
+
 
 Adaptive AUTOSAR's underlying messaging middleware is \emph{SOME/IP}
 
@@ -43,3 +65,16 @@ Network representation and internal representation are similar to allow for fast
 Supports TCP and therefore bandwidth intensive streams.
 
 Supports several communication models: request/response, async, events, "field", event groups (PubSub)
+
+
+\paragraph{Cloud}
+\cite{greenberg2008cost}: The cost of a cloud: research problems in data center networks
+
+Insights: location-independent addressing is a major design objective
+
+
+
+
+\cite{wang2010impact}: The impact of virtualiztion on network performance.
+
+The authors perform networking benchmarks on Amazon EC2 instances and find that virtualization and processor sharing heavily impacts networking performance. In particular, network delay and TCP/UDP throughput suffers drastically.

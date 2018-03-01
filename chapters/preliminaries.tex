@@ -5,23 +5,48 @@
 
 \section{Distributed Systems}
 
-"A distributed system is a collection of autonomous computing elements that appears to its users as a single coherent system" \cite{tanenbaum2017distributed}
+Control systems in modern vehicles are typically implemented as a collection of dozens, if not hundreds, of Electronic Control Units (ECUs) dispersed within a vehicle. There are several reasons why dispersion is preferable over a centralized approach. By bringing ECUs closer to the sensors and actuators they control, wiring effort is kept low, which results in low message transmission latencies, decreased weight, and improved error-proneness. 
+
+Such E/E-Architectures\footnote{Electric/Electronic}, being comprised of a large number of distributed, connected sensors, actuators and control units, fall into the category of \emph{distributed systems}. The term "distributed system" entails many things and just as many definitions of the term exist. A definition that most would agree upon is the one given by \citeauthor*{tanenbaum2017distributed}: "A distributed system is a collection of autonomous computing elements that appears to its users as a single coherent system" \cite{tanenbaum2017distributed}.
+
 
 made up of a number of hardware devices and/or software processes called \emph{nodes}
 
 there are open groups, which every node may join, and closed groups, which employ an authorization mechanism to control access.
 
-\emph{Distribution transparency}: See Tanenbaum section 1.2
+The recent trend to connect vehicles to the cloud adds another dimension to their distributed nature.
 
-A requirement for distributed applications is the need to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. 
+\subsection{Communication}
+A requirement for distributed applications is the need to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. Although communication is a prime example of a middleware's use case, there are many other important concepts for which middlewares exist, \eg , transaction management, service composition and to ensure reliability. The primary goal of middlewares is to abstract away such concepts so that programmers can focus on implementing business logic and shipping features, instead of having to deal with the underlying specifics. Middlewares are implemented as a software layer that sits between operating system and the actual applications. They are often included in the form of libraries that make the middleware's functionality available to the programmers by means of an Application Programming Interface (API).
 
 
-How are cars distributed systems?
+\subsection{Distribution Transparency}
+
+
+
+\subsection{Cloud Computing}
 
 \paragraph{Challenges} In a distributed system, single parts may fail while others keep functioning properly.  This may lead to unexpected behavior.
 
 
 \section{Real-time Systems}
+
+\section{Safety-critical Systems}
+A system is considered emph{failed} when it cannot meet its promises. [Tanenbaum, S 426]
+
+An \emph{error} may lead to system failure.
+
+A \emph{fault} is the cause of an error. Faults can be caused by bugs in the software or unforeseeable circumstances. Some faults are avoidable and some are out of the control of the system developers. Nevertheless, all faults need to be dealt with.
+
+A \emph{transient fault} is one that affects the system temporarily and can be circumvented by repeating the same operation.
+
+An \emph{intermittent fault} occurs on and off, seemingly out of nowhere, without being reproducible .
+
+A \emph{permanent fault} is one that persists until the root of the fault is found and repaired.
+
+\emph{Fault tolerance} is a systems ability to continue operation, even in the presence of faults.
+
+Failure masking by redundancy: three types: information r. (hamming code), time r. (repeat error), physical r. (redundant processes or hardware)
 
 
 \input{chapters/sections/docker}
@@ -30,26 +55,28 @@ How are cars distributed systems?
 
 \subsection{Multicast}
 
-No hard-coded addresses
+In distributed systems, information frequently needs to be propagated to multiple receivers simultaneously. This kind of communication is called \emph{multicast}.
+
+benefits: No hard-coded addresses
+
+Multicast can be implemented on both, network and application-level.
+
+Support for multicast in WANs is rather limited.
 
 
-\input{chapters/sections/weave}
+
+\subsection{Overlay Networks}
+
+An overlay network is a logical network which connects peers in a peer-to-peer network. Naturally, in order to enable information exchange, overlay networks require a substrate physical network over which data can be transmitted. The important thing is that overlay networks are entirely, or in part, decoupled from the physical infrastructure such that both networks may evolve (change topology) independently without affecting one another. As opposed to physical networks, which connect \emph{physical machines}, overlay networks connect \emph{processes}. There are two types of overlay networks: \emph{structured} and \emph{unstructured} overlay networks. In the former, peers are organized in a specific, deterministic manner, such that each node has its firm place and an immutable set of neighbors. Unstructured overlay networks, on the other hand, allow the topology to change dynamically. In order for this to work, each node maintains an ad-hoc list of neighbors that is to be updated continuously \cite{tanenbaum2017distributed}. In the context of this thesis, unstructured overlay networks are of particular interest due to the dynamic nature and the reliability characteristics of mobile systems.
 
 
-\section{Continuous Integration and Delivery}
+Examples of overlay networks are VPNs, Peer-to-peer (P2P) networks and voice over IP (VoIP)
+
 
 
 
 \section{Communication}
 
-What has been discussed so far is what services are and how they can be implemented. One question that remains is how they are connected. 
-
-Which communication patterns are there?
-
-push vs. pull,
-unicast vs. multicast
-synchronous vs. asynchronous
-centralized vs. decentralized
 
 What makes PubSub especially attractive?
 PubSub enables loose coupling. No apriori knowledge of communication partners required. Hardware independence: Services may be migrated between computing nodes. Abstraction of underlying infrastructure is important.

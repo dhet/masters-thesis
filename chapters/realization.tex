@@ -1,58 +1,230 @@
 
-\chapter{Realization}\label{chapter:realization}
+\chapter{Approach}\label{chapter:realization}
 
-In this section, a detailed description is given how the envisioned system was realized.
+In this chapter, a novel approach to enable cloud connectivity for automotive software systems is presented. The method follows a service-oriented architectural paradigm whereby functionality is split into a number of independent services connected via a messaging middleware.  
+The crux of the presented approach is that services may be deployed on ECUs within the vehicle as well as within remote data centers. At the same time, communication between the services is not affected in any way. \Ie , from the viewpoint of a service deployed within the vehicle it doesn't matter whether a peer service is deployed in the same vehicle or in a remote data center -- the way they communicate is exactly the same.
 
-By combining DDS with an overlay network, a coherent distributed system \cite{tanenbaum2017distributed} was built, that from the viewpoint of each individual component, appears to be non-dispersed.
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+\section{Objective}
+
+Goals:
+\begin{itemize}
+\item Offload computations to the cloud
+\item Run the same functions within vehicle and in the cloud
+\item Must deal with spotty reception
+\item Therefore: Seamless switch between cloud and on-board
+\item System needs to be modular to allow for fine-grained control over which functionality is offloaded 
+\item provide high degree of distribution transparency
+\end{itemize}
 
 
 \section{Requirements}
+Dependable systems [Kopetz, Verissimo]: Availability, Reliability, Safety, Maintainability
+
+\paragraph{Availability.}
+Availability states how likely it is that, at any given point in time, a system is ready to be used by its users \cite{tanenbaum2017distributed}. The period in which a system or service is unavailable is called \emph{downtime}. Sources of downtime can be, \eg , maintenance work, temporary congestion, or any kind of failure. A design goal when building and running software systems is to minimize downtime, and thereby maximize availability. This goal is not trivial to achieve as many sources of decreased availability are hard to predict, \eg\ in case of hardware failures. A key technique for handling downtime is redundancy, whereby critical systems, or those susceptible to downtime, have a replacement ready to be used at all times. A prerequisite for redundancy to take effect is that the system features quick failure detection and smooth transition mechanisms so that it can quickly reroute requests to the redundant service.
+
+\paragraph{Reliability.}
+Reliability states how long a system can run without failure. A reliable system is available for prolonged periods of time without interruption. Although reliability is related to availability, there is a clear distinction between the two. While reliability states a continuous period of operability, availability concerns operability at a given point in time. For example, a system that works fine most of the time but becomes unavailable for a few milliseconds every hour is highly available, but not reliable. Hence, a highly reliable system is not necessarily a highly available one and vice versa \cite{tanenbaum2017distributed}.
+
+In real-time systems, even a temporary failure could have disastrous effects. If the system is a hard real-time system, a single missed deadline is even equivalent to a complete system failure. Ensuring reliability is therefore of utmost importance. As with availability, a way to mitigate the effects of poor reliability is redundancy.
+
+Special precautions need to be taken for \emph{distributed} systems as their communication channels are inherently unreliable\todo{reference fallacies of DS}. In practice, this means that the messaging system needs to provide guarantees for a timely and robust message delivery. In addition, certain assurances must be given, \eg , that messages are delivered in order or that every message is delivered only once \cite{o2007quality}. 
+
+\paragraph{Safety.}
+The safety of system states how resilient \wrt\ failures it is, and in case a failure occurs, how well it can handle it. A safe system manages to protect the health and wellbeing of humans involved in the operation of the system and its surrounding bystanders.
+As human lives are at stake in road traffic environments, vehicles are a prime example of systems that need to be safe.
+
+Critical functions need to operate in a fail-operational fashion, \ie , in case they fail, the situation needs to be handled gracefully, without putting the passengers in danger. To this end, special precautions need to be taken throughout the whole process of development, provisioning, operation, and service of functions. ISO 26262 provides the standards that vehicular E/E systems need to adhere to in order to fulfill the necessary safety requirements. Different parts of the system need to be compliant to different classes of safety, indicated by automotive safety integrity levels (ASILs).
+
+\paragraph{Interoperability.} 
+In systems composed of a number of heterogeneous components that interact with each other, there needs to be a common set of rules and semantics that all involved parties must comply with. If such rules exist, so that diverse components may interact with each other, they are said to be interoperable.
+A major barrier to interoperability is vendor lock-in, or more general, platform lock-in. Lock-in describes a situation in which a technology is rooted so deep within the system that it can barely be removed without considerable effort. Lock-in is detrimental to system design as it creates dependencies, and thus, enforces tight coupling. A way to achieve a high degree of interoperability is to avoid proprietary, closed-source solutions and to favor open standards instead.
 
 
+\paragraph{Security.}
+In road traffic, IT security has direct implications for safety. Since safety is of utmost importance the same is true for security. Within a vehicle, it is assumed that services can trust each other. However, out in the open, this assumption does not hold. In the light of the continuous trend towards connected cars, services (and the communication between them) are increasingly exposed to the public. An SOA therefore needs to employ state-of-the-art security measures to ensure availability, integrity, authenticity, and confidentiality of the system.
+
+\paragraph{Performance.}
+Services in an automotive SOA are deployed on embedded computing devices that must fulfill real-time requirements. This is in stark contrast to services in traditional SOAs that often run on high performance machines. The resource constrained nature of embedded systems requires special operating systems, communication technologies and programming techniques.
+
+\paragraph{Extensibility.} 
+It must be easily feasible to extend an SOA with new services and to update existing ones. The provisioning of new functionality must be possible not only at design-time but also at run-time. Modern automotive software architectures must deal with the fact that vehicular functions may be modified, added, or unlocked at run-time through automatic software updates.
+
+\paragraph{Adaptability.}
+Services deployed in a moving vehicle are exposed to a rapidly changing environment. Systems may unexpectedly fail, e. g. due to external forces. Automotive E/E architectures must be able to quickly react to such circumstances. Furthermore, services should be portable to facilitate repartitioning. For this reason they must adapt to run on different hardware platforms.
+
+\paragraph{Testability.}
+There are many ways in which a distributed system may break. Since operational safety is of paramount importance in automotive, testability is a key requirement. Components of an SOA must be testable in isolation as well as in interplay with other components. For this purpose, modern software development employs continuous integration tools that help to continually validate the correctness of a system throughout the whole development cycle. Automotive E/E architectures need to be adapted to make it feasible to employ such development practices.
 
 
-\section{Service-oriented Architecture using DDS}
+\paragraph{Scalability.}
+Computational load is rarely constant. A vehicle moving in a changing physical environment may be succumbed to rapidly changing computational demands, \eg , a lidar (light detection and ranging) may produce much less relevant data on an open highway than on a busy urban road. A modern automotive SOA must be able to cope with this, \eg\ by elastically outsourcing computationally expensive functions to the cloud (repartitioning). Similarly, the messaging system must allow for the easy addition of components without negatively affecting performance.
 
-\subsection{Separation of User Data}
+\section{Concept}
+
+\begin{itemize}
+\item Virtualization to provide platform independent execution environment
+\item Overlay networks and SDN for networking and to provide location transparency
+\item Service-oriented architecture as a way to promote fine-grained control and reusability
+\item Middleware that guarantees reliability
+\item Publish-Subscribe to promote location transparency
+\end{itemize}
+
+Modeling as SOA 
+
+Services are independent units... Limited in terms of knowledge (location and topology) and capabilities (principle of least privilege)
+
+
+Why cloud? Because cloud computational power is a lot cheaper than for on board computers
+
+
+\section{Realization}
+
+
+\subsection{DDS as Messaging Middleware}
+
+DDS is a promising candidate for a middleware that fulfills requirements to a satisfying degree.
+
+\paragraph{Dynamic Service Discovery.}
+
+\paragraph{Data Centricity.}
+
+\paragraph{Asynchronous Messaging.}
+
+\paragraph{Location Transparency.}
+
+\paragraph{Decentralization.}
+
+\paragraph{Platform Independence.}
+
+
+\subsubsection{Failover Mechansim}
+
+The failover mechanism is driven by DDS. When DDS "observes" that a given service is unresponsive it automatically instructs another service to take over, provided that one exists. This mechanism is realized via the QoS policies \ownership , \ostrength\ and \liveliness\ . 
+
+By assigning a topic the \ownership\ value "\qos{exclusive}" one can specify that only a single data writer may write to that topic at any given time. Which data writer is given that prerogative is determined by the data writer's \ostrength\ value. The data writer that possesses the higher value is eligible to write to the topic.
+
+\liveliness\ is used to determine whether a data writer or data reader is "alive", \ie , responsive. For data writers, it is sufficient that it writes within a specified time interval in order to be considered "alive". For data readers, on the other hand, there are several ways in which it can signal liveliness. One way is to send continuous "heartbeat" messages.
+
+\ownership\ can be combined with \liveliness\ to realize a failover mechanism.
+\todo[inline]{how exactly?}
+
+In the following an example is given describing how this failover meachnism was leveraged in a cloud scenario.
+
+
+\subsubsection{DDS for Automotive Systems}
+
+Automotive software systems have previously relied -- and, to some degree, will continue to do so -- on low-level, low-bandwidth transport protocols such as CAN, LIN, etc. For the longest time, networks stacks based on those protocols were sufficient to meet the basic requirements of delivering vehicular sensor data and x-by-wire functions. However, driven by the emergence of innovative functions, the demands for vehicle intrinsic networks are skyrocketing. In particular, more and more sensor data from increasingly bandwidth-hungry sensors, such as cameras and LIDARs is feeding into advanced systems such as ADAS. At the same time, these functions require computational capabilities that go way beyond of what is possible with the microcontrollers typically used in traditional ECUs. High-performance computer systems based on high-level operating systems are needed to meet the new requirements.
+
+A new generation of low-level network protocols found their way into the vehicle. One of these is FlexRay. \citeauthor*{bouhouch2013dds} have shown \cite{bouhouch2013dds} that DDS is indeed a suitable middleware to be used in vehicular networks.
+
+
+DDS is designed for resource constrained real-time applications such as sensor networks or industrial automation.
+
+DDS allows to configure how much of a system's resources an DDS-enabled application may use. Consequently, it is the middleware's responsibility to allocate resources as needed while still staying within the specified boundaries. At the same time, priorities aligning with the application's QoS settings need to be considered. DDS takes this burden off the programmer's shoulders.
+
+Predictable
+
+
+\subsubsection{Separation of User Data}
 
 The presented approach relies on a single cloud infrastructure, while at the same time, a vast number of customers need to be served. This poses a challenge concerning the separation of data. Confidentiality and privacy of user-specific application data must be preserved. Similarly, the result of a computation commissioned by a specific vehicle must be returned to exactly that vehicle, and no one else. 
 
 Gladly, DDS offers a solution to this. In DDS, topics are not restricted to a single domain, \ie , they may be reused in multiple domains. If, \eg , a publisher belongs to \texttt{Domain $\alpha$} and publishes data on \texttt{Topic A}. Then, a data reader that reads from \texttt{Topic A} but belongs to \texttt{Domain $\beta$} may not read the data. Therefore, through domains, the same application may be reused several times, while keeping topic data separate. This principle is take advantage of in the presented approach: Domains are used to separate user data, such that for each user there is one user-specific domain.
 
 
-\section{Docker}
 
-\section{Multi Platform Compatibility}
 
-The main purpose of containerization is to build portable execution environments that may run on a broad range of systems. Generally speaking, portability of containers is restricted to software compatibility, \ie , containers may run on a variety of different operating systems. However, since containerized applications run directly on the kernel of the host system -- and do not employ virtualization -- they are not portable between different hardware architectures. \Ie , applications packed in containers are not binary compatible. For instance, given an application that was built to run on a x86-based processor and packaged in a container. The same container will not run on a different processor, \eg\ one which is ARM-based. This poses a challenge for the approach at hand. Embedded systems are often based on particular hardware architectures which are tailored towards operation in resource constrained environments. Computing nodes in a data centers, on the other hand, are typically based on architectures aimed at providing a maximum level of performance, such as x86. Given that the envisioned scenario exactly matches this use case, this problem is of particular interested for this thesis.
+\subsection{Docker as Containerization Platform}
+
+
+\subsubsection{Multi Platform Compatibility}
+
+The primary purpose of containerization is to build portable execution environments that may run on a broad range of computing systems. Generally speaking, portability of containers is restricted to software compatibility, \ie , containers may run on a variety of different operating systems. However, since containerized applications run directly on the kernel of the host system -- and do not employ virtualization -- they are not portable between different hardware architectures. \Ie , applications packed in containers are not binary compatible. For instance, given an application that was built to run on a x86-based processor and packaged in a container. The same container will not run on a different processor, \eg\ one which is ARM-based. This poses a challenge for the approach at hand. Embedded systems are often based on particular hardware architectures which are tailored towards operation in resource constrained environments. Computing nodes in a data centers, on the other hand, are typically based on architectures aimed at providing a maximum level of performance, such as x86. Given that the envisioned scenario exactly matches this use case, this problem is of particular interested for this thesis.
 
 Several approaches exist to tackle this problem. QEMU... This approach turned out to be unsuitable for the intended use case as multicast is not well supported by QEMU.
 
 
-\section{Continuous Integration Pipeline}
-
-
-\section{Rolling Updates via Weave?}
+\input{chapters/sections/weave}
 
 
 
-\section{Requirement Fulfillment}
+\subsection{Distribution Transparency}
 
-\paragraph{Scalable.}
+A high degree of distribution transparency is achieved while preserving a good amount of performance and comprehensibility.
 
-\paragraph{Fault tolerant.}
+Access transparency: DDS provides a uniform access to data through its reconstruction layer, even though the messages transmitted on the wire may look different.
 
-\paragraph{Interoperable.}
+location transparency: there is no notion of addressing. Services that provide data push it on a topic from where it gets distributed by the middleware to all concerned recipients.
 
-\paragraph{Secure.}
+relocation transparency: A service can be moved from one node to another seamlessly. Without having to take action proactively. This is achieved by DDS' ownership QoS.
 
-\paragraph{Performant.}
+migration transparency: can the system handle changing IP addresses?
 
-\paragraph{Extensible.}
+replication transparency: provided by DDS: again, through ownership QoS
 
-\paragraph{Adaptable.}
+failure transparency: by having multiple service instances running concurrently, one may take over in an instant in case the other one fails. In terms of DDS, there is no distinction between a failing service and a service that responds slowly. When a service doesn't fulfill QoS requirements it is considered "dead".
 
-\paragraph{Testable.}
+
+
+
+
+
+\section{Discussion}
+
+
+
+By combining DDS with an overlay network, a coherent distributed system \cite{tanenbaum2017distributed} was built, that from the viewpoint of each individual component, appears to be non-dispersed.
+
+\todo{bring list in correct order}
+\paragraph{Scalability.}
+When a Weave connection is interrupted it fails gracefully and reconnects as soon as connectivity is restored.
+
+\paragraph{Availability / Reliability.}
+Moving vehicles are are very likely to lose reception during operation, \eg , when navigating in remote areas or when driving through tunnels. At the center of the presented approach is cloud connectivity, and hence, reliability is a major concern. Thus, the approach was \emph{designed} to handle cases of unreliable communication channels.
+
+A prerequisite for handling reliability issues is fast failure detection and a quick fail-over mechanism so that timing requirements can be met and downtime is kept at a minimum. With its support for redundancy and failure detection, DDS promises exactly that. DDS' way of guaranteeing reliability communication is achieved by QoS policies. For failure detection, DDS employs a liveliness mechanism whereby services are either proactively, or reactively, probed for responsiveness. If a service fails to meet the demand, it is declared "dead". In such cases, fallback services may be elected as (temporary) replacement. As soon as the original service's operability restored, it may take over operation again.
+
+\wnet 
+
+\paragraph{Security.}
+\wnet 's overlay network employs IPSec-based security using state-of-the-art encryption algorithms, so that secure transmission can be ensured even over insecure channels such as the Internet.
+
+
+There are concerns that \docker\ doesn't provide enough isolation  
+The most important method to keep a system secure is to allow for fast and reliable updates. \docker\ promises exactly that.
+
+The security requirement is partly fulfilled.
+
+\paragraph{Performance.}
+DDS offers high throughput, Docker incurs minimal overhead, Weave adds reasonable overhead
+
+\paragraph{Extensibility.}
+
+\paragraph{Adaptability.}
+Location transparency is given by both, \wnet , and DDS.
+
+\paragraph{Testability.}
+
+
+\paragraph{Interoperability.}
+The whole approach is based on containerization as means to achieve a maximum of interoperability. In fact, interoperability is one of its main selling points. \docker\ was used as containerization technology, which allows software to run on any platform that possesses a container engine and has a kernel -- a requirement that is not hard to come by. Additionally, in recent years, efforts to standardize and unify container technologies were launched. Driven by the \emph{Open Container Initiative} (OCI), standards aimed at providing interoperability between containerization technologies were created. Thus, there is no vendor lock-in for \docker .
+
+Weave runs entirely within \docker\ containers. As a consequence, and unsurprisingly, it may run on any platform which is capable of running \docker\ containers. However, Weave is specifically built to work with Docker, and a great deal of modifications to the software would be needed to make it work with other technologies. Hence, vendor lock-in is present. Consequently, in order to swap \docker\ with a competing containerization tool, one would have to drop \wnet\ from the approach. Similarly, when deciding to go without any sort of containerization, Weave could not be used anymore.
+
+Setting containerization aside, the chosen messaging middleware offers decent interoperability support. DDS' wire protocol, DDSI/RTPS, ensures that applications which use DDS implementations from different vendors may communicate with each other. Hence, interoperability is given -- at least within the realm of DDS. 
+\todo{Dependency on network stack? Which network stacks does DDS run on?}
 
 
 

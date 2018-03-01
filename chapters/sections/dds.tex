@@ -1,9 +1,6 @@
 \section{Data Distribution Service}
 
-DDS is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-tme requirements. As such, it aims to function in a resource efficient and predictable manner, succumbing to minimal computational and transport overhead.
-
-Specifies an API by which a distributed application can pass data over DCPS. 
-
+DDS is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-tme requirements. As such, it aims to function in a resource efficient and predictable manner, and is subject to minimal computational and transport overhead.
 
 
 DDS is built around the data-centric publish-subscribe paradigm.
@@ -13,17 +10,29 @@ In the publish-subscribe paradigm, two kinds of peers are present: publishers an
 For example, given a temperature sensor offering temperature measurements in a publish-subscribe setting. A subscriber that is interested in that data only knows that it wants to receive \emph{temperature data} while at the same time being entirely oblivious to the concept of \emph{temperature sensors}. 
 Since publishers and subscribers have no references to one another, and know as little of each other as possible, a high level of loose coupling is achieved. This allows for a simple extension of the system, making it extraordinarily scalable.
 
-By abstracting away the source of data, a \emph{virtual global data space} is created. Each component connected to the system views data as if it were available in a local storage, when in reality, it is distributed.
+By abstracting away the source of data, a virtual \emph{global data space} is created. Each component connected to the system views data as if it were available in a local storage, when in reality, it is distributed among many peers.
 
 
 \paragraph{Programming Interface.}
+Specifies an API by which a distributed application can pass data over DCPS. 
+
+
 The DDS specification is split into two separate sections. The main one, which is concerned with \emph{Data-Centric Publish-Subscribe} (DCPS), defines a low level API that enables applications to communicate via DDS. The second part revolves around a \emph{Data Local Reconstruction Layer} (DLRL). DLRL sits on top of DCPS and is optional. The purpose of DLRL is to provide typed interfaces to the messaging layer, \ie , the delivered messages are conceived in a format suitable for direct processing in the application--without the need to check the message's format. More precisely, DCPS performs a transformation of the unprocessed messages into language-specific data types. With the aid of DLRL, type-safety of communication is ensured and verification can be performed at compile-time, thereby reducing the application's error-proneness.
 
 
-\paragraph{Wire Protocol.}
-At the base of DDS, there is a wire protocol deliberately tailored to DCPS-style communication: Real-time Publish-Subscribe (RTPS). Although RTPS is related to DDS, its specifics are outsourced in a separate standard. \cite{rtps-2.2-standard}
+\paragraph{Decentralization.}
+No single point of failure. No information brokers. no name servers.
 
-Goals: provide platform independent means of communication to make DDS implementations interoperable.
+\paragraph{Wire Protocol.}
+The DDS standard does not dictate a wire protocol. DDS implementations may therefore utilize UDP, TCP and other protocols to exchange messages. This leaves room for ambiguity in the standard. As a result, DDS implementations are by default not interoperable. For this reason, a new wire protocol was devised: DDSI-RTPS (DDS Interoperability--Real-time Publish-Subscribe), or simply, RTPS. Although RTPS is related to DDS, its specifics are outsourced in a separate standard. \cite{rtps-2.2-standard}
+
+It uses the OMG \emph{Common Data Representation} (CDR) to encode data in a platform-neutral way. 
+
+As a wire protocol, RTPS is deliberately tailored to DCPS-style communication among dispersed peers. In addition to the previously mentioned interoperability features, it provides multicast capabilities as means to enable simultaneous message delivery to several peers.
+
+It also features multicast based service discovery.
+
+RTPS is designed to work atop best-effort protocols, and in particular, UDP/IP. Because of the low overhead typical for such protocols, low latencies and high throughput can be achieved. However, the performance gain comes with tradeoffs, such as reduced reliability. The tradeoffs can be compensated by QoS settings. In a nutshell, RTPS is like an extension protocol to unreliable transports to make them more reliable, or rather, to allow for fine-grained control over the degree of the transport's reliability.
 
 
 
@@ -35,66 +44,82 @@ The advantage of data-centric messaging is that it allows a higher abstraction. 
 
 DDS is a message bus. This is in contrast to a broker-based architecture. A broker enables flexible routing patterns featuring filtering, variable numbers of message queues etc. However, it can be considered a single point of failure.
 
-Being a standard, DDS strives for interoperability between implementations
+
+peer discovery, transport methods, sampling rates, etc. are a matter of configuration
 
 
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figures/dds.pdf}
-  \caption[DDS example]{An example of a distributed application connected by means of DDS}\label{fig:dds}
+  \caption[An example of a distributed application connected via DDS]{An example of a distributed application connected via DDS}\label{fig:dds}
 \end{figure}
 
 \subsection{DDS Components}
 
-DDS defines a number of components, for which it uses its own nomenclature. In the following, each component is described. \autoref{fig:dds} shows how they are related.
-
+DDS defines a number of components, for which it uses its own nomenclature. In the following, each component is described. \autoref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS. 
 
 \paragraph{Topics.}
+\emph{Topics} are the common ground on the basis of which peers communicate in the publish-subscribe paradigm. When a Publisher offers a certain kind of data, it does so by means of a Topic. When a data sample should be written, the Publisher pushes that data sample to a Topic appropriate for that sort of data. Conversely, when a Subscriber is interested in receiving data of a certain kind, then it subscribes to a Topic associated with that data. A Topic is defined by a unique identifier (name) and a data type. The data type represents the message format for messages sent over that Topic. For example, a suitable data type for a Topic concerned with temperature data would be a \texttt{struct} containing a single \texttt{float} value representing a temperature reading.
 
+In \autoref{fig:dds}, two Topics are depicted (Topic A and Topic B), each with a number of associated Data Writers and Data Readers (see below). 
 
 \paragraph{Publishers and Data Writers.}
-
+\emph{Publishers} are entities that provide information in the publish-subscribe communication paradigm. Publishers are not bound to a single Topic. Instead, they contain one or more \emph{Data Writers}, each dedicated to a single Topic, who perform the actual message submission. Thus, Publishers may be seen as containers for a number of (unrelated) Data Writers. This concept is emphasized in \autoref{fig:dds} where a Publisher in Application c) controls two independent Data Writers that both write to different Topics.
 
 \paragraph{Subscribers and Data Readers.}
+\emph{Subscribers} are the exact compliment to Publishers in that they seek to receive data from Publishers. Analogous to Publishers, Subscribers are a way to group together sets of \emph{Data Readers}. Data Readers are entities whose purpose it is to receive messages from their respective Topic. Through its API, DDS allows Data Writers to receive data in three ways: either by waiting for messages (blocking the main thread), by pro-actively polling for new messages, or by specifying asynchronous callbacks which are invoked whenever a message arrives.
 
 \paragraph{Domains and Domain Participants.}
-At the highest level, there are \emph{Domains}. Domains are the DDS way of grouping together sets of coherent \emph{domain participants} and to separate those sets from each other. Speaking in terms of distributed systems, domains are a mechanism to manage group memberships of nodes. \cite{tanenbaum2017distributed}
+\emph{Domains} are the DDS way of grouping together sets of coherent \emph{Domain Participants} and to separate those sets from each other. Speaking in terms of distributed systems, Domains are a mechanism to manage group memberships of nodes \cite{tanenbaum2017distributed}. 
 
-Domain participants are entities that belong to a particular domain. Each publisher, subscriber and topic is derived from one domain participant and is therefore dedicated to exactly that domain. As a consequence, participants of different domains are entirely separated from each other.   
+Domain Participants are entities that belong to a particular Domain. Each Publisher, Subscriber and Topic is derived from one Domain Participant and is therefore dedicated to exactly that Domain. As a consequence, participants of different Domains are entirely separated from each other and there is no way for them to interface with each other.
 
-Depicted in \autoref{fig:dds} is only one domain. However, there could just as well be other domains. 
-
-
-
-\subsection{Concepts}
-
-\paragraph{Data Centricity.}
+Depicted in \autoref{fig:dds} is only one Domain. However, there could just as well be other Domains. 
 
 
-\paragraph{Dynamic Service Discovery.}
-Offers dynamic service discovery.
+\subsection{Quality of Service}
 
+\todo[inline]{get rid of term "service"}
 
-\paragraph{Quality of Service.}
-One of DDS's salient features is its intrinsic QoS support implemented by \emph{QoS policies}.
-QoS policies specify service attributes for controlling each participant's behavior and quality properties. They can be set for each participant and topic individually. An example for a QoS policy is the \texttt{DEADLINE} policy. It specifies the minimum message frequency of a service. If the deadline period of a hypothetical data writer is set to, e.g., 100 ms, that means that this data writer is required to send a message at least every 100 ms. If it fails to send a message at this rate, the data writer and all the respective topic's readers will need to deal with this circumstance on a code level. 
+One of DDS's salient features is its intrinsic QoS support realized by so-called \emph{QoS policies}. QoS policies specify service attributes for controlling each component's behavior and quality properties. They make specifying a service's attributes a matter of \emph{configuration}, rather than \emph{implementation}, as it is the case with other communication paradigms. For example, consider a Data Writer which writes data to a Topic at a high rate. A Data Reader may be interested in that data but not at such a high rate, \eg\ because it runs on an embedded device powered by a battery and therefore needs to manage power consumption carefully. The Data Reader may now apply a \tbf , which instructs DDS to block all messages that exceed a specified frequency threshold. This way, the rate of incoming messages can be controlled via configuration. This is beneficial for the programmer as they do not need to accommodate for this at code level, but let the middleware take care of it.
 
-In addition, QoS policies serve as service contracts. They specify non-functional requirements that services must fulfill to be able to communicate with each other. E.g., a service provider's \texttt{RELIABILITY} policy may have been set to the \texttt{BEST\_EFFORT} level, thereby allowing the service to drop samples. A service consumer, on the other hand, may require the service provider's policy to be set to \texttt{RELIABLE}, which prohibits the dropping of samples. Since the service provider only insufficiently fulfills the service consumer's QoS requirements, the services are considered incompatible with each other. QoS policies can therefore be seen as service contracts on a technical level, specifying service compatibility. It may be noteworthy, however, that these contracts do not rid the need for proper interface contracts modeled by a service designer.
+QoS policies can be set for each Topic, Publisher, Subscriber, Data Writer and Data Reader individually. 
+In \autoref{tab:qos}, an excerpt of the available QoS policies is given. For the exhaustive list of all available QoS policies refer to the official standard \cite{dds-1.4-standard}.
 
-Despite their name, QoS policies do not only concern quality attributes. They can also be used to specify the priority of messages, their lifespan, i.e. how long they are valid, or how many messages are kept in local memory.
+%
+%
+%
+%
+%
+\begin{table}[htpb]
+  \caption[An excerpt of DDS QoS policies]{An excerpt of QoS policies.}\label{tab:qos}
+  \centering
+  \begin{tabular}{p{0.25\textwidth} p{0.2\textwidth}  p{0.45\textwidth}}
+    \toprule
+      \textbf{Name} & \textbf{Legal values} & \textbf{Description} \\
+    \midrule
+    	\reliability  & \texttt{RELIABLE}, \texttt{BEST\_EFFORT} & Indicates whether a Data Writer may drop samples or whether a Data Reader approves of Data Writers that drop samples.\\
+    	\tbf  & An integer value denoting time & Specifies a Data Reader's desired "minimum separation period" between incoming messages.\\
+    	\liveliness  & An integer value denoting time &\\
+    	\deadline  & An integer value denoting time &\\
+    	\ownership  & \texttt{SHARED}, \texttt{EXCLUSIVE} & Specifies whether multiple Data Writers may write to a given Topic simultaneously or just the one with the highest \ostrength\  value.\\
+    	\ostrength  & An integer value denoting relative priority & Determines a Data Writer's priority in cases where its Topic's \ownership\ is set to \texttt{EXCLUSIVE}. \\
+    	\tpriority  & An integer value denoting relative priority &\\
+    \bottomrule
+  \end{tabular}
+    \todo[inline]{fill in blanks}
+\end{table}
+%
+%
+%
+%
+%
 
+Another example of a QoS policy is the \deadline\ policy. It specifies the minimum message frequency of a service. If the deadline period of a hypothetical Data Writer is set to, e.g., 100 ms, then this Data Writer is obligated to send a message at least every 100 ms. If it fails to send messages at this rate, the Data Writer and all the respective Topic's readers will be notified about that circumstance and are free to act accordingly.
 
+In addition to specifying quality attributes, QoS policies may also serve as service contracts. They specify non-functional requirements that services must fulfill to be able to communicate with each other. For example, a service provider's \reliability\ policy may have been set to the \texttt{BEST\_EFFORT} level, thereby allowing the service to drop samples. A service consumer, on the other hand, may require the service provider's policy to be set to \texttt{RELIABLE}, which prohibits the dropping of samples. Since the service provider only insufficiently fulfills the service consumer's QoS requirements, the services are considered incompatible with each other.
 
-\paragraph{Data Centricity.}
-
-\paragraph{Asynchronous Messaging.}
-
-
-\paragraph{Location Transparency.}
-
-\paragraph{Decentralization.}
-
-\paragraph{Platform Independence.}
+Despite their name, QoS policies do not only concern \emph{quality} attributes per se. They can also be used to specify the priority of messages, their lifespan, \ie , how long they are valid, or how many messages are kept in local memory.
 
 
 \paragraph{Limitations.}
@@ -103,21 +128,10 @@ Requires full fledged operating system which can not be guaranteed in embedded s
 OpenDDS: Up to 120 domain participants
 
 
-\subsection{DDS for Automotive Systems}
-Automotive software systems have previously relied -- and, to some degree, will continue to do so -- on low-level, low-bandwidth transport protocols such as CAN, LIN, FlexRay, etc. Up until now, networks stacks based on those protocols were sufficient to meet the basic requirements of delivering vehicular sensor data. However, in the future, more and more data will be collected within vehicles and more and more data will be required to feed into intelligent systems such as ADAS. These systems increasingly rely on high volumes of data from video cameras, or LIDARs. As a result, bandwidth requirements for vehicle-intrinsic computer networks are skyrocketing. At the same time, these functions require computational capabilities that go way beyond of what is possible with the microcontrollers typically used in traditional ECUs. High-performance computer systems based on high-level operating systems are needed to meet the new requirements.
-
-
-Hence, there is a need for 
-
-DDS is designed for resource constrained real-time applications such as sensor networks or industrial automation.
-
-DDS allows to configure how much of a system's resources an DDS-enabled application may use. Consequently, it is the middleware's responsibility to allocate resources as needed while still staying within the specified boundaries. At the same time, priorities aligning with the application's QoS settings need to be considered. DDS takes this burden off the programmer's shoulders.
-
-Predictable
 
 
 \subsection{Implementations}
-As mentioned, DDS, in itself, is only a standard. As such, DDS does not dictate, in detail, how to implement the concepts presented in the earlier sections. A number of DDS implementations by different vendors exist, all varying in terms of standard fulfillment, features beyond the standard, and pricing. Compatibility between the respective implementations is ensured through the \emph{DDS Interoperability Protocol} (DDSI). It uses the OMG \emph{Common Data Representation} (CDR) to encode data in a platform-neutral way. 
+DDS, in itself, is only a standard. As such, DDS does not dictate, in detail, how to implement the concepts presented in the earlier sections. A number of DDS implementations from different vendors exist, all varying in terms of standard compliance, features beyond the standard, licensing, and other distinguishing factors. Compatibility between the respective implementations can be achieved by the use of the DDSI-RTPS wire protocol, which all major implementations support.
 
 \paragraph{OpenDDS.}
 Two types of discovery: centralized Information Repository, distributed RTPS discovery. The latter must be used if DDS implementation compatibility is priority

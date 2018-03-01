@@ -3,7 +3,7 @@
 
 
 \section{Motivation}
-Recent trends in the automotive industry are introducing new, increasingly complex software functions into vehicles. In particular, advanced driver-assistance systems (ADAS) are a major force behind this development. Such systems leverage modern methods coming from artificial intelligence (AI) research which are demanding, both in terms of computational power as well as in the volume of data they require. At the same time, embedded on-board computers are typically severely limited in their computational capacities. This problem may be overcome with the aid of another trend in automotive systems: cloud connectivity. Clouds may be summarized as remote data centers which have a tremendous amount computing resources and storage space available to them. In the future, computationally expensive functions enabling advanced functionalities, such as autonomous driving, may be outsourced from the vehicle into the cloud. Since network connectivity is not always guaranteed, e.g. when navigating through geographically remote areas, such functions still need to work ``offline''. Hence, a method is needed to allow the same functions to run on resource constrained embedded systems as well as on servers in cloud infrastructures. Virtualization and containerization technologies are promising contenders to make such an endeavor feasible. By wrapping software artifacts in portable, self-contained execution environments, such tools allow applications to be deployed on a variety of operating systems and hardware platforms without requiring modifications in the application code. 
+Recent trends in the automotive industry are introducing new, increasingly complex software functions into vehicles. In particular, advanced driver-assistance systems (ADAS) are a major force behind this development. Such systems leverage modern methods coming from artificial intelligence (AI) research which are demanding, both in terms of computational power as well as in the volume of data they require. At the same time, embedded on-board computers are typically severely limited in their computational capacities. This problem may be overcome with the aid of another trend in automotive systems: cloud connectivity. Clouds may be summarized as remote data centers which have a tremendous amount computing resources and storage space available to them. In the future, computationally expensive functions enabling advanced functionalities, such as autonomous driving, may be outsourced from the vehicle into the cloud. Since network connectivity is not always guaranteed, e.g. when navigating through geographically remote areas, such functions still need to work "offline". Hence, a method is needed to allow the same functions to run on resource constrained embedded systems as well as on servers in cloud infrastructures. Virtualization and containerization technologies are promising contenders to make such an endeavor feasible. By wrapping software artifacts in portable, self-contained execution environments, such tools allow applications to be deployed on a variety of operating systems and hardware platforms without requiring modifications in the application code. 
 
 A challenge is the dynamic nature of vehicles. A vehicle may be connected to a remote server for days, and then disconnect in the next second. In such cases, the on-board system must immediately take over operation in order to stay functional and guarantee the safety of the passengers. For this, the way components communicate must be absolutely seamless, regardless of their location.
 
@@ -62,23 +62,6 @@ Furthermore, containerization technologies are evaluated regarding their aptitud
 %
 %
 
-\section{Approach}
-
-In this thesis, a method is presented to enable cloud connectivity for automotive software systems. 
-The method follows a service-oriented approach where functionality is split into a number of independent services connected via a messaging middleware. 
-The crux of the presented approach is that services may be deployed on ECUs within the vehicle as well as within remote data centers. At the same time, communication between the services is not affected in any way. \Ie , from the viewpoint of a service deployed within the vehicle it doesn't matter whether a peer service is deployed in the same vehicle or in a remote data center -- the way they communicate is exactly the same.
-This feat was achieved by combining several technologies, most notably \emph{Docker}\cite{DockerWebsite} as containerization solution, \emph{Data Distribution Service} (DDS) as messaging middleware and \emph{Weave Net}\cite{WeavenetWebsite} as virtual networking layer.
-
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
 
 \section{Structure of the Thesis}
 
