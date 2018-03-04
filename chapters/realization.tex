@@ -28,7 +28,7 @@ Goals:
 \end{itemize}
 
 
-\section{Requirements}
+\section{Requirements and Quality Attributes}
 Dependable systems [Kopetz, Verissimo]: Availability, Reliability, Safety, Maintainability
 
 \paragraph{Availability.}
@@ -39,7 +39,7 @@ Reliability states how long a system can run without failure. A reliable system 
 
 In real-time systems, even a temporary failure could have disastrous effects. If the system is a hard real-time system, a single missed deadline is even equivalent to a complete system failure. Ensuring reliability is therefore of utmost importance. As with availability, a way to mitigate the effects of poor reliability is redundancy.
 
-Special precautions need to be taken for \emph{distributed} systems as their communication channels are inherently unreliable\todo{reference fallacies of DS}. In practice, this means that the messaging system needs to provide guarantees for a timely and robust message delivery. In addition, certain assurances must be given, \eg , that messages are delivered in order or that every message is delivered only once \cite{o2007quality}. 
+Special precautions need to be taken for \emph{distributed} systems asheir communication channels are inherently unreliable \cite{tanenbaum2017distributed}. In practice, this means that the messaging system needs to provide guarantees for a timely and robust message delivery. In addition, certain assurances must be given, \eg , that messages are delivered in order or that every message is delivered only once \cite{o2007quality}. 
 
 \paragraph{Safety.}
 The safety of system states how resilient \wrt\ failures it is, and in case a failure occurs, how well it can handle it. A safe system manages to protect the health and wellbeing of humans involved in the operation of the system and its surrounding bystanders.
@@ -53,10 +53,41 @@ A major barrier to interoperability is vendor lock-in, or more general, platform
 
 
 \paragraph{Security.}
-In road traffic, IT security has direct implications for safety. Since safety is of utmost importance the same is true for security. Within a vehicle, it is assumed that services can trust each other. However, out in the open, this assumption does not hold. In the light of the continuous trend towards connected cars, services (and the communication between them) are increasingly exposed to the public. An SOA therefore needs to employ state-of-the-art security measures to ensure availability, integrity, authenticity, and confidentiality of the system.
+In road traffic, flaws in a system's IT security have direct implications for safety. Since safety is of utmost importance the same is true for security. 
+
+Several developments call for an increased emphasis on security.
+
+Increasing amounts of code in vehicles -> increased attack surface
+
+increased connectivity -> exposed to the public 
+
+autonomous driving: software-controlled actuator systems. -> malicious attackers might remote control vehicle
+
+
+Precautions:
+
+Proper isolation of software components is needed.
+
+state-of-the-art encryption and security measures are needed to ensure the integrity, authenticity, and confidentiality of the system.
+
+Data in the cloud needs to be stored safely.
+
 
 \paragraph{Performance.}
 Services in an automotive SOA are deployed on embedded computing devices that must fulfill real-time requirements. This is in stark contrast to services in traditional SOAs that often run on high performance machines. The resource constrained nature of embedded systems requires special operating systems, communication technologies and programming techniques.
+
+low response times, high throughput and timeliness (Real-time requirements must be fulfilled)
+
+performance is influenced by scalability: scalability can help to increase performance
+
+Measures:
+
+Low network overhead must be given
+
+support for compiled programming languages must be given
+
+no unnecessary overhead may be incurred
+
 
 \paragraph{Extensibility.} 
 It must be easily feasible to extend an SOA with new services and to update existing ones. The provisioning of new functionality must be possible not only at design-time but also at run-time. Modern automotive software architectures must deal with the fact that vehicular functions may be modified, added, or unlocked at run-time through automatic software updates.
@@ -69,14 +100,18 @@ There are many ways in which a distributed system may break. Since operational s
 
 
 \paragraph{Scalability.}
-Computational load is rarely constant. A vehicle moving in a changing physical environment may be succumbed to rapidly changing computational demands, \eg , a lidar (light detection and ranging) may produce much less relevant data on an open highway than on a busy urban road. A modern automotive SOA must be able to cope with this, \eg\ by elastically outsourcing computationally expensive functions to the cloud (repartitioning). Similarly, the messaging system must allow for the easy addition of components without negatively affecting performance.
+Scalability is a system's ability to handle increased computational demand by means of expansion. Generally, a distinction between two types of scalability is made: horizontal scalability, by which workload is distributed across an increased number of nodes (scaling out), and vertical scalability, by which a single node is upgraded with more powerful hardware (scaling up) \cite{tanenbaum2017distributed}. While vertical scalability is easier to realize, horizontal scalability scales much farther. This is, because at a certain point, it becomes cheaper to add entire nodes, than to further upgrade a node with increasingly expensive hardware.
+
+A technique to achieve horizontal scalability is to replicate individual components and to deploy them on physically separated hosts to bypass computational and networking bottlenecks. Under certain circumstances it might be advisable to deploy such replications, or even the whole system, in the cloud, in order to offload computations. Cloud infrastructures often have means to dynamically scale out in an elastic fashion, depending on demand. This has the added benefit that also administration effort is offloaded, which may reduce operational expenses \cite{vaquero2011dynamically}.
+
+Similarly, the messaging system must allow for the easy addition of components without negatively affecting performance.
 
 \section{Concept}
 
 \begin{itemize}
 \item Virtualization to provide platform independent execution environment
 \item Overlay networks and SDN for networking and to provide location transparency
-\item Service-oriented architecture as a way to promote fine-grained control and reusability
+\item Service-oriented architecture as a way to promote fine-grained control, reusability, and (horizontal) scalability
 \item Middleware that guarantees reliability
 \item Publish-Subscribe to promote location transparency
 \end{itemize}
@@ -84,6 +119,8 @@ Computational load is rarely constant. A vehicle moving in a changing physical e
 Modeling as SOA 
 
 Services are independent units... Limited in terms of knowledge (location and topology) and capabilities (principle of least privilege)
+
+SOA promotes statelessness: easy to scale out
 
 
 Why cloud? Because cloud computational power is a lot cheaper than for on board computers
@@ -125,16 +162,13 @@ By assigning a topic the \ownership\ value "\qos{exclusive}" one can specify tha
 
 \subsubsection{DDS for Automotive Systems}
 
-Automotive software systems have previously relied -- and, to some degree, will continue to do so -- on low-level, low-bandwidth transport protocols such as CAN, LIN, etc. For the longest time, networks stacks based on those protocols were sufficient to meet the basic requirements of delivering vehicular sensor data and x-by-wire functions. However, driven by the emergence of innovative functions, the demands for vehicle intrinsic networks are skyrocketing. In particular, more and more sensor data from increasingly bandwidth-hungry sensors, such as cameras and LIDARs is feeding into advanced systems such as ADAS. At the same time, these functions require computational capabilities that go way beyond of what is possible with the microcontrollers typically used in traditional ECUs. High-performance computer systems based on high-level operating systems are needed to meet the new requirements.
-
-A new generation of low-level network protocols found their way into the vehicle. One of these is FlexRay. \citeauthor*{bouhouch2013dds} have shown \cite{bouhouch2013dds} that DDS is indeed a suitable middleware to be used in vehicular networks.
+Automotive software systems have previously relied -- and, to some degree, will continue to do so -- on low-level, low-bandwidth transport protocols such as CAN, LIN, etc. For the longest time, networks stacks based on those protocols were sufficient to meet the basic requirements of delivering vehicular sensor data and x-by-wire functions. However, driven by the emergence of innovative functions, the demands for vehicle intrinsic networks are skyrocketing. In particular, more and more sensor data from increasingly bandwidth-hungry sensors, such as cameras and LIDARs is feeding into advanced systems such as ADAS. At the same time, these functions require computational capabilities that go way beyond of what is possible with the microcontrollers typically used in traditional ECUs. High-performance computer systems based on high-level operating systems, supported by bandwidth-friendly networking protocols are needed to meet the new requirements. A new generation of low-level network protocols found their way into the vehicle. Notable mentions are FlexRay, and TSN. A question that remains is whether DDS is a suitable choice for the use within vehicles, and whether DDS may be used efficiently on top of these lower level protocols. \citeauthor*{bouhouch2013dds} have shown \cite{bouhouch2013dds} that DDS is indeed a suitable middleware to be used in vehicular networks.
 
 
 DDS is designed for resource constrained real-time applications such as sensor networks or industrial automation.
 
 DDS allows to configure how much of a system's resources an DDS-enabled application may use. Consequently, it is the middleware's responsibility to allocate resources as needed while still staying within the specified boundaries. At the same time, priorities aligning with the application's QoS settings need to be considered. DDS takes this burden off the programmer's shoulders.
 
-Predictable
 
 
 \subsubsection{Separation of User Data}
@@ -189,7 +223,17 @@ By combining DDS with an overlay network, a coherent distributed system \cite{ta
 
 \todo{bring list in correct order}
 \paragraph{Scalability.}
-When a Weave connection is interrupted it fails gracefully and reconnects as soon as connectivity is restored.
+The approach is strongly focused on scalability. 
+
+Computational load can be offloaded to the cloud, when network reception is given.
+
+How fast can the approach scale? Depends on the cloud provider used. Service discovery in DDS is fast.
+
+Scalability is improved by location transparency
+
+Weave nodes can be easily integrated into existing networks. When the Weave router is already in place on a host, merely starting a container is enough to connect it to the overlay.
+
+
 
 \paragraph{Availability / Reliability.}
 Moving vehicles are are very likely to lose reception during operation, \eg , when navigating in remote areas or when driving through tunnels. At the center of the presented approach is cloud connectivity, and hence, reliability is a major concern. Thus, the approach was \emph{designed} to handle cases of unreliable communication channels.
@@ -198,17 +242,23 @@ A prerequisite for handling reliability issues is fast failure detection and a q
 
 \wnet 
 
+When a Weave connection is interrupted it fails gracefully and reconnects as soon as connectivity is restored.
+
 \paragraph{Security.}
-\wnet 's overlay network employs IPSec-based security using state-of-the-art encryption algorithms, so that secure transmission can be ensured even over insecure channels such as the Internet.
+Security was a major concern when designing the approach. In fact, Weave's security features were one of the primary reasons why it was chosen as overlay networking technology. In particular, its support for end-to-end encryption ensures the confidentiality and integrity of the communication channel, even in insecure networks such as the Internet. \wnet 's security is based on IPSec and state-of-the-art encryption algorithms. However, questions remain about the usability of Weave's encryption mechanism. Weave employs a shared secret approach, \ie , a password needs to be present on all participating hosts. How this secret should be securely stored is an open question yet to be answered.
 
+Whether \docker 's isolation properties are sufficient in terms of security is debatable. The fact of the matter is, however, that any degree of isolation is better than no isolation. Hence, for now, the security of \docker\ is considered sufficient, although a rigor security analysis is required.
 
-There are concerns that \docker\ doesn't provide enough isolation  
 The most important method to keep a system secure is to allow for fast and reliable updates. \docker\ promises exactly that.
 
 The security requirement is partly fulfilled.
 
 \paragraph{Performance.}
-DDS offers high throughput, Docker incurs minimal overhead, Weave adds reasonable overhead
+The main motivation behind the approach is to support the resource-constrained on-board computing system of vehicles by means of offloading computations to the cloud, and thereby improve the performance of the whole system. In \autoref{chapter:evaluation} it was shown that the approach manages to fulfill the performance requirement to a satisfying degree. This is because all technologies were chosen, in part, on the basis of their performance properties.
+
+DDS exhibits great performance characteristics because it is, from the ground up, designed to perform well. This was demonstrated in \autoref{sec:ddslatency} where DDS was evaluated regarding its responsiveness. The results of the benchmark show that DDS incurs a comparatively small protocol overhead. Moreover, the chosen virtualization technology, \docker , has been tested regarding performance manyfold  \cite{felter2015updated,morabito2015hypervisors} and the general consensus is that it incurs minimal computational and IO overhead when configured right. Lastly, \wnet\ exhibits decent performance behavior. Since little data was available at the time of this writing, performance benchmarks were conducted in this thesis. The results show that....
+
+DDS supports asynchronous programming paradigm, which can reduce waiting time and increase performance.
 
 \paragraph{Extensibility.}
 

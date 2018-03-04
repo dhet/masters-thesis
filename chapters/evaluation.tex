@@ -233,12 +233,13 @@ Firstly, \wnet\ is not designed to be used in safety critical systems. On their 
 
 Problem with \wnet 's encryption: password-based shared secret. How to distribute shared secret? How to renegotiate shared secret? etc.
 
+
 How fast can \wnet\ reconnect?
+
+Can weave be used in PaaS systems or EC2? probably not.
 
 It may also be noted that the Docker images presented in this thesis are by no means production ready. Although there was an effort to minimize the size of the images, in real scenarios, images would be shaved down to the bare minimum, both in terms of size and capabilities. Utilities such as compilers, build tools and generally everything which is not a prerequisite to execute a given service would be removed. The images used in this thesis serve the purpose of demonstration and thus, such measures were not taken to ensure a rapid progression of this work. More time would be needed to optimize the images for production use.
 
-
-How can customer specific services be created? Currently, all services for all customers are running in the same data center. Sensitive data may leak... How about DDS domains?
 
 %
 %

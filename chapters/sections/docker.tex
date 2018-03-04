@@ -2,12 +2,12 @@
 \section{Containerization with \docker}
 
 In recent years, container technology has gained widespread adoption in the software development world. By greatly simplifying the software deployment—and development workflow, containers have become a cornerstone of successful software architectures.
-Considering their advantages over hypervisor-based virtualization, such near native performance, sub-second boot times \cite{felter2015updated}\cite{morabito2015hypervisors} and minimal disk space usage, containers bring qualities to the table that are relevant specifically to embedded systems.
+Considering their advantages over hypervisor-based virtualization, such near native performance, sub-second boot times \cite{felter2015updated,morabito2015hypervisors} and minimal disk space usage, containers bring qualities to the table that are relevant specifically to embedded systems.
 
 Containers are independent units of deployment containing everything a particular application needs to run from system libraries, tools, and runtimes to application specific settings. 
 Akin to hypervisor-based virtualization, Linux containers aim to provide isolated, self-contained execution environments for applications that may be moved freely between hosts without affecting the application’s behavior.
 
-Unlike traditional virtual machines, however, applications in containers run on non-virtualized hardware, and thereby, with minimal performance overhead when properly configured \cite{felter2015updated}\cite{morabito2015hypervisors}. This is of interest particularly in the field of embedded systems where resource constraints are prevalent.
+Unlike traditional virtual machines, however, applications in containers run on non-virtualized hardware, and thereby, with minimal performance overhead when properly configured  \cite{felter2015updated,morabito2015hypervisors}. This is of interest particularly in the field of embedded systems where resource constraints are prevalent.
 
 Enabled by the concept of \emph{kernel namespaces}, multiple containers may run on the same host side-by-side without affecting one another, or even having knowledge of each others existence. 
 Namespaces wrap a set of system resources and present them to the container process as if they were dedicated to it. Each aspect of a container runs in its own namespace and its access is limited to that namespace. Hence, a level of isolation is achieved that was previously only possible with virtual machines. The only thing containers share is the host’s OS kernel, and optionally, parts of the file system.

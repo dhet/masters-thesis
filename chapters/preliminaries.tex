@@ -16,6 +16,10 @@ there are open groups, which every node may join, and closed groups, which emplo
 
 The recent trend to connect vehicles to the cloud adds another dimension to their distributed nature.
 
+
+\paragraph{Challenges} In a distributed system, single parts may fail while others keep functioning properly.  This may lead to unexpected behavior.
+
+
 \subsection{Middlewares}
 A requirement for distributed applications is the need to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. Although message passing is a prime example of a middleware's use case, there are many other important concepts for which middlewares exist, \eg , transaction management, service composition and to ensure reliability. The primary goal of middlewares is to abstract away such concepts so that programmers can focus on implementing business logic and shipping features, instead of having to deal with the underlying specifics. Middlewares are implemented as a software layer that sits between operating system and the actual applications. They are often included in the form of libraries that make the middleware's functionality available to the programmers by means of an Application Programming Interface (API).
 
@@ -26,7 +30,27 @@ A requirement for distributed applications is the need to pass messages, or data
 
 \subsection{Cloud Computing}
 
-\paragraph{Challenges} In a distributed system, single parts may fail while others keep functioning properly.  This may lead to unexpected behavior.
+The idea of cloud computing is to provide access to remote computing resources  (\eg , networks, servers, storage, applications, and services) in a convenient, on-demand manner \cite{mell2011nist}. Customers can rent these resources to use them at their will. By outsourcing their IT infrastructure into the cloud, companies can significantly reduce capital and operational expenditures (CAPEX/OPEX) that are typically associated with running an on-premise infrastructure. Other benefits include easier maintenance and accelerated time-to-market times. Several pricing models for cloud services exist. Customers often have the choice between a set monthly fee, or they may pay on a pay-per-use basis.
+
+Cloud infrastructures are typically implemented as multi-tenancy systems in which the same hardware is shared among many customers ("resource pooling"). An enabling technology for this is virtualization. Each customer is assigned one or more virtual machines (VMs) running on one or more physical servers. For its users, the alloted computing environment appears as a single, isolated physical machine. The amount of disposable resources can be controlled for each VM individually, allowing for fine-grained resource tuning according to demand.
+
+A major selling point of cloud computing is scalability. Many cloud providers allow for the dynamic allocation of resources depending on demand. To customers, the available resources appear as if they were unlimited when in actuality the substrate resources are alloted and released under the hood in an elastic manner. To steer this behavior, \emph{elasticity controllers} can be employed by which rules can be defined to control when and how scaling measures are performed. \Eg , when a CPU utilization threshold is reached, the system can be instructed to automatically launch an application replica. Subsequently, a load balancer can be used to distribute the load between the instances \cite{vaquero2011dynamically}.
+
+
+\paragraph{Service Models.}
+Cloud computing presents itself in the form of several usage models. The most notable ones are: \emph{Infrastructure as a Service} (IaaS),  \emph{Platform as a Service} (PaaS),  and \emph{Software as a Service} (SaaS) \cite{mell2011nist}.
+
+In the IaaS model, sheer, usually virtualized, hardware is provided, on which customers can install and run arbitrary software. Customers have only basic control over their virtual infrastructure's hardware composition, but may take influence on the operating system level.
+
+The PaaS model presents a higher level view on the infrastructure. In this model, customers don't have full control over their VM instance. Instead, they can deploy their software in predefined application-hosting environments \cite{mell2011nist} which are typically centered around a certain technology, \eg\ .NET, or node.js. Examples for this type of services are Microsoft Azure or Google App Engine.
+
+Finally, the SaaS model is the highest level of cloud services. SaaS typically describes applications which are hosted on cloud platforms. These applications are usually provided by means of thin clients, most notably web browsers. Customers, which are mostly end users, have the least control over the cloud service and can only take influence via application-level configurations \cite{mell2011nist}. Examples of SaaS applications are Gmail or YouTube.
+
+
+
+
+
+
 
 
 \section{Real-time Systems}
@@ -67,10 +91,13 @@ Support for multicast in WANs is rather limited.
 
 \subsection{Overlay Networks}
 
-An overlay network is a logical network which connects peers in a peer-to-peer network. Naturally, in order to enable information exchange, overlay networks require a substrate physical network over which data can be transmitted. The important thing is that overlay networks are entirely, or in part, decoupled from the physical infrastructure such that both networks may evolve (change topology) independently without affecting one another. As opposed to physical networks, which connect \emph{physical machines}, overlay networks connect \emph{processes}. There are two types of overlay networks: \emph{structured} and \emph{unstructured} overlay networks. In the former, peers are organized in a specific, deterministic manner, such that each node has its firm place and an immutable set of neighbors. Unstructured overlay networks, on the other hand, allow the topology to change dynamically. In order for this to work, each node maintains an ad-hoc list of neighbors that is to be updated continuously \cite{tanenbaum2017distributed}. In the context of this thesis, unstructured overlay networks are of particular interest due to the dynamic nature and the reliability characteristics of mobile systems.
+An overlay network is a logical network which connects peers in a peer-to-peer network. Naturally, in order to enable information exchange, overlay networks require a substrate physical network over which data can be transmitted. The important thing is that overlay networks are entirely decoupled from the physical infrastructure such that both networks may evolve (change topology) independently without affecting one another. As opposed to physical networks, which connect \emph{physical machines}, overlay networks connect \emph{processes}. There are two types of overlay networks: \emph{structured} and \emph{unstructured} overlay networks. In the former, peers are organized in a specific, deterministic manner, such that each node has its firm place and an immutable set of neighbors. Unstructured overlay networks, on the other hand, allow the topology to change dynamically. In order for this to work, each node maintains an ad-hoc list of neighbors that is to be updated continuously \cite{tanenbaum2017distributed}. In the context of this thesis, unstructured overlay networks are of particular interest due to the dynamic nature and the reliability characteristics of mobile systems.
 
 
 Examples of overlay networks are VPNs, Peer-to-peer (P2P) networks and voice over IP (VoIP)
+
+Ethernet virtualization: VLAN tags to separate traffic and to build L2/L3 overlays.
+
 
 
 \input{chapters/sections/dds}
