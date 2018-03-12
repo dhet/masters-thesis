@@ -51,6 +51,18 @@ The aim of this thesis is to research the possibility of enabling cloud connecti
  
 Furthermore, containerization technologies are evaluated regarding their aptitude in safety-critical systems. Moreover, a technical realization of a repartitioning system is presented which is deployed on a specifically-built testbed and then evaluated regarding performance and safety.
 
+
+Goals:
+\begin{itemize}
+\item Offload computations to the cloud
+\item Run the same functions within vehicle and in the cloud
+\item Must deal with spotty reception
+\item Therefore: Seamless switch between cloud and on-board
+\item System needs to be modular to allow for fine-grained control over which functionality is offloaded 
+\item provide high degree of distribution transparency
+\end{itemize}
+
+
 %
 %
 %
@@ -65,7 +77,7 @@ Furthermore, containerization technologies are evaluated regarding their aptitud
 
 \section{Structure of the Thesis}
 
-The remainder of this work is structured as follows. First, preliminaries are given in \autoref{chapter:preliminaries}, briefly explaining all concepts and technologies relevant to the presented approach. The next chapter, \autoref{chapter:related-work}, is dedicated to the summarization and discussion of similar approaches and other related work. In the subsequent chapter, \autoref{chapter:realization}, the actual realization of the approach is described, going into detail about how technologies were leveraged to implement a cloud-enabled automotive software architecture. In \autoref{chapter:evaluation}, the approach is evaluated. For this, benchmarks were conducted to assess the approach's feasibility and quality attributes. This chapter furthermore discusses limitations of the approach. The thesis concludes with \autoref{chapter:conclusion} where the approach is summarized and future work is suggested.
+The remainder of this work is structured as follows. First, preliminaries are given in \autoref{chapter:preliminaries}, briefly explaining all concepts and technologies relevant to the presented approach. The next chapter, \autoref{chapter:related-work}, is dedicated to the summarization and discussion of similar approaches and other related work. In the subsequent chapter, \autoref{chapter:realization}, the actual realization of the approach is described, going into detail about how technologies were leveraged to implement a cloud-enabled automotive software architecture. In \autoref{chapter:evaluation}, the approach is evaluated. The evaluation is supported by a number of benchmarks which were conducted to assess the approaches feasibility and to quantify its quality attributes. What then follows in \autoref{chapter:discussion} is a discussion about the approaches aptitude as well as its limitations. The thesis concludes with \autoref{chapter:conclusion} where this work is summarized and future work is suggested.
 
 %
 %

@@ -77,7 +77,6 @@ Three experiments were conducted, comparing the average latencies of plain, host
 
 
 \paragraph{Results.} 
-
 \autoref{fig:latency-relative} depicts the absolute and relative latency measures of the tested network modes. Values represent the average round trip time of the 300 sent messages. The relative overhead is calculated from ratio of \experim{Weave} and \experim{Encrypted} when compared to \experim{Plain}, respectively. The results show that the network latency induced by \wnet\ (without encryption) is hardly measurable and therefore negligible. Message size has no influence whatsoever in this comparison. 
 
 
@@ -115,7 +114,7 @@ Another insight worth mentioning is that \wnet\ added significant deviations in 
 
 \paragraph{Motivation.} Another important metric for network performance is throughput. Throughput is a measure for how much data can be transmitted per time. Since little data is available on \wnet 's throughput performance, according tests were conducted.
 
-\paragraph{Methodology.} To measure throughput, the tool \emph{iperf3}\footnote{\url{www.iperf.fr}} was used. iperf continuously sends data from one node to another over a TCP/IP connection. From the volume of the transmitted data and the duration of the transmission, network throughput can be deduced. iperf was set to transmit data for a relatively long time period of 30 seconds to produce meaningful results. As in the previous test, three scenarios were tested:  \experim{Plain}, \experim{Weave}, and \experim{Encryped}. Explanations of these scenarios can be taken from the previous test.
+\paragraph{Methodology.} To measure throughput, the tool \emph{iperf3}\footnote{\url{www.iperf.fr}} was used. iperf continuously sends data from one node to another over a TCP/IP connection. From the volume of the transmitted data and the duration of the transmission, the effective network throughput can be calculated. iperf was set to transmit data for a relatively long time period of 60 seconds to produce meaningful results. As in the previous test, three scenarios were tested:  \experim{Plain}, \experim{Weave}, and \experim{Encryped}. Explanations of these scenarios can be found in the description of the previous test.
 
 \paragraph{Results.} The results of this benchmark are depicted in \autoref{fig:throughput}. The results show that unencrypted \wnet\ adds a minor throughput overhead when compared to \experim{Plain} scenario (5\%). When adding encryption to the overlay network, a minor additional overhead can be observed. Overall, encryption incurs an overhead of 6.7\% compared to \experim{Plain}. These values can be considered decent. 
 
@@ -126,7 +125,38 @@ Another insight worth mentioning is that \wnet\ added significant deviations in 
   \caption[Weave throughput benchmark results]{Relative throughput in the scenarios \experim{Plain}, \experim{Weave} and \experim{Encrypted}}\label{fig:throughput}
 \end{figure}
 
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
 
+
+\subsection{Resource Utilization Test} \label{sec:utilization}
+
+\paragraph{Motivation.} The routing of data packets through an overlay puts significant load on the host's CPU. Under circumstances, the forwarding of data, which is typically an IO-bound operation, might become CPU-bound, \ie , the CPU becomes the bottleneck of the operation. In cyber-physical systems, in which computing resources are limited, this might be problematic. Hence, an experiment was designed aimed to evaluate the impact of overlays on CPU utilization.
+
+\paragraph{Methodology.} In this experiment, sample data was sent from a Raspberry Pi to the remote host via iperf (\cf \autoref{sec:throughput}) over an encrypted \wnet\ overlay. During the time of data transmission, CPU utilization was measured using the Linux tool \emph{sar}. 25 test runs were conducted using different bandwidth settings: bandwidth was gradually increased in 1 Mbit/s increments, starting at 1 Mbit/s, and ending in 25 Mbit/s. This bandwidth will be called \emph{target bandwidth} in the following. The target bandwidth is succumbed to an artificially imposed limitation and may differ quite substantially from the bandwidth that is actually achieved. The achieved bandwidth will be called \emph{observed bandwidth}, or \emph{throughput}.
+
+\paragraph{Results.} 
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/cpu}
+  \caption[Weave CPU utilization test results]{Bandwidth and CPU utilization}\label{fig:cpu}
+\end{figure}
+
+\autoref{fig:cpu} depicts the test results. In the diagram, each data sample represents the average CPU utilization during a test run. The Y-axis represents the overall CPU utilization of the "sending" machine (Raspberry Pi), and includes the cumulative load of all programs running on the system. Hence, the measurements include a bit of noise. The dashed, horizontal line indicates the maximum load of a single core in a quad core CPU.
+
+The results show that CPU utilization increases linearly with the target bandwidth. What is striking is that the point of full resource utilization of a single core is reached quite early, at around 21 Mbit/s target bandwidth (dotted, vertical line). \wnet\ is a single-threaded program, and as such, experiences performance stagnation once the core it runs on is fully occupied. At this point, first throughput degradations become evident, so that the setup begins to fall short on delivering the desired bandwidth. The maximum observed bandwidth that the setup could achieve over numerous test runs was 23.6 Mbit/s, when the communication channel had a theoretical bandwidth of 100 Mbit/s. The test results indicate that the machine hits a CPU-bound wall.
+
+
+Remedies: A lot can be done at code level. Make use of multithreading, better hardware
 %
 %
 %
@@ -223,53 +253,3 @@ In the process of sending data, a failure of \proda\ is simulated by abruptly sh
 %
 
 
-\section{Limitations}
-
-The benchmarks in the previous sections demonstrated that the approach to cloud connectivity presented in this thesis is fully functional. However, there are some limitation that need to be addressed.
-
-Firstly, \wnet\ is not designed to be used in safety critical systems. On their website, Weaveworks make no statement about any certification efforts that make the software suitable for the use in safety-critical systems. Thus, for the time being, the given approach may only find applicability for non-safety critical functions, \eg in the context infotainment systems. However, it may be added that \wnet\ is Open Source, and as such, all underlying technologies and concepts are disclosed. Thus, it is entirely plausible to implement a thoroughly verified and tested derivative of \wnet\ tailored to safety-critical systems.
-
-(In the context of vehicles, safety is inherently connected to the software system's security. Hence, proper methods are required to ensure the system's authenticity, confidentiality, integrity and privacy properties. The presented approach was not tested regarding these attributes. A rigor security analysis is needed to be able to make a well-founded statement about its aptitude.)
-
-Problem with \wnet 's encryption: password-based shared secret. How to distribute shared secret? How to renegotiate shared secret? etc.
-
-
-How fast can \wnet\ reconnect?
-
-Can weave be used in PaaS systems or EC2? probably not.
-
-It may also be noted that the Docker images presented in this thesis are by no means production ready. Although there was an effort to minimize the size of the images, in real scenarios, images would be shaved down to the bare minimum, both in terms of size and capabilities. Utilities such as compilers, build tools and generally everything which is not a prerequisite to execute a given service would be removed. The images used in this thesis serve the purpose of demonstration and thus, such measures were not taken to ensure a rapid progression of this work. More time would be needed to optimize the images for production use.
-
-
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%

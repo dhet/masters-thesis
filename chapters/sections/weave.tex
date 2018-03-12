@@ -10,8 +10,8 @@
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=\textwidth]{figures/sdn.pdf}
-  \caption[An example of containers connected via \wnet\ overlay network]{A number of dispersed containers connected by a \wnet\ overlay network}\label{fig:weavescheme} \todo[inline]{Add legend for boxes, add another host}
+  \includegraphics[width=0.7\textwidth]{figures/weave.pdf}
+  \caption[An example of containers connected via \wnet\ overlay network]{A number of dispersed containers connected by a \wnet\ overlay network}\label{fig:weavescheme} 
 \end{figure}
 
 When the Weave software is started, a central component of \wnet , the \emph{Weave router} is launched (\cf\ \autoref{fig:weavescheme}). Similar to a hardware router, the Weave router is responsible for the forwarding and routing of data packets to their appropriate receivers. Weave routers can be seen as gateways through which all containers participating in a Weave network are connected. To facilitate routing on the data plane, a custom UDP encapsulation protocol, called \emph{sleeve}, was devised. A Weave router in itself is an containerized application running at all times, in the same way a daemon would. There is one of such router containers running on every host in a Weave-enabled infrastructure.

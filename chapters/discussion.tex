@@ -1,0 +1,96 @@
+\chapter{Discussion}\label{chapter:discussion}
+
+\section{Aptitude}
+
+By combining DDS with an overlay network, a coherent distributed system \cite{tanenbaum2017distributed} was built, that from the viewpoint of each individual component, appears to be non-dispersed.
+
+
+\paragraph{Location transparency}
+A high degree of distribution transparency is achieved while preserving a good amount of performance and comprehensibility.
+
+Access transparency: DDS provides a uniform access to data through its reconstruction layer, even though the messages transmitted on the wire may look different.
+
+location transparency: there is no notion of addressing. Services that provide data push it on a topic from where it gets distributed by the middleware to all concerned recipients.
+
+relocation transparency: A service can be moved from one node to another seamlessly. Without having to take action proactively. This is achieved by DDS' ownership QoS.
+
+migration transparency: can the system handle changing IP addresses?
+
+replication transparency: provided by DDS: again, through ownership QoS
+
+failure transparency: by having multiple service instances running concurrently, one may take over in an instant in case the other one fails. In terms of DDS, there is no distinction between a failing service and a service that responds slowly. When a service doesn't fulfill QoS requirements it is considered "dead".
+
+\paragraph{Benchmarks.}
+Routing traffic over an overlay network results in increased CPU utilization. If not used with caution, offloading a small computation to the cloud may end up putting more load on the CPU than simply performing the computation on the on-board computer.
+
+
+\todo{bring list in correct order}
+\paragraph{Scalability.}
+The approach is strongly focused on scalability. 
+
+Computational load can be offloaded to the cloud, when network reception is given.
+
+How fast can the approach scale? Depends on the cloud provider used. Service discovery in DDS is fast.
+
+Scalability is improved by location transparency
+
+Weave nodes can be easily integrated into existing networks. When the Weave router is already in place on a host, merely starting a container is enough to connect it to the overlay.
+
+
+
+\paragraph{Availability / Reliability.}
+Moving vehicles are are very likely to lose reception during operation, \eg , when navigating in remote areas or when driving through tunnels. At the center of the presented approach is cloud connectivity, and hence, reliability is a major concern. Thus, the approach was \emph{designed} to handle cases of unreliable communication channels.
+
+A prerequisite for handling reliability issues is fast failure detection and a quick fail-over mechanism so that timing requirements can be met and downtime is kept at a minimum. With its support for redundancy and failure detection, DDS promises exactly that. DDS' way of guaranteeing reliability communication is achieved by QoS policies. For failure detection, DDS employs a liveliness mechanism whereby services are either proactively, or reactively, probed for responsiveness. If a service fails to meet the demand, it is declared "dead". In such cases, fallback services may be elected as (temporary) replacement. As soon as the original service's operability restored, it may take over operation again.
+
+\wnet 
+
+When a Weave connection is interrupted it fails gracefully and reconnects as soon as connectivity is restored.
+
+\paragraph{Security.}
+Security was a major concern when designing the approach. In fact, Weave's security features were one of the primary reasons why it was chosen as overlay networking technology. In particular, its support for end-to-end encryption ensures the confidentiality and integrity of the communication channel, even in insecure networks such as the Internet. \wnet 's security is based on IPSec and state-of-the-art encryption algorithms. However, questions remain about the usability of Weave's encryption mechanism. Weave employs a shared secret approach, \ie , a password needs to be present on all participating hosts. How this secret should be securely stored is an open question yet to be answered.
+
+Whether \docker 's isolation properties are sufficient in terms of security is debatable. The fact of the matter is, however, that any degree of isolation is better than no isolation. Hence, for now, the security of \docker\ is considered sufficient, although a rigor security analysis is required.
+
+The most important method to keep a system secure is to allow for fast and reliable updates. \docker\ promises exactly that.
+
+The security requirement is partly fulfilled.
+
+\paragraph{Performance.}
+The main motivation behind the approach is to support the resource-constrained on-board computing system of vehicles by means of offloading computations to the cloud, and thereby improve the performance of the whole system. In \autoref{chapter:evaluation} it was shown that the approach manages to fulfill the performance requirement to a satisfying degree. This is because all technologies were chosen, in part, on the basis of their performance properties.
+
+DDS exhibits great performance characteristics because it is, from the ground up, designed to perform well. This was demonstrated in \autoref{sec:ddslatency} where DDS was evaluated regarding its responsiveness. The results of the benchmark show that DDS incurs a comparatively small protocol overhead. Moreover, the chosen virtualization technology, \docker , has been tested regarding performance manyfold  \cite{felter2015updated,morabito2015hypervisors} and the general consensus is that it incurs minimal computational and IO overhead when configured right. Lastly, \wnet\ exhibits decent performance behavior. Since little data was available at the time of this writing, performance benchmarks were conducted in this thesis. The results show that....
+
+DDS supports asynchronous programming paradigm, which can reduce waiting time and increase performance.
+
+\paragraph{Extensibility.}
+
+\paragraph{Adaptability.}
+Location transparency is given by both, \wnet , and DDS.
+
+\paragraph{Testability.}
+
+
+\paragraph{Interoperability.}
+The whole approach is based on containerization as means to achieve a maximum of interoperability. In fact, interoperability is one of its main selling points. \docker\ was used as containerization technology, which allows software to run on any platform that possesses a container engine and has a kernel -- a requirement that is not hard to come by. Additionally, in recent years, efforts to standardize and unify container technologies were launched. Driven by the \emph{Open Container Initiative} (OCI), standards aimed at providing interoperability between containerization technologies were created. Thus, there is no vendor lock-in for \docker .
+
+Weave runs entirely within \docker\ containers. As a consequence, and unsurprisingly, it may run on any platform which is capable of running \docker\ containers. However, Weave is specifically built to work with Docker, and a great deal of modifications to the software would be needed to make it work with other technologies. Hence, vendor lock-in is present. Consequently, in order to swap \docker\ with a competing containerization tool, one would have to drop \wnet\ from the approach. Similarly, when deciding to go without any sort of containerization, Weave could not be used anymore.
+
+Setting containerization aside, the chosen messaging middleware offers decent interoperability support. DDS' wire protocol, DDSI/RTPS, ensures that applications which use DDS implementations from different vendors may communicate with each other. Hence, interoperability is given -- at least within the realm of DDS. 
+\todo{Dependency on network stack? Which network stacks does DDS run on?}
+
+
+
+\section{Limitations}
+
+The benchmarks in the previous chapter demonstrated that the approach to cloud connectivity presented in this thesis is fully functional and performs reasonably well. However, the approach is not a silver bullet and comes with a number of limitations that need to be addressed.
+
+Firstly, \wnet\ is not designed to be used in safety-critical systems. On their website, Weaveworks make no statement about any certification efforts that make the software suitable for the use in safety-critical scenarios. Thus, for the time being, the given approach may only find applicability for non-safety critical functions, \eg\ in the context infotainment systems. However, it may be added that \wnet\ is open source, and as such, all underlying technologies and concepts are disclosed. Thus, it is entirely plausible to implement a thoroughly verified and tested derivative of \wnet\ tailored to safety-critical systems.
+
+In the context of vehicles, safety is inherently connected to the software system's security. Hence, proper methods are required to ensure the system's authenticity, confidentiality, integrity and privacy properties. The presented approach was not tested regarding these attributes. A rigor security analysis is needed to be able to make a well-founded statement about its aptitude.
+
+Problem with \wnet 's encryption: password-based shared secret. How to distribute shared secret? How to renegotiate shared secret? etc.
+
+The test on resource utilization (\cf \autoref{sec:utilization}) revealed a significant computational overhead associated with \wnet\ overlay networking. 
+
+It may also be noted that the Docker images presented in this thesis are by no means production ready. Although there was an effort to minimize the size of the images, in real scenarios, images would be shaved down to the bare minimum, both in terms of size and capabilities. Utilities such as compilers, build tools and generally everything which is not a prerequisite to execute a given service would be removed. The images used in this thesis serve the purpose of demonstration and thus, such measures were not taken to ensure a rapid progression of this work. More time would be needed to optimize the images for production use.
