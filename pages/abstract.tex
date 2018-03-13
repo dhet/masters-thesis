@@ -1,5 +1,44 @@
 \chapter{\abstractname}
 
-%TODO: Abstract
+Context
+\begin{itemize}
+\item Vehicular functions become increasingly complex
+\item Hardware in vehicles is expensive and constrained
+\item Sensors are producing increased quantities of data and the vehicle intrinsic network needs to deal with increased bandwidth demands
+\item There is a need for new architectures and technologies
+\item Middlewares based on the publish-subscribe communication paradigm excel in dealing with complexity. They feature location transparency. Thus, they are promising contenders. 
+\item cloud computing has become a viable alternative to on-premises. Infrastructure can be outsourced. In addition to cost reductions, clouds aim to enhance scalability, even elastically.
+\item those concepts need to be joined together
+\end{itemize}
 
 
+Aim
+\begin{itemize}
+\item provide a platform on which vehicular functions may run ubiquitously, \ie , on vehicle hardware, and cloud infrastructures alike
+\item Offload computations to the cloud
+\item Special requirements: Must deal with spotty reception
+\item Therefore: Seamless switch between cloud and on-board
+\item System needs to be modular to allow for fine-grained control over which functionality is offloaded 
+\item (System in which vehicles function similar to a thin client)
+\end{itemize}
+
+Method
+\begin{itemize}
+\item  Conceptual framework is provided which enables a service-oriented, vehicular software architecture that plays well with vehicular resource constrained on-board system.
+\item the system is able to replicate services and run instances in the vehicle and in the cloud
+\item SOA as means to modularize vehicular functions 
+\item Containerization as means to make services portable
+\item DDS as messaging middleware suitable for cyber-physical systems due to its reliability features. (Data centricity, because...?)
+\item to bridge the gap between vehicle and cloud, an overlay network based on VLAN encapsulation is suggested
+\item  An exemplary implementation of this framework is then presented using state-of-the-art technologies. It is comprised of Docker for containerization, and DDS as messaging middleware
+\item the approach is then analyzed and discussed. Benchmarks are conducted.
+\end{itemize}
+
+
+Results
+\begin{itemize}
+\item provide high degree of distribution transparency
+\item special emphasis is put in reliabilty. It is feasible to create replicas of services running alongside in vehicle and cloud.
+its reliability features are proven in one of the conducted benchmarks
+\item lay ground for further innovations.
+\end{itemize}

@@ -12,26 +12,42 @@ Such E/E-Architectures\footnote{Electric/Electronic}, being comprised of a large
 "A distributed system is a collection of autonomous computing elements that appears to its users as a single coherent system."
 \end{quote}
 
-The first aspect to consider in this definition is the notion of \emph{accumulation}. Distributed systems are made up of a number of \emph{nodes} which may occur in the form of either hardware devices, or software processes. Nodes can be joined together to form \emph{groups}. There are open groups, which every node may join, and closed groups, which employ an authorization mechanism to control access. 
+The first aspect to consider in this definition is the word \emph{collection}. Distributed systems are made up of a number of \emph{nodes} which may occur in the form of either hardware devices, or software processes. Nodes work together to achieve a common goal. For this, they need to exchange messages (\cf \autoref{sec:middlewares}). Furthermore, the definition names \emph{autonomy} as a characteristic of distributed systems. Nodes, on their own, are autonomously acting entities, with their own, individual sets of rules and behavior. At the same time the system needs to be kept together. \emph{Groups}, which individual nodes may join, are a tool to achieve this. There are open groups, which every node may join, and closed groups, which employ an authorization mechanism to control access. 
+Groups aim to provide \emph{coherence}, which is another aspect of the definition given above. By that definition, however, the coherence of the system is only \emph{perceived}. \Ie , to users, whether they are humans or programs, a distributed system presents itself as a single entity, even though it is in actuality comprised of a number of physically dispersed processes and resources. This principle is called \emph{distribution transparency}. \citeauthor*{tanenbaum2017distributed} \cite{tanenbaum2017distributed} separate this principle into several aspects. The first one to note is \textbf{location transparency}. At the root of location transparency is the desire to hide the physical location of resources. A common method to achieve this is by giving resources names. A user who wants to access a resource can thus refer to it by name, \eg\ a URL, while remaining oblivious of its actual location. Under the hood, communication is still based on location-dependent addresses, but such details can be hidden by a name resolution service. Naming furthermore facilitates another kind of distribution transparency: \textbf{Relocation transparency}. As the name suggests, relocation transparency aims to hide the fact that resources may move without the user taking notice. In the example of the aforementioned name resolution service, this can be achieved by reconfiguring the service to redirect users to a location different than the one previously known. To the user, still, the resource appears to be in the same location as it only knows its name. Related to relocation transparency is \textbf{migration transparency}, but in contrast to the former, migration transparency refers to the mobility of the \emph{user}. A migration transparent system allows a user to roam freely, while maintaining connectivity to the rest of the system. Examples of such systems are cellular networks.
 
-Furthermore, the definition names \emph{autonomy} as a characteristic of distributed systems.
-behave independently
+Another aspect of distribution transparency is \textbf{replication transparency}. Distributed systems often provide means to replicate nodes or resources, \eg\ to improve scalability. Replication transparency states that all such replicas appear as one to the user. In addition to scalability, replication can be helpful to provide failure resilience. If a given node fails, and a replica is available, the user can be automatically redirected to the replica. This is also known as \textbf{failure transparency}.
 
-Another aspect in the definition above is the notion of \emph{coherence}.
-To users, a distributed system presents itself as a single entity
-Nodes need to be connected
+The last kind of distribution transparency that \citeauthor*{tanenbaum2017distributed} list is \textbf{access transparency}. Access transparency refers to how data is presented to different users. Several users may have entirely different views of the same data\todo{explain better}. At the basis of this is a basic principle of software engineering: the separation of data and its representation.
 
-The recent trend to connect vehicles to the cloud adds another dimension to their distributed nature.
-
-
-\paragraph{Challenges} In a distributed system, single parts may fail while others keep functioning properly.  This may lead to unexpected behavior.
-
-\subsection{Distribution Transparency}
-
-\section{Middlewares}
+\section{Middlewares} \label{sec:middlewares}
 A prerequisite for the coherence property of distributed systems is the need for nodes to engage in collaboration. More precisely, distributed applications need a way to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. Although message passing is a prime example of a middleware's use case, there are many other important concepts for which middlewares exist, \eg , transaction management in database systems. The primary goal of middlewares is to abstract away such concepts so that programmers can focus on implementing business logic and shipping features, instead of having to deal with the underlying specifics. Middlewares are implemented as a software layer that sits between operating system and the actual applications. They are often included in the form of libraries that make the middleware's functionality available to the programmers by means of an Application Programming Interface (API). 
 
-The need for middlewares becomes particularly evident in the example of \emph{messaging}. Messages need to be sent over a physical mediums which are often, by nature, unreliable. To ensure reliability, many things need to be taken care of, \eg , error detection, repetition mechanisms, etc. In addition, guarantees must be given that messages are delivered to the right receivers. Therefore, addressing and routing mechanisms must be in place. These are just a few examples of things related to messaging. Managing these things manually, and implementing according measures from the ground up is hardly manageable for programmers. Messaging middlewares are a good way to streamline this process. An exemplary messaging middleware may be included in a software project in the form of a library which exposes an API. In the following, all the programmer needs to do to send messages is to invoke a simple function, \eg , \texttt{middleware.sendBroadcast("Hello, World!")}. The middleware then ensures that the message is delivered to the right recipients over whichever transport is available. To receive messages, the programmer may, in the case of this exemplary middleware, define a callback function which the middleware calls automatically whenever a new message is available. The callback function could have the form \texttt{void receive(string message, string sender) \{ /*...*/ \}}.
+The need for middlewares becomes particularly evident in the example of \emph{messaging}. Messages need to be sent over a physical mediums which are often, by nature, unreliable. To ensure reliability, many things need to be taken care of, \eg , error detection, repetition mechanisms, etc. In addition, guarantees must be given that messages are delivered to the right receivers. Therefore, addressing and routing mechanisms must be in place. These are just a few examples of hard-to-solve problems related to messaging. Managing these things manually, and implementing according measures from the ground up is hardly feasible for programmers. Messaging middlewares are a good way to streamline this process. An exemplary messaging middleware may be included in a software project in the form of a library which exposes an API. In the following, all the programmer needs to do to send messages is to invoke a simple function, \eg , \texttt{middleware.sendBroadcast("Hello, World!")}. The middleware then ensures that the message is delivered to the right recipients over whichever transport is available. To receive messages, the programmer may, in the case of this exemplary middleware, define a callback function which the middleware calls automatically whenever a new message is available. The callback function could have the form \texttt{void receive(string message, string sender) \{ /*...*/ \}}.
+
+
+\section{Networking}
+
+
+\subsection{Overlay Networks}
+Distributed systems are often organized as \emph{overlay networks} \cite{tarkoma2010overlay}. An overlay network is a logical network which connects nodes, or peers, in an abstract, high-level manner. Naturally, in order to enable information exchange between the peers, overlay networks require a substrate physical network over which data can be transmitted. As opposed to physical networks, which connect \emph{physical machines}, overlay networks connect \emph{processes}. An important thing to note is that overlay networks are entirely decoupled from the physical infrastructure, such that both networks may evolve (change topology) independently without affecting their operability \cite{tanenbaum2017distributed}. For example, an added node in an overlay network does not necessarily entail the addition of a physical node. Conversely, the removal of a physical node does not necessarily result in connection loss of a logical node. An example of this is the Internet \cite{vaezi2017virtualization}, which spans a worldwide network of nodes that is resilient to failures, such that, when a physical node breaks, a redundant path to the target node may be taken. Other examples of overlay networks are VPNs, Peer-to-peer (P2P) networks and voice over IP (VoIP).
+
+There are two types of overlay networks: \emph{structured} and \emph{unstructured} overlay networks. In the former, peers are organized in a specific, deterministic manner, such that each node has its firm place and an immutable set of neighbors. Unstructured overlay networks, on the other hand, allow the topology to change dynamically. In order for this to work, each node maintains an ad-hoc list of neighbors that is to be updated continuously \cite{tanenbaum2017distributed}. In the context of this thesis, unstructured overlay networks are of particular interest due to the dynamic nature and the reliability characteristics of mobile systems.
+
+
+Ethernet virtualization: VLAN tags to separate traffic and to build L2/L3 overlays.
+
+
+\subsection{Multicast}
+
+In distributed systems, information frequently needs to be propagated to multiple receivers simultaneously. This kind of communication is called \emph{multicast}.
+
+benefits: No hard-coded addresses
+
+Multicast can be implemented on both, network and application-level.
+
+Support for multicast in WANs is rather limited.
+
+
 
 
 \section{Cyber-Physical Systems}
@@ -44,6 +60,12 @@ The need for middlewares becomes particularly evident in the example of \emph{me
 \item Examples of a cyber-physical system are vehicles
 \item x-by-wire
 \end{itemize}
+
+
+
+
+The recent trend to connect vehicles to the cloud adds another dimension to their distributed nature.
+
 
 
 \section{Cloud Computing}
@@ -86,30 +108,6 @@ Failure masking by redundancy: three types: information r. (hamming code), time 
 
 
 \input{chapters/sections/docker}
-
-\section{Networking}
-
-\subsection{Multicast}
-
-In distributed systems, information frequently needs to be propagated to multiple receivers simultaneously. This kind of communication is called \emph{multicast}.
-
-benefits: No hard-coded addresses
-
-Multicast can be implemented on both, network and application-level.
-
-Support for multicast in WANs is rather limited.
-
-
-
-\subsection{Overlay Networks}
-
-An overlay network is a logical network which connects peers in a peer-to-peer network. Naturally, in order to enable information exchange, overlay networks require a substrate physical network over which data can be transmitted. The important thing is that overlay networks are entirely decoupled from the physical infrastructure such that both networks may evolve (change topology) independently without affecting one another. As opposed to physical networks, which connect \emph{physical machines}, overlay networks connect \emph{processes}. There are two types of overlay networks: \emph{structured} and \emph{unstructured} overlay networks. In the former, peers are organized in a specific, deterministic manner, such that each node has its firm place and an immutable set of neighbors. Unstructured overlay networks, on the other hand, allow the topology to change dynamically. In order for this to work, each node maintains an ad-hoc list of neighbors that is to be updated continuously \cite{tanenbaum2017distributed}. In the context of this thesis, unstructured overlay networks are of particular interest due to the dynamic nature and the reliability characteristics of mobile systems.
-
-
-Examples of overlay networks are VPNs, Peer-to-peer (P2P) networks and voice over IP (VoIP)
-
-Ethernet virtualization: VLAN tags to separate traffic and to build L2/L3 overlays.
-
 
 
 \input{chapters/sections/dds}
