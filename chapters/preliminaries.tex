@@ -38,8 +38,7 @@ Ethernet virtualization: VLAN tags to separate traffic and to build L2/L3 overla
 
 
 \subsection{Multicast}
-
-In distributed systems, information frequently needs to be propagated to multiple receivers simultaneously. This kind of communication is called \emph{multicast}.
+The simplest form of communication is one-to-one communication, which is also referred to as \emph{unicast}. In unicast, every node has an address by which it can be contacted. In most cases, unicast is sufficient for data exchange. However, in distributed systems, information frequently needs to be propagated to multiple receivers simultaneously. Unsurprisingly, this type of communication is called \emph{multicast} communication. 
 
 benefits: No hard-coded addresses
 
@@ -70,11 +69,11 @@ The recent trend to connect vehicles to the cloud adds another dimension to thei
 
 \section{Cloud Computing}
 
-The idea of cloud computing is to provide access to remote computing resources  (\eg , networks, servers, storage, applications, and services) in a convenient, on-demand manner \cite{mell2011nist}. Customers can rent these resources to use them at their will. By outsourcing their IT infrastructure into the cloud, companies can significantly reduce capital and operational expenditures (CAPEX/OPEX) that are typically associated with running an on-premise infrastructure. Other benefits include easier maintenance and accelerated time-to-market times. Several pricing models for cloud services exist. Customers often have the choice between a set monthly fee, or they may pay on a pay-per-use basis.
+The idea of cloud computing is to provide access to remote computing resources  (\eg , networks, servers, storage, applications, and services) in a convenient, on-demand manner \cite{mell2011nist}. Customers of cloud providers can rent these resources to use them at their will. By outsourcing their IT infrastructure into the cloud, companies can significantly reduce capital and operational expenditures (CAPEX/OPEX) that are typically associated with running an on-premise infrastructure.\todo{citation} Other benefits include easier maintenance and accelerated time-to-market times. Several pricing models for cloud services exist. Customers often have the choice between a set monthly fee, or they may take advantage of a pay-per-use model, whereby providers bill their users, \eg , on the basis of CPU time.
 
 Cloud infrastructures are typically implemented as multi-tenancy systems in which the same hardware is shared among many customers ("resource pooling"). An enabling technology for this is virtualization. Each customer is assigned one or more virtual machines (VMs) running on one or more physical servers. For its users, the alloted computing environment appears as a single, isolated physical machine. The amount of disposable resources can be controlled for each VM individually, allowing for fine-grained resource tuning according to demand.
 
-A major selling point of cloud computing is scalability. Many cloud providers allow for the dynamic allocation of resources depending on demand. To customers, the available resources appear as if they were unlimited when in actuality the substrate resources are alloted and released under the hood in an elastic manner. To steer this behavior, \emph{elasticity controllers} can be employed by which rules can be defined to control when and how scaling measures are performed. \Eg , when a CPU utilization threshold is reached, the system can be instructed to automatically launch an application replica. Subsequently, a load balancer can be used to distribute the load between the instances \cite{vaquero2011dynamically}.
+A major selling point of cloud computing is scalability. Many cloud providers allow for the dynamic allocation of resources depending on demand. To customers, the available resources appear as if they were unlimited when in actuality the substrate resources are alloted and released under the hood in an elastic manner. To steer this behavior, \emph{elasticity controllers} can be employed which allow customers to define rules to control when and how scaling measures are performed. \Eg , when a CPU utilization threshold is reached, the system can be instructed to automatically launch an application replica. Subsequently, a load balancer can be used to distribute the load between the instances \cite{vaquero2011dynamically}.
 
 
 \paragraph{}
@@ -83,7 +82,7 @@ Cloud computing presents itself in the form of several usage models. The most no
 \begin{description}
 \item[IaaS] In the IaaS model, sheer, usually virtualized, hardware is provided, on which customers can install and run arbitrary software. Customers have only basic control over their virtual infrastructure's hardware composition, but may take influence on the operating system level.
 \item[PaaS] The PaaS model presents a higher level view on the infrastructure. In this model, customers don't have full control over their VM instance. Instead, they can deploy their software in predefined application-hosting environments \cite{mell2011nist} which are typically centered around a certain technology, \eg\ .NET, or node.js, etc. Examples for this type of services are Microsoft Azure or Google App Engine.
-\item[SaaS] Finally, the SaaS model is the highest level of cloud services. SaaS typically describes applications which are hosted on cloud platforms. These applications are usually provided by means of thin clients, most notably web browsers. Customers, which are mostly end users, have the least control over the cloud service and can only take influence via application-level configurations \cite{mell2011nist}. Examples of SaaS applications are Gmail or YouTube.
+\item[SaaS] Finally, the SaaS model is the highest level of cloud services.\todo{sounds weird} SaaS typically describes applications which are hosted on cloud platforms. These applications are usually accessible by means of thin clients, most notably web browsers. Customers have the least control over the cloud service and can only take influence via application-level configurations \cite{mell2011nist}. Examples of SaaS applications are browser-based e-mail services or video streaming platforms.
 \end{description}
 
 

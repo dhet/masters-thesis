@@ -1,12 +1,8 @@
 \section{Data Distribution Service}
 
-DDS is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-tme requirements. As such, it aims to function in a resource efficient and predictable manner, and is subject to minimal computational and transport overhead.
+DDS is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-time requirements. As such, DDS aims to function in a resource efficient and predictable manner, and is subject to minimal computational and transport overhead.
 
-
-DDS is built around the data-centric publish-subscribe paradigm.
-Data centric means....
-
-In the publish-subscribe paradigm, two kinds of peers are present: publishers and subscribers. Publishers offer data, while subscribers subscribe to receive that data. A crucial characteristic of publish-subscribe is that data exchange between the peers is anonymous. \Ie , subscribers do not know where a given message originated. The same is true for publishers: they have no knowledge about where the sent data will end up at -- or even if there are any receivers. Thus, there is no concept of \emph{direct addressing}. Instead, peers communicate on the basis of a shared understanding of what \emph{kind of data} they are interested in. 
+DDS is built around the data-centric publish-subscribe (DCPS) paradigm\todo{explanation of data centric here?}. In the publish-subscribe paradigm, two kinds of peers are present: publishers and subscribers. Publishers offer data, while subscribers consume that data. A crucial characteristic of publish-subscribe is that data exchange between the peers is anonymous. \Ie , subscribers do not know where a given message originated. Similarly, publishers have no knowledge about where the sent data will end up at -- or even if there are any receivers. Thus, there is no concept of \emph{direct addressing}. Instead, peers communicate on the basis of a shared understanding of what \emph{kind of data} they are interested in. 
 For example, given a temperature sensor offering temperature measurements in a publish-subscribe setting. A subscriber that is interested in that data only knows that it wants to receive \emph{temperature data} while at the same time being entirely oblivious to the concept of \emph{temperature sensors}. 
 Since publishers and subscribers have no references to one another, and know as little of each other as possible, a high level of loose coupling is achieved. This allows for a simple extension of the system, making it extraordinarily scalable.
 
@@ -14,17 +10,14 @@ By abstracting away the source of data, a virtual \emph{global data space} is cr
 
 
 \paragraph{Programming Interface.}
-Specifies an API by which a distributed application can pass data over DCPS. 
-
-
-The DDS specification is split into two separate sections. The main one, which is concerned with \emph{Data-Centric Publish-Subscribe} (DCPS), defines a low level API that enables applications to communicate via DDS. The second part revolves around a \emph{Data Local Reconstruction Layer} (DLRL). DLRL sits on top of DCPS and is optional. The purpose of DLRL is to provide typed interfaces to the messaging layer, \ie , the delivered messages are conceived in a format suitable for direct processing in the application--without the need to check the message's format. More precisely, DCPS performs a transformation of the unprocessed messages into language-specific data types. With the aid of DLRL, type-safety of communication is ensured and verification can be performed at compile-time, thereby reducing the application's error-proneness.
+The DDS standard specifies an API which is split into two separate parts. The main one, which is concerned with \emph{Data-Centric Publish-Subscribe} (DCPS), defines a low level API that enables basic DCPS-style message passing. The second part revolves around a \emph{Data Local Reconstruction Layer} (DLRL). DLRL sits on top of DCPS and is optional. The purpose of DLRL is to provide typed interfaces to messages. The delivered messages are conceived in a format suitable for direct processing in the application -- without the need to check the message's format. More precisely, DCPS performs a transformation of the unprocessed messages into language-specific data types. With the aid of DLRL, type-safety of communication is ensured and verification can be performed at compile-time, which helps to prevent bugs and reduces the application's error-proneness.
 
 
 \paragraph{Decentralization.}
 No single point of failure. No information brokers. no name servers.
 
 \paragraph{Wire Protocol.}
-The DDS standard does not dictate a wire protocol. DDS implementations may therefore utilize UDP, TCP and other protocols to exchange messages. This leaves room for ambiguity in the standard. As a result, DDS implementations are by default not interoperable. For this reason, a new wire protocol was devised: DDSI-RTPS (DDS Interoperability--Real-time Publish-Subscribe), or simply, RTPS. Although RTPS is related to DDS, its specifics are outsourced in a separate standard. \cite{rtps-2.2-standard}
+The DDS standard does not dictate a wire protocol. DDS implementations may therefore utilize UDP, TCP and other protocols to exchange messages. This leaves room for ambiguity in the standard. As a result, DDS implementations are by default not interoperable. For this reason, a complementary wire protocol by the name of DDSI-RTPS\footnote{The "DDSI" in DDSI-RTPS is often omitted. The shortened form will henceforth be used.} (DDS Interoperability--Real-time Publish-Subscribe) was devised. Although RTPS is related to DDS, its specifics are outsourced in a separate standard. \cite{rtps-2.2-standard}
 
 It uses the OMG \emph{Common Data Representation} (CDR) to encode data in a platform-neutral way. 
 
@@ -56,7 +49,7 @@ peer discovery, transport methods, sampling rates, etc. are a matter of configur
 
 \subsection{DDS Components}
 
-DDS defines a number of components, for which it uses its own nomenclature. In the following, each component is described. \autoref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS. 
+DDS defines a number of components for which it uses its own nomenclature. In the following, each component is described. \autoref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS. 
 
 \paragraph{Topics.}
 \emph{Topics} are the common ground on the basis of which peers communicate in the publish-subscribe paradigm. When a Publisher offers a certain kind of data, it does so by means of a Topic. When a data sample should be written, the Publisher pushes that data sample to a Topic appropriate for that sort of data. Conversely, when a Subscriber is interested in receiving data of a certain kind, then it subscribes to a Topic associated with that data. A Topic is defined by a unique identifier (name) and a data type. The data type represents the message format for messages sent over that Topic. For example, a suitable data type for a Topic concerned with temperature data would be a \texttt{struct} containing a single \texttt{float} value representing a temperature reading.

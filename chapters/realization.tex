@@ -1,7 +1,7 @@
 
 \chapter{Approach}\label{chapter:realization}
 
-In this chapter, the approach to enable cloud connectivity for automotive software systems is presented. First, the approach is described in an abstract manner, giving an high-level overview of the underlying concepts. Then, a list of requirements and desirable quality attributes is given on the basis of which the approach is later evaluated. The section that follows gives a concrete example of how the system may be realized. For this, an exemplary technology stack is presented and each part of the stack is discussed in detail. This part builds the basis for the subsequent chapter, where a system based on the presented technologies is evaluated.
+In this chapter, the main approach of this thesis is presented. The chapter starts with an abstract description of the approach with the aim of providing a high-level overview of the underlying concepts. Then, a list of requirements and desirable quality attributes is given on the basis of which the approach is later evaluated. The section that follows gives a concrete example of how the system may be realized. For this, an exemplary technology stack is presented, whereby each of the employed technologies is discussed in detail. This part builds the basis for the subsequent chapter, where a system based on the presented technologies is evaluated.
 
 %
 %
@@ -16,26 +16,18 @@ In this chapter, the approach to enable cloud connectivity for automotive softwa
 
 \section{Concept}
 
-\begin{itemize}
-\item Virtualization to provide platform independent execution environment
-\item Overlay networks and SDN for networking and to provide location transparency
-\item Service-oriented architecture as a way to promote fine-grained control, reusability, and (horizontal) scalability
-\item Middleware that guarantees reliability
-\item Publish-Subscribe to promote location transparency
-\end{itemize}
+\todo{einstieg ueberarbeiten}The approach follows a service-oriented architectural paradigm whereby the system is composed of a number of \emph{services}. Each service provides an offering to other services. Such offering may be some kind of data or functionality. All services of the system are working together in synergy to achieve a common goal. 
 
-Modeling as SOA 
+Services expose their functionality by means of topics in a publish-subscribe environment. The method of exposition is data-centric: instead of providing \emph{methods} that other services may invoke (RPC style), services offer \emph{data}. Any service interested in receiving a certain kind of data listens in on a topic on which such data is published. This approach greatly helps to decouple the system as services have no reference to one another. As a result, services may evolve without having to deal with interface interdependencies. Promotes decoupling
+Although this makes request-response-style communication rather difficult (as it is discouraged) it is still possible. 
 
-Services are independent units... Limited in terms of knowledge (location and topology) and capabilities (principle of least privilege)
+A major goal of the approach is scalability, and in particular, horizontal scalability. Therefore, replication is key. The service-oriented approach alleviates this tremendously, provided that certain design principles are applied. Hence, throughout the design and implementation of the envisioned system, several design goals need to be kept in mind. Firstly, services ought to be \textbf{stateless}. Statelessness facilitates replication as sharing state among many instances proves to be difficult. Consistency is hard to achieve and locking mechanisms may become a bottleneck.\todo{more on consistency models this in tanenbaum...} Furthermore, services should be \textbf{fine-grained}. A high-resolution granularity allows for detailed control over which services should be replicated. That way, computational bottlenecks can be more easily singled-out and eliminated. An added benefit is increased extensibility and faster software updates. However, trade-offs need to be considered. If services are too fine-grained, they need to communicate more, and as a result, the communication channel might become a bottleneck. Furthermore, too many services unnecessarily increase complexity.
 
-SOA promotes statelessness: easy to scale out
+Another design goal to keep in mind is \textbf{isolation}. Services should have limited knowledge of both, location and topology. The aim should be to hide anything that isn't directly related to the reception of data. Through that, loose coupling is achieved. One aspect of isolation is self-containment. Services should be kept together with all their dependencies as a single unit that may be deployed on any hardware platform. By packaging services in self-contained environments, they may be moved between different computing nodes. This property is the most important one to achieve cloud scalability. Commonly used tools to facilitate this are virtualization and containerization.
 
+The last question that remains is how services are connected. Since services may be duplicated and migrated between computing nodes, special emphasis needs to be put on location/relocation transparency and dynamic topology management. In the approach, the use of virtual overlay networks is suggested for this purpose. Especially challenging is the fact that the overlay must work on top of a substrate network made up of numerous globally dispersed nodes, of which some continuously change their location. As a result, the substrate network is exceptionally unreliable.
 
-Why cloud? Because cloud computational power is a lot cheaper than for on board computers
-
-The method follows a service-oriented architectural paradigm whereby functionality is split into a number of independent services connected via a messaging middleware.  
-The crux of the presented approach is that services may be deployed on ECUs within the vehicle as well as within remote data centers. At the same time, communication between the services is not affected in any way. \Ie , from the viewpoint of a service deployed within the vehicle it doesn't matter whether a peer service is deployed in the same vehicle or in a remote data center -- the way they communicate is exactly the same.
-
+\paragraph{}
 
 \begin{figure}[htpb]
   \centering
@@ -43,7 +35,17 @@ The crux of the presented approach is that services may be deployed on ECUs with
   \caption[Conceptual sketch of the approach]{Conceptual sketch of the approach, demonstrating location transparent replication of services in the cloud}\label{fig:idea} 
 \end{figure}
 
-\autoref{fig:idea} presents a schematic view of the approach. The box on the left-hand side represents a vehicle. In the vehicle, several interconnected services are deployed. What is not depicted, but naturally given, is that these services run on distributed embedded devices spread over the vehicle's E/E system. On the right-hand side, the cloud is depicted, which, in actuality, is a collection of high-performance computing nodes. Vehicle and cloud are physically separated and connected via some sort of network, which is accessible, \eg , by means of 5G. As can be observed in the figure, some of the vehicle-intrinsic services are replicated in the cloud (\ding{117}, \ding{115}). Examples of such services could be functions for predicting trajectories, gaze detection, or machine learning algorithms. The duplication and varying size of the service boxes depicted in the image is indicative of horizontal and vertical scaling, respectively. It doesn't always make sense to replicate services in the cloud, \eg , because they are computationally inexpensive, or because they require access to sensors and actors (\ding{70}, \ding{108}, \ding{58}). Those services have their firm place within the vehicle and are referred to as \emph{fixed} services. Their counterpart, \ie , services that may migrate to the cloud are called \emph{volatile} services. Considering the discrepancy between fixed and volatile services, a need becomes evident to split functionality into fine-grained services so that single functions can be scaled individually and bottlenecks can be singled out and eliminated.
+\autoref{fig:idea} presents a schematic view of the approach. The box on the left-hand side represents a vehicle. In the vehicle, several interconnected services are deployed. What is not depicted, but naturally given, is that these services run on distributed embedded devices spread over the vehicle's E/E system. On the right-hand side, the cloud is depicted, which, in actuality, is a collection of high-performance computing nodes. Vehicle and cloud are physically separated and connected via some sort of network, which is accessible, \eg , by means of 5G. As can be observed in the figure, some of the vehicle-intrinsic services are replicated in the cloud (\ding{117}, \ding{115}). Examples of such services could be functions for predicting trajectories, gaze detection, or machine learning algorithms. The duplication and varying size of the service boxes depicted in the image is indicative of horizontal and vertical scaling, respectively. It doesn't always make sense to replicate services in the cloud, \eg , because they are computationally inexpensive, or because they require access to sensors and actors which can only be found in the vehicle (\ding{70}, \ding{108}, \ding{58}). Those services have their firm place within the vehicle and are referred to as \emph{fixed} services. Their counterpart, \ie , services that may migrate to the cloud are called \emph{volatile} services. The discrepancy between fixed and volatile services emphasizes the need to split functionality into fine-grained services so that computational bottlenecks can be isolated and then eliminated. A good advice is to extract services connected to sensors and actors in minimal services ("\emph{access services}") that do nothing but provide a low-level interface to sensor data.
+
+\paragraph{Key Challenges}
+
+In this section, an approach was presented to offload computations to the cloud. To achieve this, the approach suggests to split functionality into fine-grained services that may be replicated and migrated smoothly between vehicle and cloud. The problem at hand can be categorized in three key challenges which need to be addressed:
+
+\begin{enumerate}
+\item \textbf{Reliable Information Exchange}: Services must be able to communicate in a reliable manner, without needing direct references to one another.
+\item \textbf{Isolation}: Services need to be packed in self-contained execution environments with all their dependencies.
+\item \textbf{Connectivity}: Services need to be able to autonomously create connections between each other and stay connected, regardless of where they are.
+\end{enumerate}
 
 %
 %
@@ -57,13 +59,15 @@ The crux of the presented approach is that services may be deployed on ECUs with
 %
 
 \section{Requirements and Quality Attributes}
-Dependable systems [Kopetz, Verissimo]: Availability, Reliability, Safety, Maintainability
+The previous section already touched on desirable quality attributes to keep in mind when implementing the approach. Still, a rigor requirement analysis is needed in order to be able to thoroughly evaluate it. To this end, a detailed requirement list is presented which an implementation of the envisioned system should aim to fulfill. The list is loosely based on the work of \citeauthor*{o2007quality} \cite{o2007quality}.
+
+\todo[inline]{More info: Dependable systems [Kopetz, Verissimo]: Availability, Reliability, Safety, Maintainability}
 
 \paragraph{Availability.}
 Availability states how likely it is that, at any given point in time, a system is ready to be used by its users \cite{tanenbaum2017distributed}. The period in which a system or service is unavailable is called \emph{downtime}. Sources of downtime can be, \eg , maintenance work, temporary congestion, or any kind of failure. A design goal when building and running software systems is to minimize downtime, and thereby maximize availability. This goal is not trivial to achieve as many sources of decreased availability are hard to predict, \eg\ in case of hardware failures. A key technique for handling downtime is redundancy, whereby critical systems, or those susceptible to downtime, have a replacement ready to be used at all times. A prerequisite for redundancy to take effect is that the system features quick failure detection and smooth transition mechanisms so that it can quickly reroute requests to the redundant service.
 
 \paragraph{Reliability.}
-Reliability states how long a system can run without failure. A reliable system is available for prolonged periods of time without interruption. Although reliability is related to availability, there is a clear distinction between the two. While reliability states a continuous period of operability, availability concerns operability at a given point in time. For example, a system that works fine most of the time but becomes unavailable for a few milliseconds every hour is highly available, but not reliable. Hence, a highly reliable system is not necessarily a highly available one and vice versa \cite{tanenbaum2017distributed}.
+Reliability states how long a system can continuously run without failure. A reliable system is available for prolonged periods of time without interruption. Although reliability is related to availability, there is a clear distinction between the two. While reliability states a continuous period of operability, availability concerns operability at a given point in time. For example, a system that works fine most of the time but becomes unavailable for a few milliseconds every hour is highly available, but not reliable. Hence, a highly reliable system is not necessarily a highly available one and vice versa \cite{tanenbaum2017distributed}.
 
 In real-time systems, even a temporary failure could have disastrous effects. If the system is a hard real-time system, a single missed deadline is even equivalent to a complete system failure. Ensuring reliability is therefore of utmost importance. As with availability, a way to mitigate the effects of poor reliability is redundancy.
 
@@ -194,9 +198,9 @@ Gladly, DDS offers a solution to this. In DDS, topics are not restricted to a si
 
 
 
-\subsection{\docker as Containerization Technology}
+\subsection{\docker\ as Containerization Technology}
 
-\docker is a promising technology for pr
+\docker\ is a promising technology for pr
 
 \paragraph{Innovation Pressure}(not docker specific) calls for fast development cycles -> CI/CD
 
@@ -213,9 +217,15 @@ The primary purpose of containerization is to build portable execution environme
 Several approaches exist to tackle this problem. QEMU... This approach turned out to be unsuitable for the intended use case as multicast is not well supported by QEMU.
 
 
-\subsubsection{An Approach to Images}
+\subsubsection{Containerized Services}
 Method: pack each service into a separate container.
 
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\textwidth]{figures/docker-sharing}
+  \caption[An example of containerized services]{An example of four containerized service instances, some sharing common logic to save disk space and facilitate fast updates}\label{fig:images} 
+\end{figure}
 
 
 \input{chapters/sections/weave}
