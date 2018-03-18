@@ -2,12 +2,51 @@
 
 \chapter{Preliminaries}\label{chapter:preliminaries}
 
+\section{Cyber-Physical Systems}
+
+\begin{itemize}
+\item characterized by limited resources
+\item often real-time systems
+\item often safety critical
+\item Sensors and actors connected to ECUs
+\item Examples of a cyber-physical system are vehicles
+\item x-by-wire
+\end{itemize}
+
+
+\paragraph{Automotive Engineering}
+Control systems in modern vehicles are typically implemented as a collection of dozens, if not hundreds, of Electronic Control Units (ECUs) dispersed within a vehicle. Originally, there was no conscious decision to design automotive systems that way. Much rather, it is the result of an evolutionary process. At first, individual ECUs, each dedicated to a single purpose, were implemented in vehicles. At this point, ECUs were isolated from each other and no sense of cohesion was present in the system. This changed with the introduction of advanced wiring and bus systems that allowed ECUs to interact with sensors and actors. It was then only a matter of time until the bus systems were used to furthermore interconnect ECUs, which could then be used in interplay to create new, innovative functions \cite{broy2006challenges}. However random this evolution might have been, there are several benefits to the dispersed approach (as opposed to a centralized one). By having ECUs close to the sensors and actors they control, wiring effort is kept low, which results in low transmission latencies. 
+
+Problems according to \citeauthor*{broy2006challenges}:
+\begin{itemize}
+\item Often highly proprietary
+\item Limited re usability of software: 90\% of software is re-written 
+\item Lack of tools and automation
+\end{itemize}
+
+
+Industry profile according to \citeauthor*{broy2006challenges}:
+\begin{itemize}
+\item Highly modular: several teams working independently on different technologies
+\item Much is outsourced: many technologies are developed by suppliers, rather than the OEM 
+\item Development: Many systems must interact -> vehicles evolve from an assembled device to an integrated system
+\item Behavior becomes programmable: from comfort functions to steering and breaking: everything can be controlled by software.
+\item moving away from specialized ECUs to general-purpose commodity systems
+\end{itemize}
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
 
 \section{Distributed Systems}
-
-Control systems in modern vehicles are typically implemented as a collection of dozens, if not hundreds, of Electronic Control Units (ECUs) dispersed within a vehicle. There are several reasons why dispersion is preferable over a centralized approach. By bringing ECUs closer to the sensors and actuators they control, wiring effort is kept low, which results in low message transmission latencies, decreased weight, and reduced proneness to errors. 
-
-Such E/E-Architectures\footnote{Electric/Electronic}, being comprised of a large number of distributed, connected sensors, actuators and control units, fall into the category of \emph{distributed systems}. The term "distributed system" entails many things and just as many definitions of the term exist. A definition that most would agree upon is the one given by \citeauthor*{tanenbaum2017distributed} \cite{tanenbaum2017distributed}: 
+Modern vehicular E/E-Architectures\footnote{Electric/Electronic} are comprised of a large number of distributed, connected sensors, actors and control units, and hence, fall into the category of \emph{distributed systems}. The term "distributed system" entails many things and just as many definitions of the term exist. A definition that most would agree upon is the one given by \citeauthor*{tanenbaum2017distributed} \cite{tanenbaum2017distributed}: 
 \begin{quote}
 "A distributed system is a collection of autonomous computing elements that appears to its users as a single coherent system."
 \end{quote}
@@ -19,14 +58,34 @@ Another aspect of distribution transparency is \textbf{replication transparency}
 
 The last kind of distribution transparency that \citeauthor*{tanenbaum2017distributed} list is \textbf{access transparency}. Access transparency refers to how data is presented to different users. Several users may have entirely different views of the same data\todo{explain better}. At the basis of this is a basic principle of software engineering: the separation of data and its representation.
 
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
 \section{Middlewares} \label{sec:middlewares}
 A prerequisite for the coherence property of distributed systems is the need for nodes to engage in collaboration. More precisely, distributed applications need a way to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. Although message passing is a prime example of a middleware's use case, there are many other important concepts for which middlewares exist, \eg , transaction management in database systems. The primary goal of middlewares is to abstract away such concepts so that programmers can focus on implementing business logic and shipping features, instead of having to deal with the underlying specifics. Middlewares are implemented as a software layer that sits between operating system and the actual applications. They are often included in the form of libraries that make the middleware's functionality available to the programmers by means of an Application Programming Interface (API). 
 
 The need for middlewares becomes particularly evident in the example of \emph{messaging}. Messages need to be sent over a physical mediums which are often, by nature, unreliable. To ensure reliability, many things need to be taken care of, \eg , error detection, repetition mechanisms, etc. In addition, guarantees must be given that messages are delivered to the right receivers. Therefore, addressing and routing mechanisms must be in place. These are just a few examples of hard-to-solve problems related to messaging. Managing these things manually, and implementing according measures from the ground up is hardly feasible for programmers. Messaging middlewares are a good way to streamline this process. An exemplary messaging middleware may be included in a software project in the form of a library which exposes an API. In the following, all the programmer needs to do to send messages is to invoke a simple function, \eg , \texttt{middleware.sendBroadcast("Hello, World!")}. The middleware then ensures that the message is delivered to the right recipients over whichever transport is available. To receive messages, the programmer may, in the case of this exemplary middleware, define a callback function which the middleware calls automatically whenever a new message is available. The callback function could have the form \texttt{void receive(string message, string sender) \{ /*...*/ \}}.
 
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
 
 \section{Networking}
-
 
 \subsection{Overlay Networks}
 Distributed systems are often organized as \emph{overlay networks} \cite{tarkoma2010overlay}. An overlay network is a logical network which connects nodes, or peers, in an abstract, high-level manner. Naturally, in order to enable information exchange between the peers, overlay networks require a substrate physical network over which data can be transmitted. As opposed to physical networks, which connect \emph{physical machines}, overlay networks connect \emph{processes}. An important thing to note is that overlay networks are entirely decoupled from the physical infrastructure, such that both networks may evolve (change topology) independently without affecting their operability \cite{tanenbaum2017distributed}. For example, an added node in an overlay network does not necessarily entail the addition of a physical node. Conversely, the removal of a physical node does not necessarily result in connection loss of a logical node. An example of this is the Internet \cite{vaezi2017virtualization}, which spans a worldwide network of nodes that is resilient to failures, such that, when a physical node breaks, a redundant path to the target node may be taken. Other examples of overlay networks are VPNs, Peer-to-peer (P2P) networks and voice over IP (VoIP).
@@ -46,26 +105,16 @@ Multicast can be implemented on both, network and application-level.
 
 Support for multicast in WANs is rather limited.
 
-
-
-
-\section{Cyber-Physical Systems}
-
-\begin{itemize}
-\item characterized by limited resources
-\item often real-time systems
-\item often safety critical
-\item Sensors and actors connected to ECUs
-\item Examples of a cyber-physical system are vehicles
-\item x-by-wire
-\end{itemize}
-
-
-
-
-The recent trend to connect vehicles to the cloud adds another dimension to their distributed nature.
-
-
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
 
 \section{Cloud Computing}
 

@@ -40,7 +40,7 @@ Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) i
 \paragraph{DDS + Virtualization}
 \cite{serrano2013virtualizing}: Virtualizing DDS middleware: performance challenges and measurements
 
-\cite{perez:gutierrez:ieeetpds16}: Enabling Data-Centric Distribution Technology for Partitioned Embedded Systems... DDS on top of hypervisor
+\citeauthor*{perez:gutierrez:ieeetpds16} \cite{perez:gutierrez:ieeetpds16} present a way to combine DDS and hypervisor-based inter-process communication to interconnect a time and space partitioned system. Their focus lies on mixed-criticality applications running atop a hypervisor designed for safety-critical scenarios. The performance tests they conduct show that DDS adds a reasonable overhead to the communication performance but the overhead caused by hypervisor-based partitioning is quite significant, albeit reducible by the use of multicore processors.
 
 \cite{garcia2013benchmarking}: Benchmarking communication middleware for cloud computing virtualizers. Test performance overhead of hypervisors for DDS as well as the performance overhead of DDS compared to ICMP packets
 
@@ -78,3 +78,21 @@ Insights: location-independent addressing is a major design objective
 \cite{wang2010impact}: The impact of virtualiztion on network performance.
 
 The authors perform networking benchmarks on Amazon EC2 instances and find that virtualization and processor sharing heavily impacts networking performance. In particular, network delay and TCP/UDP throughput suffers drastically.
+
+
+\paragraph{Embedded SOA}
+Work on service-oriented architectures is available in abundance. However, few attempts were made to build such architecture on top of embedded systems
+
+\begin{itemize}
+%\item \cite {scholz2009soa}: \citeauthor*{scholz2009soa} - ∈ SOA-Service Oriented Architectures adapted for embedded networks
+\item \cite{kugele2017service}: \citeauthor*{kugele2017service} - On Service-Orientation for Automotive Software
+\item \cite{wagner2014developing}: \citeauthor*{wagner2014developing} - Developing self-adaptive automotive systems - On the integration of service-orientation into automotive
+development processes -- SOMA4DDAS
+\end{itemize}
+
+
+
+
+
+\paragraph{Other}
+\citeauthor*{broy2006challenges} \cite{broy2006challenges}: Challenges in automotive software engineering... Takeaways: increasing amounts of code in cars, increasing complexity. Software is the main innovation driver. Broy states challenges, gives an industry profile of automotive industry. Lists requirements that are very different from other domains. Current development practices in the industry are lacking.

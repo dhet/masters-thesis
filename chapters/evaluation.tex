@@ -1,11 +1,13 @@
 
 \chapter{Evaluation}\label{chapter:evaluation}
 
-In this chapter, the approach presented in the previous chapter is evaluated regarding performance, safety properties, and general feasibility. For this, a number of tests were conducted which are presented in the following. But first, the experiment setup is thoroughly described.
+In the previous chapter this thesis' main approach was presented and an exemplary implementation based on well-established technologies was suggested. What now follows is an evaluation of the implementation. Points of interest are the system's performance characteristics, reliability properties and general feasibility. For the purpose of evaluation a number of tests were conducted which are presented in the following. But first, the experiment setup is thoroughly described.
 
-\section{Benchmarks}
 
-\subsection{Experimental Setup}\label{sec:testsetup}
+\section{Experimental Setup}\label{sec:testsetup}
+
+As part of the \emph{Osborne} \todo{ist das richtig? link?} project a testbed was developed...
+\todo[inline]{finish introduction}
 
 The network topology used in the tests is depicted in \autoref{fig:network-topology}. In the local test environment ("on-premise") there was a cluster of three ARM-based SOCs\footnote{System on a Chip} (Raspberry Pi 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the LAN was also a workstation which fulfilled the sole purpose of orchestrating the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center over the open Internet via 100 Mbit/s connection.
 
@@ -56,6 +58,8 @@ The detailed specifications of the involved computing nodes and the employed sof
 %
 %
 %
+
+\section{Benchmarks}
 
 \subsection{Latency Benchmark} \label{sec:plainlatency}
 
