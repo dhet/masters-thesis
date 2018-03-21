@@ -25,8 +25,9 @@ In accordance with the microservice architecture pattern, vehicular functionalit
 
 \paragraph{DDS over SDN}
 
-\citeauthor*{hakiri2015publish} \cite{hakiri2015publish} devise a system to interconnect IoT devices via DDS over an overlay network. However, the description of their approach lacks details and no real effort were made to evaluate it.
+\citeauthor*{farahzadi2017middleware} \cite{farahzadi2017middleware} analyze the problem domain of cloud connectivity for the IoT. For this purpose, they present a survey in which they analyze a number of different IoT middleware solutions and compile a set of key challenges and requirements for such systems.
 
+\citeauthor*{hakiri2015publish} \cite{hakiri2015publish} devise a system to interconnect IoT devices via DDS over an overlay network. However, the description of their approach lacks details and no real effort were made to evaluate it.
 
 
 \paragraph{Docker specific}
@@ -68,16 +69,22 @@ Supports several communication models: request/response, async, events, "field",
 
 
 \paragraph{Cloud}
+
 \cite{greenberg2008cost}: The cost of a cloud: research problems in data center networks
 
 Insights: location-independent addressing is a major design objective
 
-
-
-
 \cite{wang2010impact}: The impact of virtualiztion on network performance.
 
 The authors perform networking benchmarks on Amazon EC2 instances and find that virtualization and processor sharing heavily impacts networking performance. In particular, network delay and TCP/UDP throughput suffers drastically.
+
+
+\paragraph{computation offloading in cloud (cell phones)}
+\citeauthor*{barbera2013offload} \cite{barbera2013offload} analyze in which cases it is sensible to offload computations from cell phones to the cloud. There is a tradeoff to be made between the energy savings achieved by the offloading itself and the increased computational overhead of sending data over a mobile network. They aim to provide virtual replicas of the hardware in the cloud, running at all times alongside the physical device to support it whenever there is a need. They do not consider statelessness of the replicas and employ a synchronization mechanism to keep the state consistent. This incurs additional overhead. They use cell phone specific tools which are inapplicable in the automotive use case. They view their approach as holistic solution -> lack of flexibility
+
+In \cite{chun2011clonecloud} \citeauthor*{barbera2013offload} present \emph{Clone Cloud}, a system to offload workload from mobile applications to the cloud. They employ a combination of static analysis and dynamic profiling to automatically partition mobile applications. repartitioning is thread-wise. They achieve a 20-fold execution speed-up and 20-fold decrease of energy consumption.
+
+MAUI is not as automatic. Requires program code to be annotated.
 
 
 \paragraph{Embedded SOA}

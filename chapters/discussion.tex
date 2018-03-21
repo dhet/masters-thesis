@@ -64,6 +64,13 @@ DDS exhibits great performance characteristics because it is, from the ground up
 DDS supports asynchronous programming paradigm, which can reduce waiting time and increase performance.
 
 \paragraph{Extensibility.}
+The extensibility of the system is to a large extent facilitated by DDS. The DCPS approach of DDS promotes extensibility: Data is provided "as-is", without implications or restrictions \wrt\ how it is used. It may therefore be reused by any service that is interested in that data. A newly added service is not concerned with the \emph{purpose} of the data, nor can any other service dictate how the data is supposed to be used---the service just takes advantage of the \emph{presence} the data.
+
+Extensibility is further improved by DDS's dynamic service discovery. A newly added service can subscribe to any topic at run-time, as long as the topic's name and type are known. Similarly, a service which provides data may register new topics at will and can engage in collaboration instantaneously. At the same time, other services are entirely oblivious to the fact that a service was added. The change of topology is handled exclusively by the middleware.
+
+\wnet\ also facilitates easy extensibility: Weave is set up at host-level, rather than at container-level, \ie , a container launched on a host that supports \wnet\ will automatically be added to the overlay. This process is entirely transparent, so that a container management and orchestration system does not even have to know that Weave is in place.
+
+Service updates: \docker\ has versioning built-in. This makes it easier to manage several versions of the same service at the same time.
 
 \paragraph{Adaptability.}
 Location transparency is given by both, \wnet , and DDS.
@@ -72,11 +79,11 @@ Location transparency is given by both, \wnet , and DDS.
 
 
 \paragraph{Interoperability.}
-The whole approach is based on containerization as means to achieve a maximum of interoperability. In fact, interoperability is one of its main selling points. \docker\ was used as containerization technology, which allows software to run on any platform that possesses a container engine and has a kernel -- a requirement that is not hard to come by. Additionally, in recent years, efforts to standardize and unify container technologies were launched. Driven by the \emph{Open Container Initiative} (OCI), standards aimed at providing interoperability between containerization technologies were created. Thus, there is no vendor lock-in for \docker .
+The approach is based on containerization as means to achieve a maximum of interoperability. In fact, interoperability is one of its main selling points. \docker\ is used as containerization technology, which allows software to run on any platform that possesses a container engine and has a kernel---properties that is not hard to come by. Additionally, in recent years, efforts to standardize and unify container technologies were launched. Driven by the \emph{Open Container Initiative} (OCI), standards aimed at providing interoperability between containerization technologies were created. Thus, there is no vendor lock-in for containerization.
 
-Weave runs entirely within \docker\ containers. As a consequence, and unsurprisingly, it may run on any platform which is capable of running \docker\ containers. However, Weave is specifically built to work with Docker, and a great deal of modifications to the software would be needed to make it work with other technologies. Hence, vendor lock-in is present. Consequently, in order to swap \docker\ with a competing containerization tool, one would have to drop \wnet\ from the approach. Similarly, when deciding to go without any sort of containerization, Weave could not be used anymore.
+Weave runs entirely within \docker\ containers. As a consequence, and unsurprisingly, it may run on any platform which is capable of running \docker\ containers. However, Weave is specifically built to work with Docker, and a great deal of modifications to the software would be needed to make it work with other technologies. Hence, an inherent dependency is present. Consequently, in order to swap \docker\ with a competing containerization tool, one would have to drop \wnet\ from the approach. Similarly, when deciding to go without any sort of containerization, Weave could not be used anymore.
 
-Setting containerization aside, the chosen messaging middleware offers decent interoperability support. DDS' wire protocol, DDSI/RTPS, ensures that applications which use DDS implementations from different vendors may communicate with each other. Hence, interoperability is given -- at least within the realm of DDS. 
+Setting containerization aside, the chosen messaging middleware offers decent interoperability support. The approach suggests to define service contracts by means of topics, and in particular, their associated name, type, and QoS policies. The type is specified in a language-independent format (IDL), and is not bound to a specific technology. Thus, platform-independent service contracts are given. But interoperability support goes beyond service contracts. Contracts are of no use if services can't communicate in a platform-neutral manner. DDS provides a solution for this: its wire protocol, RTPS, ensures that applications using different DDS implementations may communicate with each other. Hence, interoperability is given---at least within the realm of DDS. 
 \todo{Dependency on network stack? Which network stacks does DDS run on?}
 
 

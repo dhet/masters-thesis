@@ -32,7 +32,7 @@ transition must be fluent
 
 Communication shall be ubiquitous
 
-A major problem in automotive architectures is the management of data. As a result of the historically grown nature, whereby each ECU is highly specialized in a very narrow range of duties, there is no consistent model of data---each ECU has its own view on data which may very well differ from other ECU's view \cite{broy2006challenges}. It is evident that data need to be put into the center of attention. Data-centricity is a communication style that follows this goal. provides common, consistent view on data. global shared data space.
+A major problem in automotive architectures is the management of data. As a result of the historically grown nature, whereby each ECU is highly specialized in a very narrow range of duties, there is no consistent model of data---each ECU has its own view on data which may very well differ from other ECU's view \cite{broy2006challenges}. It is therefore evident that data need to be put into the center of attention. Data-centricity is a communication style that follows this goal. provides common, consistent view on data. global shared data space.
 }
 
 The method of exposition is data-centric: instead of providing \emph{methods} that other services may invoke (RPC style), services offer \emph{data}. Any service interested in receiving a certain kind of data listens in on a topic on which such data is published. This approach greatly helps to decouple the system as services do not need to have references to one another. As a result, services may evolve without having to deal with interface interdependencies.
@@ -60,9 +60,9 @@ The last question that remains is how services are connected. Since services may
 In this section, a theoretical approach was presented to offload computations to the cloud. To achieve this, the approach suggests to split functionality into fine-grained services that may be replicated and migrated smoothly between vehicle and cloud. The problem at hand can be categorized in three key challenges which need to be addressed:
 
 \begin{enumerate}[(i)]
-\item \textbf{Reliable information exchange}: Services must be able to communicate in a reliable manner, without needing direct references to one another.
+\item \textbf{Reliable, anonymous information exchange}: Services must be able to communicate in a reliable manner, without needing direct references to one another.
 \item \textbf{Isolation}: Services need to be packed in self-contained execution environments with all their dependencies.
-\item \textbf{Connectivity}: Services need to be able to autonomously create connections between each other and stay connected, regardless of where they are.
+\item \textbf{Connectivity}: Services need to be able to autonomously create connections between each other and stay connected, regardless of where they are located.
 \end{enumerate}
 
 %
@@ -101,9 +101,8 @@ Critical functions need to operate in a fail-operational fashion, \ie , in case 
 In systems composed of a number of heterogeneous components that interact with each other, there needs to be a common set of rules and semantics that all involved parties must comply with. If such rules exist, so that diverse components may interact with each other, they are said to be interoperable.
 A major barrier to interoperability is vendor lock-in, or more general, platform lock-in. Lock-in describes a situation in which a technology is rooted so deep within the system that it can barely be removed without considerable effort. Lock-in is detrimental to system design as it creates dependencies, and thus, enforces tight coupling. Especially in the automotive domain, in which many parts of the system are developed by a vast number of independent teams and suppliers \cite{broy2006challenges}, interoperability needs to be kept in mind. A way to achieve a high degree of interoperability is to avoid proprietary, closed-source solutions and to favor open standards instead.
 
-
 \paragraph{Security.}
-In road traffic, flaws in a system's IT security have direct implications for safety. Since safety is of utmost importance the same is true for security. 
+In road traffic, flaws in a system's IT security have direct implications for safety. Since safety is of utmost importance the same is true for security. In today's world, vehicles are to a large extent software-driven \cite{broy2006challenges}. With an increasing number of lines of code comes an increase in complexity and error-proneness, and hence, a larger attack surface. 
 
 Several developments call for an increased emphasis on security.
 
@@ -140,15 +139,15 @@ no unnecessary overhead may be incurred
 
 
 \paragraph{Extensibility.} 
+Extensibility expresses how easy it is to add functionality to a system without affecting other parts of the system. This includes the extension of the system itself (by adding services), as well as the extension of individual services (by means of software updates) \cite{o2007quality}. The provisioning of new functionality must be possible not only at design-time but also at run-time. Modern automotive software architectures must deal with the fact that vehicular functions may be modified, added, or unlocked at run-time through (automatic) software updates. At the same time, the preservation of service contracts must be a priority. Although formal service contracts are an absolute necessity, they may hinder innovation and the continuous evolution of the system. For this reason, the system must support the simultaneous operation of multiple versions of the same service side-by-side.
 
-
-It must be easily feasible to extend an SOA with new services and to update existing ones. The provisioning of new functionality must be possible not only at design-time but also at run-time. Modern automotive software architectures must deal with the fact that vehicular functions may be modified, added, or unlocked at run-time through automatic software updates.
 
 \paragraph{Adaptability.}
-Services deployed in a moving vehicle are exposed to a rapidly changing environment. Systems may unexpectedly fail, e. g. due to external forces. Automotive E/E architectures must be able to quickly react to such circumstances. Furthermore, services should be portable to facilitate repartitioning. For this reason they must adapt to run on different hardware platforms.
+Adaptability is a measure for the amount of effort that is needed to change a system to accommodate for changes in requirements and the environment \cite{o2007quality}. Adaptability needs to be addressed on many levels. Firstly, the system needs to be able to adapt to changes on software level. As a reaction to changes in the requirements, software needs to evolve. For this, software updates are inevitable. Thus, the system needs to facilitate software updates. Another aspect of adaptability is concerned with the mobile nature of vehicles. Vehicles are connected to the outside world primarily by means of cellular networks. While moving, vehicles frequently change the access point, and hence, the topology changes continuously. The system must be able to reliably deal with changes in topology and exhibit great migration transparency properties. For this, service discovery must happen fully autonomously. Lastly, the system needs to be adaptable in terms of hardware. The goal is to run the same functionality in vehicles and the cloud side-by-side. For this, software needs to be portable between different hardware platforms. Different ways to address hardware interoperability exist. Most prominently, virtual machines, emulators and scripting languages are used to achieve this. In summary, the key to adaptable systems is autonomy, proper abstractions, and continuous monitoring.
+
 
 \paragraph{Testability.}
-There are many ways in which a distributed system may break. Since operational safety is of paramount importance in automotive, testability is a key requirement. Components of an SOA must be testable in isolation as well as in interplay with other components. For this purpose, modern software development employs continuous integration tools that help to continually validate the correctness of a system throughout the whole development cycle. Automotive E/E architectures need to be adapted to make it feasible to employ such development practices.
+There are many ways in which a distributed system may break. Since operational safety is of paramount importance in the automotive domain, testability is a key requirement. Components of the system must be testable in isolation (unit tests) as well as in interplay with other components (integration tests). For this purpose, modern software development employs continuous integration tools that help to continually validate the correctness of a system throughout the whole development cycle. Automotive E/E architectures need to be adapted to make it feasible to employ such development practices.
 
 
 \paragraph{Scalability.}
@@ -172,14 +171,14 @@ Similarly, the messaging system must allow for the easy addition of components w
 \section{Realization} \label{sec:realization}
 After having discussed the basic concept of the approach in \autoref{sec:concept}, in this section, an exemplary realization is presented. Previously, three key challenges were identified:
 \begin{inparaenum}[(i)]
-  \item \emph{reliable information exchange},
+  \item \emph{reliable, anonymous information exchange},
   \item \emph{isolation}, and
   \item \emph{connectivity}. 
 \end{inparaenum}
 To tackle these challenges, three technologies are proposed:
 
 \begin{enumerate}[(i)]
-\item \textbf{DDS} to enable \emph{reliable information exchange},
+\item \textbf{DDS} to enable \emph{reliable, anonymous information exchange},
 \item \textbf{\docker} as containerization tool to achieve \emph{isolation} and portability of services, and
 \item \textbf{\wnet} as means to provide \emph{connectivity} between the containerized services.
 \end{enumerate}
@@ -195,9 +194,11 @@ OpenDDS was used.
 
 Why DDS?
 
-\paragraph{Dynamic Service Discovery.}
+\paragraph{Versatile transport methods.} Supports shared memory (especially important), UDP and TCP transports
 
-\paragraph{Data Centricity.}
+\paragraph{Dynamic Service Discovery.} Service discovery is extraordinarily fast and dynamic. Lost connections are picked up as soon as possible.
+
+\paragraph{Data Centricity and Anonymous Messaging.}
 
 \paragraph{Asynchronous Messaging.}
 
