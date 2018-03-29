@@ -15,16 +15,18 @@ In this chapter, the main approach of this thesis is presented. The chapter star
 %
 
 \section{Concept} \label{sec:concept}
-The objective of this thesis is to find a way to handle increased computational demand in mobile cyber-physical systems, and in particular automotive systems. For this, an approach is presented that allows single vehicular functions to be offloaded to the cloud.
-Since connectivity in such systems is often unstable, the offloading must be accomplished in an instantaneous and smooth fashion. At the same time, operation may not be interrupted and the cohesion of the system must be preserved at all times. The key concept to facilitate this is replication. 
+The objective of this thesis is to explore methods to handle the increased demand for computational power and data collection in mobile cyber-physical systems, and in particular automotive systems. For this, an approach is presented that allows single vehicular functions to be outsourced to the cloud.
+Since connectivity in such systems is often unstable, the offloading must be accomplished in an instantaneous and smooth fashion. At the same time, operation may not be interrupted and the cohesion of the system must be preserved at all times. 
+%The key concept to facilitate this is replication. 
 
-At the core of the approach is the idea to split functionality into isolated units which may be deployed redundantly on both, the vehicle's on-board system, and on high-performance machines in remote data centers. For this, the system needs to facilitate the clean separation of logic according to responsibilities. The service-oriented architectural paradigm is a suitable way to achieve this\todo{rephrase}. Service-orientated architectures aim to divide functionality into isolated modules, so-called \emph{services}. Each service provides an offering to other services by means of a clearly defined, machine-readable interface. Such offering may be the provisioning of some sort of data, or functionality (algorithms and business logic). All services of the system are working together in synergy to achieve a common goal, \ie , the continuous operation of a vehicle. 
+\subsection{Partitioning of Functionality}
+At the core of the approach is the idea to split functionality into isolated units which may be deployed redundantly on both, the vehicle's on-board system, and on high-performance machines in remote data centers. For this, the system needs to facilitate the clean separation of functionality according to responsibilities. The service-oriented architectural paradigm is a suitable way to achieve this\todo{rephrase}. Service-orientated architectures aim to divide functionality into isolated modules, so-called \emph{services}. Each service provides an offering to other services by means of a clearly defined, preferably immutable and machine-readable interface. By guaranteeing that these interfaces rarely change, a formal \emph{service contract} is put in place which ensures continuous interoperability between the services. Examples of service offering may be the provisioning of some sort of data, or functionality (algorithms and business logic). All services of the system are working together in synergy to achieve a common goal, \ie , the continuous operation of a vehicle. 
+
+
+\subsection{Communication Paradigm}
+As mentioned, an inherent challenge distinctive to the domain at hand is the highly unreliable and unpredictable communication channel to the cloud. Remotely deployed services are thus massively ephemeral in their nature. As a consequence, the topology of the service network is constantly changing. This requires the communication method between services to be entirely anonymous. \Ie , services shall not have references to other services as these may be unavailable momentarily. Management of references (addition of new references and invalidation of old ones) is highly ineffective and therefore should be avoided at all costs. A communication paradigm that meets this requirement is the publish-subscribe paradigm. In a publish-subscribe system, services exchange information by means of topics. Services that provide data may push data on a given topic, and services that wish to receive that data may subscribe to that topic. Services do not know where a given data sample came from or which service will receive their data sample. Thus, communication is anonymous.
 
 \todo[inline]{
-A challenge in such a system 
-
-For this, services must be able to communicate anonymously. A communication paradigm that fulfills this requirement is the publish-subscribe paradigm.
-Services expose their functionality by means of topics in a publish-subscribe environment. 
 
 Switch must be feasible at run-time
 
@@ -37,15 +39,15 @@ A major problem in automotive architectures is the management of data. As a resu
 
 The method of exposition is data-centric: instead of providing \emph{methods} that other services may invoke (RPC style), services offer \emph{data}. Any service interested in receiving a certain kind of data listens in on a topic on which such data is published. This approach greatly helps to decouple the system as services do not need to have references to one another. As a result, services may evolve without having to deal with interface interdependencies.
 
-\todo[inline]{introduce term "service instance"}
 
-A major goal of the approach is scalability, and in particular, horizontal scalability. Therefore, replication is key. The service-oriented approach alleviates this tremendously, provided that certain design principles are applied. Hence, throughout the design and implementation of the envisioned system, several design goals need to be kept in mind. Firstly, services ought to be \textbf{stateless}. Statelessness facilitates replication as sharing state among many instances proves to be difficult. Consistency is hard to achieve and locking mechanisms may become a bottleneck.\todo{more on consistency models this in tanenbaum...} Furthermore, services should be \textbf{fine-grained}. A high-resolution granularity allows for detailed control over which services should be replicated. That way, computational bottlenecks can be more easily singled-out and eliminated. An added benefit is increased extensibility and faster software updates. However, trade-offs need to be considered. If services are too fine-grained, they need to communicate more, and as a result, the communication channel might become a bottleneck. Furthermore, too many services unnecessarily increase complexity.
+\subsection{Replication}
+The approach aims to achieve superior computing performance by way of horizontal scaling. Replication is therefore key. Thus, the system shall support the fast provisioning of services in the form of \emph{service instances}. The service-oriented approach alleviates replication tremendously, provided that certain design principles are applied. Hence, throughout the design and implementation of the envisioned system, several design goals need to be kept in mind. Firstly, services ought to be \textbf{stateless}. Statelessness facilitates replication as sharing state among many instances proves to be difficult. Consistency is hard to achieve and locking mechanisms may become a bottleneck.\todo{more on consistency models this in tanenbaum...} Furthermore, services should be \textbf{fine-grained}. A high-resolution granularity allows for detailed control over which services should be replicated. That way, computational bottlenecks can be more easily singled-out and eliminated. An added benefit is increased extensibility and faster software updates. However, trade-offs need to be considered. If services are too fine-grained, they need to communicate more, and as a result, the communication channel might become a bottleneck. Furthermore, too many services unnecessarily increase complexity.
 
 Another design goal to keep in mind is \textbf{isolation}. Services should have limited knowledge of both, location and topology. The aim should be to hide anything that isn't directly related to the reception of data. Through that, loose coupling is achieved. One aspect of isolation is self-containment. Services should be kept together with all their dependencies as a single unit that may be deployed on any hardware platform. By packaging services in self-contained environments, they may be moved between different computing nodes. This property is the most important one to achieve cloud scalability. Commonly used tools to facilitate this are virtualization and containerization.
 
 The last question that remains is how services are connected. Since services may be duplicated and migrated between computing nodes, special emphasis needs to be put on location/relocation transparency and dynamic topology management. In the approach, the use of virtual overlay networks is suggested for this purpose. Especially challenging is the fact that the overlay must work on top of a substrate network made up of numerous globally dispersed nodes, of which some continuously change their location. As a result, the substrate network is exceptionally unreliable.
 
-\paragraph{}
+\subsection{Example}
 
 \begin{figure}[htpb]
   \centering
@@ -53,17 +55,40 @@ The last question that remains is how services are connected. Since services may
   \caption[Conceptual sketch of the approach]{Conceptual sketch of the approach, demonstrating location transparent replication of services in the cloud}\label{fig:idea} \todo[inline]{add cloud exclusive service?}
 \end{figure}
 
-\autoref{fig:idea} presents a schematic view of the approach. The box on the left-hand side represents a vehicle. In the vehicle, several interconnected services are deployed. What is not depicted, but naturally given, is that these services run on distributed embedded devices spread over the vehicle's E/E system. On the right-hand side, the cloud is depicted, which, in actuality, is a collection of high-performance computing nodes. Vehicle and cloud are physically separated and connected via some sort of network, which is accessible, \eg , by means of 5G. As can be observed in the figure, some of the vehicle-intrinsic services are replicated in the cloud (\ding{117}, \ding{115}). Examples of such services could be functions for predicting trajectories, gaze detection, or machine learning algorithms. The duplication and varying size of the service boxes depicted in the image is indicative of horizontal and vertical scaling, respectively. It doesn't always make sense to replicate services in the cloud, \eg , because they are computationally inexpensive, or because they require access to sensors and actors which can only be found in the vehicle (\ding{70}, \ding{108}, \ding{58}). Those services have their firm place within the vehicle and are referred to as \emph{fixed} services. Their counterpart, \ie , services that may run ubiquitously, are called \emph{volatile} services. The discrepancy between fixed and volatile services emphasizes the need to split functionality into fine-grained services so that computational bottlenecks can be isolated and then eliminated. A good advice is to extract services connected to sensors and actors in minimal services ("\emph{access services}") that do nothing but provide a low-level interface to sensor data.
+\autoref{fig:idea} depicts a schematic example. The box on the left-hand side represents a vehicle. In the vehicle, several interconnected services are deployed. What is omitted from the image is that these services run on distributed embedded devices spread over the vehicle's on-board system. Several of these services rely on sensor data and/or control actors (indicated by the semicircles). On the right-hand side, the cloud is depicted, which, in actuality, is a collection of high-performance computing nodes. Vehicle and cloud are physically separated and connected via some sort of network, which the vehicle may access by means of a cellular network. As can be observed in the figure, some of the vehicle-intrinsic services are replicated in the cloud (\ding{117}, \ding{115}). Examples of such services could be functions for predicting trajectories, gaze detection, or machine learning algorithms. The duplication and varying size of the service boxes depicted in the image is indicative of horizontal and vertical scaling, respectively. It doesn't always make sense to replicate services in the cloud, \eg , because they are computationally inexpensive, or because they require access to sensors and actors which are inherently bound to the vehicle (\ding{70}, \ding{108}, \ding{58}). Those services have their firm place within the vehicle and are referred to as \emph{fixed} services. Their counterpart, \ie , services that may run ubiquitously, are called \emph{volatile} services. The discrepancy between fixed and volatile services emphasizes the need to split functionality into fine-grained services so that computational bottlenecks can be isolated and then eliminated. A good advice is to extract services connected to sensors and actors in minimal services ("\emph{access services}") that do nothing but provide a low-level interface to sensor data.
 
-\paragraph{Key Challenges}
+\subsection{Key Challenges}
 
-In this section, a theoretical approach was presented to offload computations to the cloud. To achieve this, the approach suggests to split functionality into fine-grained services that may be replicated and migrated smoothly between vehicle and cloud. The problem at hand can be categorized in three key challenges which need to be addressed:
+In this chapter a conceptual approach was presented to connect a vehicle's on-board system to the cloud to facilitate computation offloading, data collection, and other use cases. To achieve this, the approach suggests to split functionality into fine-grained services that may be replicated and migrated smoothly between vehicle and cloud. Three key challenges can be identified which need to be addressed in order to realize the system:
 
 \begin{enumerate}[(i)]
 \item \textbf{Reliable, anonymous information exchange}: Services must be able to communicate in a reliable manner, without needing direct references to one another.
-\item \textbf{Isolation}: Services need to be packed in self-contained execution environments with all their dependencies.
-\item \textbf{Connectivity}: Services need to be able to autonomously create connections between each other and stay connected, regardless of where they are located.
+\item \textbf{Isolation}: Services need to be packed in self-contained execution environments with all their dependencies to ensure portability.
+\item \textbf{Connectivity}: Services need to be able to autonomously create and maintain connections between each other, regardless of where they are located.
 \end{enumerate}
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+\section{Example Use Cases} \label{sec:usecases}
+The system sketched in the previous section can be utilized in a number of ways. To further rationalize the system's usefulness it is helpful to keep a few usage scenarios in mind.
+
+\paragraph{Supportive Autonomous Driving.}
+One of the salient features of the presented approach is the ability to offload computations. 
+
+\paragraph{Data Collection.} 
+Another benefit of the approach is that it greatly eases data collection. One could think of an example where passive listeners, implemented as subscribers, would run in the cloud at all times for the sole purpose of accumulating telemetry data. The on-board system would not be concerned with those listeners as they would not take an active part in the functioning of the system. The collected data could be used for real-time monitoring and analytics purposes, remote trouble shooting, or to feed machine learning algorithms. Furthermore, location-based services and applications utilizing crowd-sourced traffic data would be possible. An example for this type of application is Google Maps' traffic congestion detection which is based on the accumulative GPS information collected from numerous user's Android phones.
+
+\paragraph{Auxiliary Fail-Operational Behavior.}
+The presented system allows services and their replicas to run side-by-side in the vehicle and the cloud. Multicast communication ensures that all service instances are always up-to-date\footnote{Provided that connectivity is given.}. It is now possible to realize fail-operational behavior by providing backup replicas of certain safety-critical services that would run in the cloud at all times. In the event that one of the services fails, \eg\ due to a hardware defect, the operation would not be interrupted as the cloud-based services would continue where the original service left off. If such case occurred in an autonomous driving scenario the vehicle would enter a temporary \emph{limp home} mode. Alternatively, the driver could be presented a request to take over which they would have to comply with within a certain period. For the time between the event and the take-over the vehicle would be able to continue driving autonomously.
 
 %
 %
@@ -82,7 +107,7 @@ The previous section already touched on desirable quality attributes to keep in 
 \todo[inline]{More info: Dependable systems [Kopetz, Verissimo]: Availability, Reliability, Safety, Maintainability}
 
 \paragraph{Availability.}
-Availability states how likely it is that, at any given point in time, a system is ready to be used by its users \cite{tanenbaum2017distributed}. The period in which a system or service is unavailable is called \emph{downtime}. Sources of downtime can be, \eg , maintenance work, temporary congestion, or any kind of failure. A design goal when building and running software systems is to minimize downtime, and thereby maximize availability. This goal is not trivial to achieve as many sources of decreased availability are hard to predict, \eg\ in case of hardware failures. A key technique for handling downtime is redundancy, whereby critical systems, or those susceptible to downtime, have a replacement ready to be used at all times. A prerequisite for redundancy to take effect is that the system features quick failure detection and smooth transition mechanisms so that it can quickly reroute requests to the redundant service.
+Availability states how likely it is that, at any given point in time, a system is ready to be used by its users \cite{tanenbaum2017distributed}. The period in which a system or service is unavailable is called \emph{downtime}. Sources of downtime can be, \eg , maintenance work, temporary congestion, or any kind of failure. A design goal when building and running software systems is to minimize downtime, and thereby maximize availability. This goal is not trivial to achieve as many sources of decreased availability are hard to predict, \eg\ in case of hardware failures. A key technique for handling downtime is redundancy, whereby critical systems, or those susceptible to downtime, have a replacement ready to be used at all times. A prerequisite for redundancy to take effect is that the system features quick failure detection and smooth transition mechanisms so that it can quickly reroute requests to the redundant service. If a system manages to substitute an unavailable component in a way that is virtually unnoticeable, it is said to be failure transparent.
 
 \paragraph{Reliability.}
 Reliability states how long a system can continuously run without failure. A reliable system is available for prolonged periods of time without interruption. Although reliability is related to availability, there is a clear distinction between the two. While reliability states a continuous period of operability, availability concerns operability at a given point in time. For example, a system that works fine most of the time but becomes unavailable for a few milliseconds every hour is highly available, but not reliable. Hence, a highly reliable system is not necessarily a highly available one and vice versa \cite{tanenbaum2017distributed}.
@@ -99,27 +124,12 @@ Critical functions need to operate in a fail-operational fashion, \ie , in case 
 
 \paragraph{Interoperability.} 
 In systems composed of a number of heterogeneous components that interact with each other, there needs to be a common set of rules and semantics that all involved parties must comply with. If such rules exist, so that diverse components may interact with each other, they are said to be interoperable.
-A major barrier to interoperability is vendor lock-in, or more general, platform lock-in. Lock-in describes a situation in which a technology is rooted so deep within the system that it can barely be removed without considerable effort. Lock-in is detrimental to system design as it creates dependencies, and thus, enforces tight coupling. Especially in the automotive domain, in which many parts of the system are developed by a vast number of independent teams and suppliers \cite{broy2006challenges}, interoperability needs to be kept in mind. A way to achieve a high degree of interoperability is to avoid proprietary, closed-source solutions and to favor open standards instead.
+A major barrier to interoperability is (vendor) lock-in. Lock-in describes a situation in which a certain technology is rooted so deep within the system that the introduction of alternative technologies in the system can hardly be accomplished. Similarly, the technology is hard to remove without considerable effort. Lock-in is detrimental to system design as it creates dependencies, and thus, enforces tight coupling. Especially in the automotive domain, in which many parts of the system are developed by a vast number of independent teams and suppliers \cite{broy2006challenges}, interoperability should be a priority. Furthermore, OEMs tend to prefer a slow, stepwise transitioning towards innovative technologies, rather than jumping in at the deep end. Hence, automotive systems need to be particularly interoperable to existing solutions. A way to achieve a high degree of interoperability is to avoid proprietary, closed-source solutions and to favor open standards instead.
 
 \paragraph{Security.}
-In road traffic, flaws in a system's IT security have direct implications for safety. Since safety is of utmost importance the same is true for security. In today's world, vehicles are to a large extent software-driven \cite{broy2006challenges}. With an increasing number of lines of code comes an increase in complexity and error-proneness, and hence, a larger attack surface. 
+In road traffic, flaws in a system's IT security have direct implications for safety. Since safety is of utmost importance the same is true for security. In today's world, vehicles are to a large extent software-driven \cite{broy2006challenges}. With an increasing number of lines of code comes an increase in complexity and error-proneness, and by that, a larger attack surface breaks open. Furthermore, vehicles are more and more connected to the outside world. Not only are they connected to third-party and OEM clouds, but also to other vehicles and the nearby infrastructure. The situation is made even worse by the fact that many of modern vehicle's subsystems can be controlled by software---even those which are safety critical.	 If an attacker were to gain access to, say, the steering system, consequences could be dire. Passengers would be put in severe danger.
 
-Several developments call for an increased emphasis on security.
-
-Increasing amounts of code in vehicles -> increased attack surface
-
-increased connectivity -> exposed to the public 
-
-autonomous driving: software-controlled actuator systems. -> malicious attackers might remote control vehicle
-
-
-Precautions:
-
-Proper isolation of software components is needed.
-
-state-of-the-art encryption and security measures are needed to ensure the integrity, authenticity, and confidentiality of the system.
-
-Data in the cloud needs to be stored safely.
+To enhance security and to preserve the integrity, authenticity, and confidentiality of the system, state-of-the-art encryption and security measures are a necessity. To this end, proper isolation of software components is needed to build up security perimeters which are hard to penetrate. In case an attacker, or malicious code, succeeds in intruding the system, appropriate isolation measures, \ie\ sandboxing, can furthermore prevent the attacker from reaching out to other subsystems.
 
 
 \paragraph{Performance.}
@@ -139,15 +149,17 @@ no unnecessary overhead may be incurred
 
 
 \paragraph{Extensibility.} 
-Extensibility expresses how easy it is to add functionality to a system without affecting other parts of the system. This includes the extension of the system itself (by adding services), as well as the extension of individual services (by means of software updates) \cite{o2007quality}. The provisioning of new functionality must be possible not only at design-time but also at run-time. Modern automotive software architectures must deal with the fact that vehicular functions may be modified, added, or unlocked at run-time through (automatic) software updates. At the same time, the preservation of service contracts must be a priority. Although formal service contracts are an absolute necessity, they may hinder innovation and the continuous evolution of the system. For this reason, the system must support the simultaneous operation of multiple versions of the same service side-by-side.
+Extensibility expresses how easy it is to add functionality to a system without affecting other parts of the system. This includes the extension of the system itself (by adding services), as well as the extension of individual services' functionality (by means of software updates) \cite{o2007quality}. The provisioning of new functionality must be possible not only at design-time but also at run-time. Modern automotive software architectures must deal with the fact that vehicular functions may be modified, added, or unlocked at run-time through (automatic) software updates. At the same time, the preservation of service contracts must be a priority. Although formal service contracts are an absolute necessity, they may hinder innovation and the continuous evolution of the system. For this reason, the system must support the simultaneous operation of multiple versions of the same service side-by-side.
 
 
 \paragraph{Adaptability.}
-Adaptability is a measure for the amount of effort that is needed to change a system to accommodate for changes in requirements and the environment \cite{o2007quality}. Adaptability needs to be addressed on many levels. Firstly, the system needs to be able to adapt to changes on software level. As a reaction to changes in the requirements, software needs to evolve. For this, software updates are inevitable. Thus, the system needs to facilitate software updates. Another aspect of adaptability is concerned with the mobile nature of vehicles. Vehicles are connected to the outside world primarily by means of cellular networks. While moving, vehicles frequently change the access point, and hence, the topology changes continuously. The system must be able to reliably deal with changes in topology and exhibit great migration transparency properties. For this, service discovery must happen fully autonomously. Lastly, the system needs to be adaptable in terms of hardware. The goal is to run the same functionality in vehicles and the cloud side-by-side. For this, software needs to be portable between different hardware platforms. Different ways to address hardware interoperability exist. Most prominently, virtual machines, emulators and scripting languages are used to achieve this. In summary, the key to adaptable systems is autonomy, proper abstractions, and continuous monitoring.
+Adaptability is a measure for the amount of effort that is needed to change a system to accommodate for changes in requirements and the environment \cite{o2007quality}. Key properties of adaptable systems are autonomy, proper abstractions, and continuous monitoring. Adaptability needs to be addressed on many levels. Firstly, the system needs to be able to adapt to changes on software level. As a reaction to changes in the requirements, software needs to evolve. For this, software updates are inevitable, and thus, the system needs to accommodate for that. Another aspect of adaptability is concerned with the mobile nature of vehicles. Vehicles are connected to the outside world primarily by means of cellular networks. While moving, vehicles frequently change the access point, and hence, the topology changes continuously. The system must be able to reliably deal with changes in topology and exhibit great migration transparency properties. For this, service discovery must happen fully autonomously. 
+
+Lastly, the system needs to be adaptable in terms of hardware. The goal is to run the same functionality in vehicles and the cloud side-by-side. For this, software needs to be portable between different hardware platforms. Different ways to address hardware interoperability exist. Common means to achieve a high degree of hardware adaptability are virtual machines, emulators and interpreted programming languages.
 
 
 \paragraph{Testability.}
-There are many ways in which a distributed system may break. Since operational safety is of paramount importance in the automotive domain, testability is a key requirement. Components of the system must be testable in isolation (unit tests) as well as in interplay with other components (integration tests). For this purpose, modern software development employs continuous integration tools that help to continually validate the correctness of a system throughout the whole development cycle. Automotive E/E architectures need to be adapted to make it feasible to employ such development practices.
+There are many ways in which a distributed system may break. Since operational safety is of paramount importance in the automotive domain, testability is a key requirement. Components of the system must be testable in isolation (\eg\ via unit tests) as well as in interplay with other components (\eg\ via integration tests). For this purpose, modern software development employs continuous integration tools that help to continually validate the correctness of a system throughout the whole development cycle. Automotive software architectures need to be adapted to make it feasible to employ such development practices.
 
 
 \paragraph{Scalability.}
@@ -209,18 +221,12 @@ Why DDS?
 \paragraph{Platform Independence.}
 
 
-\subsubsection{Failover Mechanism}
+\subsubsection{Automatic Failover} \label{sec:failover}
+DDS has ways to ensure reliable communication---even over unreliable transmission channels. Part of reliability is failure transparency, \ie , the ability to quickly substitute failed components by backup components. By means of certain DDS features, it is possible to realize such behavior. The substitution process involves two steps: first, the failure needs to be detected. Second, a backup service needs to be instructed to take over. Three QoS policies are needed to realize this process: \ownership , \ostrength\ and \liveliness\ (\cf \autoref{tab:qos}).
 
-DDS has ways to ensure reliable communication, even over unreliable transmission channels. For example, it allows for the realization of a failover mechanism which allows a failed service to be replaced by a backup service in a smooth and performant fashion. 
+As the first step, a mechanism needs to determine whether a component has failed. In most cases, it is not possible for a failing component to properly shut down and "sign off", \ie , to notify the rest of the system that it will become unavailable. For this reason, the failure needs to be automatically registered. The \liveliness\ policy can be used to achieve this. \liveliness\ is the mechanism that determines whether a service is responsive ("alive"), or unresponsive ("dead"). The policy's value can be set to number indicating the maximum time interval between each liveliness signal. If a service fails to show a vital sign during that period, it is considered dead by the rest of the system. Passive components, \ie\ those which do not actively emit data, can be instructed to automatically send liveliness signals, or heartbeats, in certain intervals.
 
-When DDS "observes" that a given service is unresponsive it automatically instructs another service to take over, provided that one exists. This mechanism is realized via the QoS policies \ownership , \ostrength\ and \liveliness\ . 
-
-By assigning a topic the \ownership\ value "\qos{exclusive}" one can specify that only a single data writer may write to that topic at any given time. Which data writer is given that prerogative is determined by the data writer's \ostrength\ value. The data writer that possesses the higher value is eligible to write to the topic.
-
-\liveliness\ is used to determine whether a data writer or data reader is "alive", \ie , responsive. For data writers, it is sufficient that it writes within a specified time interval in order to be considered "alive". For data readers, on the other hand, there are several ways in which it can signal liveliness. One way is to send continuous "heartbeat" messages.
-
-\ownership\ can be combined with \liveliness\ to realize a failover mechanism.
-\todo[inline]{how exactly?}
+After a service has been declared dead it is up to the middleware to elect a substitute service. This is done through the \ownership\ and \ostrength\ QoS policies. By assigning a topic the \ownership\ value "\qos{exclusive}" one can specify that only a single data writer may write to that topic at any given time. Which data writer is given that prerogative is determined by the data writer's \ostrength\ value. The data writer that possesses the higher value is eligible to write to the topic. In the failover scenario, both, the primary service and the backup service are assigned to the same topic, and both are configured to have exclusive \ownership\ rights. The former one has a higher \ostrength\ than the latter one. Based on this value, the backup service can be instructed to take over.
 
 
 \subsubsection{DDS for Automotive Systems}
@@ -254,6 +260,8 @@ Besides providing isolation, \docker\ has a number of other benefits.
 \paragraph{Flexible network interfaces}: provide connection between distributed containers
 
 \paragraph{layered images}: save disk space
+
+\paragraph{Isolation}: how is isolation achieved?
 
 
 \subsubsection{Multi Platform Compatibility} 

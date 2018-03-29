@@ -6,7 +6,7 @@ In the previous chapter this thesis' main approach was presented and an exemplar
 
 \section{Experimental Setup}\label{sec:testsetup}
 
-As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For this thesis the testbed was extended by a network link to the Internet to enable cloud connectivity. 
+As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For the thesis the testbed was extended by a network link to the Internet to enable cloud connectivity. 
 
 The test environment's network topology is depicted in \autoref{fig:network-topology}. The original testbed ("on-premise") consisted of three ARM-based SOCs\footnote{System on a Chip} (Raspberry Pi 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the switch was also a workstation which fulfilled the sole purpose of conducting the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center over the open Internet via 100 Mbit/s connection.
 
@@ -42,8 +42,8 @@ The detailed specifications of the involved computing nodes and the employed sof
       Network interface  & 100 Mbit/s & ?? Gbit/s\\
       \midrule
       DDS & \multicolumn{2}{c}{OpenDDS 3.12.1}\\
-      Docker  & \multicolumn{2}{c}{17.11.6-ce}\\
-      \wnet & \multicolumn{2}{c}{2.2.0}\\
+      Docker  & \multicolumn{2}{c}{18.03.0-ce}\\
+      \wnet & \multicolumn{2}{c}{2.2.1}\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -62,9 +62,9 @@ The detailed specifications of the involved computing nodes and the employed sof
 
 \subsection{Latency Benchmark} \label{sec:plainlatency}
 
-\paragraph{Motivation.} An essential non-functional requirement for computer networks is responsiveness. An often-used metric for responsiveness is latency which is measured by the time it takes for a packet to be sent from one peer to another and back again. The unit of this measure is round-trip time (RTT), which is typically indicated in milliseconds. 
+\paragraph{Motivation.} An essential non-functional requirement for computer networks is responsiveness. Especially in real-time systems, where timing requirements must be met, it is vital that information exchange is performed in the fastest, most predictable way possible. An often-used metric for responsiveness is latency which is measured by the time it takes for a packet to be sent from one peer to another and back again. The unit of this measure is round-trip time (RTT), which is typically indicated in milliseconds. 
 
-To evaluate the aptitude of the proposed approach it is essential to consider the latency overhead that overlay networks induce. Since the approach is intended to work over the Internet, and public networks are inherently insecure, encryption is vital. Thus, in addition to the overhead induced by the overlay network itself, the overhead caused by encryption is also of interest. Hence, tests are needed measuring latency not only of \emph{plain} overlay networks but also of \emph{encrypted} overlay networks.
+To evaluate the aptitude of the proposed approach it is essential to consider the latency overhead that overlay networks incur. Since the approach is intended to work over the Internet, and public networks are inherently insecure, encryption is vital. Thus, in addition to the overhead induced by the overlay network itself, the overhead caused by encryption is also of interest. Hence, tests are needed measuring latency not only of \emph{plain} overlay networks but also of \emph{encrypted} overlay networks.
 
 
 \paragraph{Methodology.} 
@@ -72,12 +72,24 @@ To evaluate the aptitude of the proposed approach it is essential to consider th
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figures/ping-test}
-  \caption[Latency experiment setup]{Latency experiment setup. a) \experim{Plain}: two hosts connected without overlay network. b) \experim{Weave}: two containers connected via \wnet . c) \experim{Encrypted}: two containers connected via encrypted \wnet\ .}\label{fig:latency-setup}
+  \caption[Latency experiment setup]{Latency experiment investigating three cases. 
+\begin{inparaenum}[(a)]
+  \item \experim{Plain}: two hosts connected without overlay network.
+  \item \experim{Weave}: two containers connected via \wnet .
+  \item \experim{Encrypted}: two containers connected via encrypted \wnet .
+\end{inparaenum}  
+}\label{fig:latency-setup}
 \end{figure}
 
-In this test, latency was measured between two hosts connected over the Internet, both with, and without overlay-enabled container networking. A constant stream of ping messages was sent from one of the Raspberry Pis to the remote host. The tests were repeated with multiple payload sizes to factor in the influence of message size on round trip times. The Linux tool \emph{ping}, which pings hosts via ICMP Echo Requests and Replies, was employed for the measurements. 
+In this test, latency was measured between two hosts connected over the Internet, both with, and without overlay-enabled container networking. To sample RTTs, a constant stream of ping messages was sent from one of the Raspberry Pis to the remote host and back. The tests were repeated with multiple payload sizes to factor in the influence of message size on round trip times. The Linux tool \emph{ping}, which pings hosts via ICMP Echo Requests and Replies, was employed to take the measurements. 
 
-Three experiments were conducted, comparing the average latencies of plain, host-to-host communication ("\experim{Plain}"), via \wnet\ ("\experim{Weave}") and when employing encryption over \wnet\ ("\experim{Encrypted}") (\cf \autoref{fig:latency-setup}). \experim{Plain} was used as baseline on the basis of which the two consecutive experiments were evaluated. For each experiment and message size, 300 ping messages were sent. The sending peer would wait for the response of the previous message before sending another request. Thus, only one transaction was in flight at a time.
+Three experiments were conducted, comparing the average latencies of 
+\begin{inparaenum}[(a)]
+  \item plain host-to-host communication ("\experim{Plain}"),
+  \item via \wnet\ ("\experim{Weave}"), and when employing
+  \item encryption over \wnet\ ("\experim{Encrypted}")
+\end{inparaenum}
+(\cf \autoref{fig:latency-setup}). The results from \experim{Plain} were used as baseline on the basis of which the two consecutive experiments were evaluated. For each experiment and message size, 300 ping messages were sent. The sending peer would wait for the response of the previous message before sending another request. Thus, only one transaction was in flight at a time.
 
 
 \paragraph{Results.} 
@@ -118,14 +130,14 @@ Another insight worth mentioning is that \wnet\ added significant deviations in 
 
 \paragraph{Motivation.} Another important metric for network performance is throughput. Throughput is a measure for how much data can be transmitted per time. Since little data is available on \wnet 's throughput performance, according tests were conducted.
 
-\paragraph{Methodology.} To measure throughput, the tool \emph{iperf3}\footnote{\url{www.iperf.fr}} was used. iperf continuously sends data from one node to another over a TCP/IP connection. From the volume of the transmitted data and the duration of the transmission, the effective network throughput can be calculated. iperf was set to transmit data for a relatively long time period of 60 seconds to produce meaningful results. As in the previous test, three scenarios were tested:  \experim{Plain}, \experim{Weave}, and \experim{Encryped}. Explanations of these scenarios can be found in the description of the previous test.
+\paragraph{Methodology.} To measure throughput, the tool \emph{iperf3}\footnote{\url{www.iperf.fr}} was used. iperf continuously sends data from one node to another over a TCP/IP connection. From the volume of the transmitted data and the duration of the transmission, the effective network throughput can be calculated. iperf was set to transmit data for a relatively long time period of 60 seconds to produce meaningful results. As in the previous test, three scenarios were tested:  \experim{Plain}, \experim{Weave}, and \experim{Encryped}. Explanations of these scenarios can be found in the description of the previous test. Furthermore, it may be noted that routing data over overlays is computationally expensive. At a certain point, the CPU may even become the bottleneck of the operation such that network throughput may hit a boundary incurred by insufficient computing resources, even though the networking capacity is not entirely exhausted. This test investigates the case where enough computing resources are available, such that the network channel's capacity is the limiting factor. The case where the CPU's performance is insufficient is investigated in the experiment after this one (\ref{sec:utilization}).
 
-\paragraph{Results.} The results of this benchmark are depicted in \autoref{fig:throughput}. The results show that unencrypted \wnet\ adds a minor throughput overhead when compared to \experim{Plain} scenario (5\%). When adding encryption to the overlay network, a minor additional overhead can be observed. Overall, encryption incurs an overhead of 6.7\% compared to \experim{Plain}. These values can be considered decent. 
+\paragraph{Results.} The results of this benchmark are depicted in \autoref{fig:throughput}. The results show that unencrypted \wnet\ adds a minor throughput overhead when compared to \experim{Plain} scenario (5\%). When adding encryption to the overlay network, a minor additional overhead can be observed. Overall, encryption incurs an overhead of 6.7\% compared to \experim{Plain}. These values can be considered decent.
 
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.8\textwidth]{figures/throughput}
+  \includegraphics[width=0.7\textwidth]{figures/throughput}
   \caption[Weave throughput benchmark results]{Relative throughput in the scenarios \experim{Plain}, \experim{Weave} and \experim{Encrypted}}\label{fig:throughput}
 \end{figure}
 
@@ -143,9 +155,9 @@ Another insight worth mentioning is that \wnet\ added significant deviations in 
 
 \subsection{Resource Utilization Test} \label{sec:utilization}
 
-\paragraph{Motivation.} The routing of data packets through an overlay puts significant load on the host's CPU. Under circumstances, the forwarding of data, which is typically an IO-bound operation, might become CPU-bound, \ie , the CPU becomes the bottleneck of the operation. In cyber-physical systems, in which computing resources are limited, this might be problematic. Hence, an experiment was designed aimed to evaluate the impact of overlays on CPU utilization.
+\paragraph{Motivation.} The routing of data packets through an overlay puts significant load on the host's CPU. Under circumstances, the forwarding of data, which is typically an IO-bound operation, might become CPU-bound, \ie , the CPU becomes the bottleneck of the operation. In embedded systems, in which computing resources are limited, this might be problematic. Hence, an experiment was designed aimed to investigate the impact of overlays on CPU utilization.
 
-\paragraph{Methodology.} In this experiment, sample data was sent from a Raspberry Pi to the remote host via iperf (\cf \autoref{sec:throughput}) over an encrypted \wnet\ overlay. During the time of data transmission, CPU utilization was measured using the Linux tool \emph{sar}. 25 test runs were conducted using different bandwidth settings: bandwidth was gradually increased in 1 Mbit/s increments, starting at 1 Mbit/s, and ending in 25 Mbit/s. This bandwidth will be called \emph{target bandwidth} in the following. The target bandwidth is succumbed to an artificially imposed limitation and may differ quite substantially from the bandwidth that is actually achieved. The achieved bandwidth will be called \emph{observed bandwidth}, or \emph{throughput}.
+\paragraph{Methodology.} In this experiment, sample data was sent from a Raspberry Pi to the remote host via iperf (\cf \autoref{sec:throughput}) over an encrypted \wnet\ overlay. During the time of data transmission, CPU utilization was measured using the Linux tool \emph{sar}. 25 test runs were conducted using different bandwidth settings: bandwidth was gradually increased in 1 Mbit/s increments, starting at 1 Mbit/s, and ending in 25 Mbit/s. This bandwidth will be called \emph{target bandwidth} in the following. The target bandwidth is an artificially imposed upper bound and may differ quite substantially from the bandwidth that is actually achieved. The achieved bandwidth will be called \emph{observed bandwidth}, or \emph{throughput}.
 
 \paragraph{Results.} 
 
@@ -159,8 +171,6 @@ Another insight worth mentioning is that \wnet\ added significant deviations in 
 
 The results show that CPU utilization increases linearly with the target bandwidth. What is striking is that the point of full resource utilization of a single core is reached quite early, at around 21 Mbit/s target bandwidth (dotted, vertical line). \wnet\ is a single-threaded program, and as such, experiences performance stagnation once the core it runs on is fully occupied. At this point, first throughput degradations become evident, so that the setup begins to fall short on delivering the desired bandwidth. The maximum observed bandwidth that the setup could achieve over numerous test runs was 23.6 Mbit/s, when the communication channel had a theoretical bandwidth of 100 Mbit/s. The test results indicate that the machine hits a CPU-bound wall.
 
-
-Remedies: A lot can be done at code level. Make use of multithreading, better hardware
 %
 %
 %
@@ -174,13 +184,18 @@ Remedies: A lot can be done at code level. Make use of multithreading, better ha
 
 \subsection{DDS Latency Benchmark} \label{sec:ddslatency}
 
-\paragraph{Motivation.} In the test described in \autoref{sec:plainlatency}, plain network latency was measured in different overlay network scenarios. Latencies were measured using ICMP ping so the tests did not consider the network performance of DDS. There is no data yet on how well DDS performs in SDN-based overlay networks spanning over the Internet. Hence, tests were conducted to evaluate DDS latency in such scenarios.
+\paragraph{Motivation.} So far, all experiments were concerned with \wnet\ exclusively and did not involve DDS. To the best of the author's knowledge, there are no empirical studies yet on how well DDS performs in VXLAN-based overlay networks spanning over the Internet. Hence, benchmarks were conducted to evaluate latency overhead incurred by DDS in such scenarios.
 
-\paragraph{Methodology.} The methodology of this test is similar to the previous latency test in that the RTT between two hosts connected over the Internet were used as measure of latency. The ICMP ping results from that test were used as a baseline to which DDS was compared to. In order to measure DDS latency, a ping application was developed that functions similar to classic ping: a number of messages is sent from one endpoint to another, the same messages are then sent back to the sender, and finally, the current timestamp is subtracted from the returned message's timestamp to calculate the RTT. Between the reception of a returned message and the dispatch of the next message, the sender would wait for a few milliseconds to make sure that only a single message was in circulation at any time.
+\paragraph{Methodology.} The methodology of this experiment is similar to the previous latency experiment (\autoref{sec:plainlatency}) in that the RTT between two hosts connected over the Internet were used as the measure of latency. Two cases were investigated: 
+\begin{inparaenum}[(i)]
+	\item RTTs via ICMP ping, and
+	\item RTTs via DDS ping.
+\end{inparaenum}
+For the former case, the ICMP ping results from the previous latency experiment were used. These results serve as a baseline to which DDS was compared to. In order to measure DDS RTTs, a ping application was developed that functions similar to classic ping: a message containing a recent timestamp ($T_1$) is sent from one endpoint ($A$) to another ($B$), and the same message is then sent back to $A$ without modifications. Upon reception of the returned message, $A$ subtracts the reception timestamp ($T_2$) from $T_1$, and thus calculates the RTT. This process is then repeated multiple times. Between the reception of a returned message and the dispatch of the next message, the sender was configured to wait for a few milliseconds to make sure that only a single message was in circulation at any time.
 
 Of course, sending data via DDS entails a lot more than simple ICMP pings, like \eg\ the marshaling and parsing of messages. The comparison with ICMP is therefore a very ambitious one. As ICMP pings require very little processing, the largest part of the measured round trip time accounts for pure message transmission. ICMP ping is therefore a good reference point to measure the overhead induced by DDS, and in particular, RTPS. 
 
-Again, multiple test runs with different message sizes were carried out to factor in the influence of packet fragmentation and other distorting factors. Payload sizes typical for real life applications were chosen, ranging from 100 bytes to one kilobyte. The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network to ensure the practical relevance of the benchmark. The results presented below are the average values calculated from 300 pings per test case.
+Again, multiple test runs with different message sizes were carried out to factor in the influence of packet fragmentation and other distorting factors. Payload sizes typical for real life applications were chosen, ranging from 100 bytes to one kilobyte. The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network to ensure practical experiment conditions. The results presented below are the average values calculated from 300 pings per test case.
 
 
 \paragraph{Results.} 
@@ -207,7 +222,7 @@ The results of the tests are presented in \autoref{fig:dds-latency}. With the ex
 
 \subsection{Failover Test}\label{sec:failovertest}
 
-\paragraph{Motivation.} The presented approach facilitates a wide range of innovative opportunities. For instance, consider the following scenario: A service running on an on-board computer within a vehicle suddenly fails, \eg\ due to a hardware defect. As a reaction, a fallback service needs to take over. Consider now that the fallback service is not running on another on-board computer but within the cloud. Enabled by DDS' failover qualities, the approach allows for a quick switch to the remote backup service. An interesting question is how long the whole failover process, \ie\ switching to a backup service in case of failure, takes in a cloud scenario.
+\paragraph{Motivation.} The presented approach allows for many innovative usage scenarios. For instance, consider the following situation: A service running on an on-board computer within a vehicle suddenly fails, \eg\ due to a hardware defect. As a reaction, a fallback service needs to take over. Consider now that the fallback service is not running on another on-board computer but within the cloud. Through DDS QoS policies, a failover mechanism can be realized (\cf \autoref{sec:failover}) which allows for a quick transition to the remote backup service. An interesting question is how long the whole failover process, \ie\ switching to a backup service in case of failure, takes in a cloud scenario.
 
 
 \newcommand{\proda}{\texttt{S\textsubscript{main}}}

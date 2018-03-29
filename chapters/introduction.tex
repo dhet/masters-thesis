@@ -3,56 +3,11 @@
 
 
 \section{Motivation}
-Recent trends in the automotive industry are introducing new, increasingly complex software functions into vehicles \cite{broy2006challenges}. In particular, autonomous driving and advanced driver-assistance systems (ADAS) are a major force behind this development. Such systems leverage modern methods coming from computer vision (CV) and artificial intelligence (AI) research which are demanding, both in terms of computational power as well as in the volume of data they require. \Eg , in order for planning systems for autonomous driving to produce the best possible results, thousands of trajectories must be generated per second and then the one that fits best must be selected \cite{levinson2011towards}. At the same time, embedded on-board computers are typically severely limited in their computational capacities. For this reason, additional, more powerful computing nodes are typically implemented in test vehicles. \todo{On-board wird immer noch gebraucht, aber cloud computing kann berechnungen unterstuetzen. Mehr trajectories -> besseres ergebnis} This solution is less than optimal as the added hardware is expensive, takes up space and increases the weight of the vehicles. Furthermore, energy consumption will become an increasingly important factor to consider as electric mobility will play a major role in the future \todo{citation?} . The added hardware will unnecessarily draw power which is predominantly intended to fuel the vehicle itself. Thus, while additional on-board computing hardware is inevitable, a goal should be to reduce it by as much as possible. 
+Recent trends in the automotive industry are introducing new, increasingly complex software functions into vehicles \cite{broy2006challenges}. In particular, autonomous driving and advanced driver-assistance systems (ADAS) are a major force behind this development. Such systems leverage modern methods coming from computer vision and artificial intelligence (AI) research which are demanding, both in terms of computational power as well as in the volume of data they require. \Eg , in order for planning systems for autonomous driving to produce the best possible results, thousands of trajectories must be generated per second and then the one that fits best must be selected \cite{levinson2011towards}. At the same time, embedded on-board computers are typically severely limited in their computational capacities. For this reason, additional, more powerful computing nodes have been implemented in early vehicles. This solution is less than optimal as the added hardware is expensive, takes up space and increases the weight of the vehicles. Furthermore, energy consumption will become an increasingly important factor to consider as electric mobility will play a major role in the future \todo{citation?} . The added hardware will unnecessarily draw power which is predominantly intended to fuel the vehicle itself. Thus, while additional on-board computing hardware is inevitable, a goal should be to reduce it by as much as possible. 
 
-A potential remedy to overcome this problem is cloud computing. Cloud infrastructures, in essence, are remote data centers which have seemingly infinite amounts of computing resources and storage space available to them. In the future, computationally expensive functions enabling advanced functionalities, such as autonomous driving, may be supported by---or even entirely offloaded to---the cloud. This will be greatly facilitated by the upcoming 5G cellular network which enables high throughput data transmission while providing low latencies and reduced power consumption.
+A potential remedy to overcome this problem is cloud computing \cite{mell2011nist}. Cloud infrastructures, in essence, are remote data centers which have seemingly infinite amounts of computing resources and storage space available to them. In the future, computationally intensive functions enabling advanced functionalities, such as autonomous driving, may be supported by---or even entirely offloaded to---the cloud. This endeavor will be greatly facilitated by the upcoming 5G cellular network which enables high throughput data transmission while providing low latencies and reduced power consumption \cite{andrews2014will}.
 
-Since network connectivity in mobile systems is not always guaranteed, \eg , when navigating through geographically remote areas, such functions still need to work "offline". Hence, a method is needed to allow the same functions to run on resource constrained embedded systems as well as on servers in cloud infrastructures. Virtualization and containerization technologies are promising contenders to make such an endeavor feasible. By wrapping software artifacts and their dependencies in portable, self-contained execution environments, such tools allow applications to be deployed on a variety of operating systems and hardware platforms without requiring modifications in the application code. 
-
-A challenge is the dynamic nature of vehicles. A vehicle may be connected to a remote server for days, and then disconnect in the next second. In such cases, the on-board system must immediately take over operation in order to stay functional and guarantee the safety of the passengers. For this, the way components communicate must be absolutely seamless, regardless of their location.
-
-
-\subsection{Example Scenarios}
-The system to be presented in this thesis is can be utilized in a number of ways. To further rationalize the system's usefulness it is helpful to keep a few usage scenarios in mind.
-
-\paragraph{Supportive autonomous driving.}
-
-
-\paragraph{Data collection.} Crowd-sourced information collection. Each vehicle continuously sends sensor data to the cloud, \eg , gps data. Data from many users is aggregated in the cloud. Services based on that data can be provided. \Eg\ traffic information
-
-
-\paragraph{Auxiliary fail-safe behavior.}
-
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-
-\section{Context}
-
-\begin{enumerate}
-\item Cloud connectivity is already in place, but so far, it is only used in the context of infotainment systems such as audio streaming and navigation systems.
-\item large scale connectivity which enables advanced functions such as V2X will probably not take off until 5G is properly introduced and adapted
-\end{enumerate}
-
-
-\subsection{Modern Software Architectures}
-\todo[inline]{move / remove}
-\todo[inline]{
-Today, there is a tendency for software architectures to shift away from the \emph{monolithic} paradigm of having a single software entity deployed on a single, potent server to a more \emph{distributed} paradigm where multiple components are spread over a number of less potent physical hosts connected over a network.
-The benefits of this approach became evident in the early 2000's when a new type of software architecture utilizing this concept became popular: \emph{service-oriented architectures} (SOAs).
-
-In recent years, SOAs have made a revival in the form of \emph{microservices}, which, in essence, is a more fine grained type of SOA that avoids the complexity induced by \emph{Enterprise-Service-Buses} (ESBs). Similar to SOA, the idea behind microservices is to split functionality into a collection of reusable components, each fulfilling a single specific purpose. Recent research efforts are evaluating the possibility to include such paradigm in the realm of automotive software systems -- in part achieving great success \cite{berger2017containerized}. 
-
-Since Microservices are very limited in scope they may be built and deployed in a matter of minutes, rather than hours, as is the case with monolithic applications. Thus, microservices have the potential to tremendously accelerate the software development process when being combined with modern development practices such as \emph{continuous integration / continous delivery} (CI/CD).
-}
-
+Despite the fact that considerable efforts are currently made to push the wide spread adoption of 5G, it can not realistically be guaranteed that vehicles will always be connected to the Internet, \eg , when navigating through geographically remote areas. In addition to the deficient availability of cellular networks, connectivity in mobile systems is characterized by frequent successions of connection losses and reconnections. For this reason it is vital that all critical vehicular functions still work "offline". Hence, a method is needed to allow the same functions to run on resource constrained embedded systems as well as on high performance servers in the cloud. Virtualization and containerization technologies are promising contenders to make such an endeavor feasible. By wrapping software artifacts and their dependencies in portable, self-contained execution environments, such tools allow applications to be deployed on a variety of operating systems and hardware platforms without requiring modifications in the application code.
 
 %
 %
@@ -66,11 +21,18 @@ Since Microservices are very limited in scope they may be built and deployed in 
 %
 
 \section{Objective}
+The goal of this thesis is to present a system that connects vehicles to the cloud as means to \begin{itemize}
+\item offload computations and reduce energy consumption,
+\item facilitate data collection for real-time monitoring and analytics purposes, and to
+\item increase redundancy in an effort to improve safety.
+\end{itemize} 
+The system shall be structured in a modular way which allows the segmentation of a vehicle's functionality into single, isolated units. The separation mechanism shall present a view on the system as a collection of functional units, of which each one can be moved between vehicle and cloud independently. A requirement for this is that the same function may run on a vehicle's on-board system as well as a cloud-provisioned machine in the exact same way. Furthermore,  each functional unit shall be able to communicate with other functional units, regardless of where they are located. \Ie , it shall not matter whether two interacting components are located within the vehicle or whether one of them is deployed in the cloud. An additional requirement for redundant function execution is that data needs to be transmitted to several receivers simultaneously. For instance, take a function which continually transmits sensor data to another function which processes that data. A replica of the latter function runs in the cloud as a backup measure. The data emitting function needs to be able to send the same data samples to both receivers in a  way similar to a message bus.
 
-The goal of this thesis is to present a system that connects vehicles to the cloud as means to offload computations, facilitate data collection, and to improve safety. The system shall be structured in a modular way which allows the segmentation of a vehicle's functionality into single, isolated units. The separation mechanism shall present a view on the system as a collection of functional units, of which each one can be moved between vehicle and cloud independently. A requirement for this is that the same unit may run on a vehicle's on-board system as well as a cloud-provisioned machine in the exact same way. Furthermore,  each functional unit shall be able to communicate with other functional units, regardless of where they are located. \Ie , it shall not matter whether their counterpart is located in the cloud or on the same computing node in the vehicle. Similarly, it should be transparent to the rest of the system whether a computational job was executed in the vehicle or the cloud. 
+A major challenge is the mobility aspect of cars. It cannot always be guaranteed that a connection to the cloud is available. As a consequence, functions may be available for a few seconds, and then become unresponsive again. The system must be able to deal with extreme fluctuations in the network's availability. When connectivity is restored, operation must resume as if no interruption occurred. A seamless transition from cloud-operation to on-board-operation and back again must be possible.
 
-A major challenge is the mobility aspect of cars. It cannot always be guaranteed that a connection to the cloud is available. As a consequence, functions may be available for a few seconds, and then become unresponsive again. The system must be able to deal with extreme fluctuations in network availability. When connectivity is restored, operation must resume as if no interruption occurred. A seamless transition from cloud-operation to on-board-operation and back again must be possible.
+In a nutshell, the envisioned system shall act as a vehicular message bus which extends to the cloud, while being resilient \wrt\ connection loss.
 
+\paragraph{}
 What is NOT the purpose of this thesis?
 \begin{itemize}
 \item It is not he goal to present a repartitioning strategy for the offloading of computations but to present a way to on the basis of which such systems may be implemented.
@@ -88,9 +50,9 @@ What is NOT the purpose of this thesis?
 %
 %
 
-\section{Structure of the Thesis}
 
-The remainder of this work is structured as follows. First, preliminaries are given in \autoref{chapter:preliminaries}, briefly explaining all concepts and technologies relevant to the presented approach. The next chapter, \autoref{chapter:related-work}, is dedicated to the summarization and discussion of similar approaches and other related work. In the subsequent chapter, \autoref{chapter:realization}, the actual realization of the approach is described, going into detail about how technologies were leveraged to implement a cloud-enabled automotive software architecture. In \autoref{chapter:evaluation}, the approach is evaluated. The evaluation is supported by a number of benchmarks which were conducted to assess the system's feasibility and to quantify its quality attributes. What then follows in \autoref{chapter:discussion} is a discussion about the system's aptitude as well as its limitations. The thesis concludes with \autoref{chapter:conclusion} where this work is summarized and future work is suggested.
+\section{Structure of the Thesis}
+The remainder of this work is structured as follows. First, preliminaries are given in \autoref{chapter:preliminaries}, briefly explaining all concepts and technologies relevant to the presented approach. The next chapter, \autoref{chapter:related-work}, is dedicated to the summarization and discussion of similar approaches and other related work. In the subsequent chapter, \autoref{chapter:realization}, the actual realization of the approach is described, going into detail about how technologies were leveraged to exemplarily implement the idea. In \autoref{chapter:evaluation}, the approach is evaluated. The evaluation is supported by a number of benchmarks which were conducted to assess the system's feasibility and to quantify its quality attributes. What then follows in \autoref{chapter:discussion} is a discussion about the system's aptitude as well as its limitations. The thesis concludes with \autoref{chapter:conclusion} where this work is summarized and future work is suggested.
 
 %
 %

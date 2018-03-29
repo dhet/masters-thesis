@@ -1,7 +1,5 @@
 \chapter{Discussion}\label{chapter:discussion}
 
-\section{Aptitude}
-
 By combining DDS with an overlay network, a coherent distributed system \cite{tanenbaum2017distributed} was built, that from the viewpoint of each individual component, appears to be non-dispersed.
 
 
@@ -23,52 +21,62 @@ failure transparency: by having multiple service instances running concurrently,
 \paragraph{Benchmarks.}
 Routing traffic over an overlay network results in increased CPU utilization. If not used with caution, offloading a small computation to the cloud may end up putting more load on the CPU than simply performing the computation on the on-board computer.
 
+\section{Requirement Analysis}
 
 \todo{bring list in correct order}
 \paragraph{Scalability.}
 The approach is strongly focused on scalability. 
 
-Computational load can be offloaded to the cloud, when network reception is given.
+With DDS, it is easy to scale out services
+\begin{itemize}
+\item anonymous multicast communication facilitates scalability. new services don't need to explicitly register to related services. All communication goes to a multicast address. The underlying infrastructure takes care that messages are distributed accordingly.
+\item automatic service discovery: it's easy to add new services. It's enough to start the program and the publisher/subscriber can automatically participate in a topic.
+\item Decentralization also improves scalability: In centralized systems, there is often a single point of failure which may be overloaded with increasing demand. 
+\item However, performance properties when adding publishers or subscribers was not tested. Previous work?
+\end{itemize}
 
-How fast can the approach scale? Depends on the cloud provider used. Service discovery in DDS is fast.
+With \docker\ it is easy to replicate services. 
+\begin{itemize}
+\item \docker\ can be controlled via mature RESTful API which makes it easy to launch containers in a unified manner
+\item Container spin-up is extraordinarily fast. Helps elasticity.
+\end{itemize}
 
-Scalability is improved by location transparency
+Adding containers to a Weave overlay happens implicitly when the host is already running a weave router. Starting the weave router on a machine can be done at system start up via shell script. Gripe: It is not known if \weave 's performance degrades with many nodes in the overlay. This is future work.
 
-Weave nodes can be easily integrated into existing networks. When the Weave router is already in place on a host, merely starting a container is enough to connect it to the overlay.
-
-
+(Weave nodes can be easily integrated into existing networks. When the Weave router is already in place on a host, merely starting a container is enough to connect it to the overlay.)
 
 \paragraph{Availability / Reliability.}
 Moving vehicles are are very likely to lose reception during operation, \eg , when navigating in remote areas or when driving through tunnels. At the center of the presented approach is cloud connectivity, and hence, reliability is a major concern. Thus, the approach was \emph{designed} to handle cases of unreliable communication channels.
 
-A prerequisite for handling reliability issues is fast failure detection and a quick fail-over mechanism so that timing requirements can be met and downtime is kept at a minimum. With its support for redundancy and failure detection, DDS promises exactly that. DDS' way of guaranteeing reliability communication is achieved by QoS policies. For failure detection, DDS employs a liveliness mechanism whereby services are either proactively, or reactively, probed for responsiveness. If a service fails to meet the demand, it is declared "dead". In such cases, fallback services may be elected as (temporary) replacement. As soon as the original service's operability restored, it may take over operation again.
+A prerequisite for handling reliability issues is fast failure detection and a quick fail-over mechanism so that timing requirements can be met and downtime is kept at a minimum. With its support for redundancy and failure detection, DDS promises exactly that. DDS' way of guaranteeing reliability communication is achieved by QoS policies. For failure detection, DDS employs a liveliness mechanism whereby services are either proactively, or reactively, probed for responsiveness. If a service fails to meet the demand, it is declared "dead". In such cases, fallback services may be elected as (temporary) replacement. As soon as the original service's operability restored, it may take over again.
 
-\wnet 
-
-When a Weave connection is interrupted it fails gracefully and reconnects as soon as connectivity is restored.
+While \wnet\ doesn't provide a mechanism like that, it has other ways to deal with unreliable underlay networks. When a link between two nodes is interrupted \weave\ takes no proactive measures to find an alternative link but it reconnects as soon as connectivity is restored. Thus, a moderate resilience to connection loss is discernible.
 
 \paragraph{Security.}
-Security was a major concern when designing the approach. In fact, Weave's security features were one of the primary reasons why it was chosen as overlay networking technology. In particular, its support for end-to-end encryption ensures the confidentiality and integrity of the communication channel, even in insecure networks such as the Internet. \wnet 's security is based on IPSec and state-of-the-art encryption algorithms. However, questions remain about the usability of Weave's encryption mechanism. Weave employs a shared secret approach, \ie , a password needs to be present on all participating hosts. How this secret should be securely stored is an open question yet to be answered.
+Security was a major concern when designing the approach. In fact, \weave 's security features were one of the primary reasons why it was chosen as overlay networking technology. In particular, its support for end-to-end encryption ensures the confidentiality and integrity of the communication channel, even in insecure networks such as the Internet. \wnet 's security is based on IPSec and state-of-the-art encryption algorithms. However, questions remain about the usability of \weave 's encryption mechanism. \weave\ employs a shared secret approach, \ie , a password needs to be present on all participating hosts. How this secret is to be securely stored and how situations of leakage are dealt with are an open question yet to be answered.
 
-Whether \docker 's isolation properties are sufficient in terms of security is debatable. The fact of the matter is, however, that any degree of isolation is better than no isolation. Hence, for now, the security of \docker\ is considered sufficient, although a rigor security analysis is required.
-
+On top of encryption, isolation is an important means to improve the security of a system. By isolation, security perimeters can be created which are difficult to penetrate. The more layers of isolation there are the better the system can be protected from attackers. The approach leverages \docker\ to provide isolation. Each service instance is running within the perimeters of a container. However, whether \docker 's isolation properties are sufficient in terms of security is debatable. The fact of the matter is, however, that any degree of isolation is better than no isolation. Hence, for now, the security of \docker\ is considered sufficient, although a rigor security analysis is still to be done.
+\todo[inline]{
 The most important method to keep a system secure is to allow for fast and reliable updates. \docker\ promises exactly that.
 
 The security requirement is partly fulfilled.
-
+}
 \paragraph{Performance.}
 The main motivation behind the approach is to support the resource-constrained on-board computing system of vehicles by means of offloading computations to the cloud, and thereby improve the performance of the whole system. In \autoref{chapter:evaluation} it was shown that the approach manages to fulfill the performance requirement to a satisfying degree. This is because all technologies were chosen, in part, on the basis of their performance properties.
 
-DDS exhibits great performance characteristics because it is, from the ground up, designed to perform well. This was demonstrated in \autoref{sec:ddslatency} where DDS was evaluated regarding its responsiveness. The results of the benchmark show that DDS incurs a comparatively small protocol overhead. Moreover, the chosen virtualization technology, \docker , has been tested regarding performance manyfold  \cite{felter2015updated,morabito2015hypervisors} and the general consensus is that it incurs minimal computational and IO overhead when configured right. Lastly, \wnet\ exhibits decent performance behavior. Since little data was available at the time of this writing, performance benchmarks were conducted in this thesis. The results show that....
+DDS exhibits great performance characteristics because it is, from the ground up, designed to perform well. The fact that DDS employs multithreading-based asynchronous programming, and that virtually all DDS implementations are implemented in C++, support this statement. In \autoref{sec:ddslatency} DDS was evaluated regarding its latency metrics in an overlay setting. The results of the benchmark show that DDS incurs a comparatively small protocol overhead. 
 
-DDS supports asynchronous programming paradigm, which can reduce waiting time and increase performance.
+Moreover, the chosen containerization technology, \docker , has been tested regarding performance manifold  \cite{felter2015updated,morabito2015hypervisors} and the \todo{rephrase} general consensus is that it incurs minimal computational and IO overhead when configured right. Lastly, \wnet\ exhibits decent performance properties. Since little data was available at the time of this writing, performance benchmarks were conducted as part of this thesis. The results show that, in terms of latency, little overhead can be observed---even when employing encryption. A similar statement can be made about raw network throughput. It was demonstrated, however, that overlay networking via \weave\ puts quite a bit of load on the CPU. When using \weave 's sleeve mode encapsulation, the performance is further impaired by additional context switches. In one experiment a situation was simulated in which the Raspberry Pi test nodes even reached their limits in terms of computational power which caused the effective throughput to stall at around 23 Mbit/s. In terms of performance, it can be concluded that \wnet\ is definitely not the best fit for the use case at hand.
 
 \paragraph{Extensibility.}
-The extensibility of the system is to a large extent facilitated by DDS. The DCPS approach of DDS promotes extensibility: Data is provided "as-is", without implications or restrictions \wrt\ how it is used. It may therefore be reused by any service that is interested in that data. A newly added service is not concerned with the \emph{purpose} of the data, nor can any other service dictate how the data is supposed to be used---the service just takes advantage of the \emph{presence} the data.
+The extensibility of the approach is to a large extent facilitated by DDS. In the DCPS paradigm, data is provided "as is", \ie , there are no implications or restrictions \wrt\ how that data is used. A newly added service is not concerned with the original \emph{purpose}, or intent, of the data, nor can any other service dictate how the data is supposed to be used---a service just takes advantage of the \emph{presence} the data. Hence, data can be reused in ways that weren't even intended when first designing the system.
 
-Extensibility is further improved by DDS's dynamic service discovery. A newly added service can subscribe to any topic at run-time, as long as the topic's name and type are known. Similarly, a service which provides data may register new topics at will and can engage in collaboration instantaneously. At the same time, other services are entirely oblivious to the fact that a service was added. The change of topology is handled exclusively by the middleware.
+Extensibility is further improved by DDS's dynamic service discovery. A newly added service can subscribe to any topic at run-time, as long as the topic's name and type are known. Similarly, a service which provides data may register new topics at will and can engage in collaboration instantaneously. At the same time, other services are entirely oblivious to the fact that a service was added. The change of topology is handled exclusively by the middleware, and minimal manual effort is needed to integrate new services.
 
-\wnet\ also facilitates easy extensibility: Weave is set up at host-level, rather than at container-level, \ie , a container launched on a host that supports \wnet\ will automatically be added to the overlay. This process is entirely transparent, so that a container management and orchestration system does not even have to know that Weave is in place.
+\wnet\ also helps in building extensible systems: Software as well as hardware nodes can be easily added to existing overlays. Weave overlays are set up at host-level, \ie , each host participating in an overlay has the Weave daemon running on it. The daemon causes any container that is launched on such host to be automatically added to the overlay. There is no need for per-container configurations or scripts to be executed, which significantly eases the way software nodes may be added to the system. This process is entirely transparent, so that a container management and orchestration system does not even have to know that Weave is in place. Weave's extensibility properties also carry over to the hardware-level. If a new hardware node were to be added to the system, the only thing one would have to do is launch the Weave software on that node, referencing the IP address of at least one other participating node. The other node would then propagate the addition of new node in the whole overlay. Shortly after, every other node in the system would know that a new node was added.
+
+Lastly, \docker\ brings features that greatly improve extensibility. \docker 's layered images make it possible to only exchange those parts which are in need of updates. If an application is made of a number of layers, only the.
+Docker greatly facilitates fast service provisioning and deployment.
 
 Service updates: \docker\ has versioning built-in. This makes it easier to manage several versions of the same service at the same time.
 
@@ -101,4 +109,11 @@ Problem with \wnet 's encryption: password-based shared secret. How to distribut
 The test on resource utilization (\cf \autoref{sec:utilization}) revealed a significant computational overhead associated with \wnet\ overlay networking. 
 
 It may also be noted that the Docker images presented in this thesis are by no means production ready. Although there was an effort to minimize the size of the images, in real scenarios, images would be shaved down to the bare minimum, both in terms of size and capabilities. Utilities such as compilers, build tools and generally everything which is not a prerequisite to execute a given service would be removed. The images used in this thesis serve the purpose of demonstration and thus, such measures were not taken to ensure a rapid progression of this work. More time would be needed to optimize the images for production use.
+
+
+
+\weave\ has good ideas but it is questionable whether it is the right tool for the job. It is not designed for cyber-physical systems. is not yet production ready. Unsolved problems: shared secret distribution and key renewal protocols.
+
+
+The approach is by no means production ready.
 

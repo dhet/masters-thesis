@@ -17,28 +17,37 @@ Linux containers are used to package applications in a platform independent way 
 With the aid of state-of-the-art SDN technology a VXLAN-based overlay network is created that connects containers running within the vehicle with other containers deployed in remote data centers. 
 
 
-\wnet\ is not yet production ready. Unsolved problems: shared secret distribution and key renewal protocols.
+\paragraph{Pros}
+\begin{itemize}
+	\item full distribution transparency
+	\item performs well, as long as enough computing power is present
+	\item good security properties through proper encryption
+	\item DDS exhibits great fail-safe features to ensure availability and reliability
+	\item easily extensible
+\end{itemize}
 
-The approach is by no means production ready.
 
-\section{Contributions}
+\paragraph{Cons}
 
-What makes the approach unique? DDS over overlay network
 
+There is yet a lack of suitable tools to adapt the approach to safety-critical systems---the general idea still stands though.
 
 \section{Future Work}
+
+The approach is not yet fully evaluated. Too many questions are left unanswered. Things to evaluate in the future:
+\begin{itemize}
+	\item Empirical study: How well does \wnet\ support many nodes? Are there performance degradations?
+	\item Empirical study: How fast can \wnet\ reconnect?
+	\item Empirical study: How fast can \wnet\ adapt to changes in topology? Can it deal with changes in IP addressing?
+	\item Question: Can \weave\ be used in elastically scaling PaaS systems or EC2?
+\end{itemize}
+
+
 
 The presented approach does not consider that certain functionalities have different hardware requirements, \ie , a service requiring camera footage needs to be deployed on a node that has a camera attached to it. The approach does not yet accommodate this. Container orchestration systems such as kubernetes or Docker swarm offer a solution to this problem. Such systems may control compatibilities through \emph{tags} that may be attached to containers and nodes alike. Only if a node and a container have matching tags then the container may be deployed on that node. In the example, a tag like "front-camera" could be used to indicate that a service may only be deployed on a node with an attached camera. A container orchestration system could be easily integrated into the presented approach. 
 
 Integrate into real vehicle connected over 5G: the approach may benefit greatly from 5G's network slicing, which facilitates advanced network scaling techniques. By means of slicing, the network is separated into a number isolated slices which are then used by different applications. Each slice is highly specific to its application's use case and can enforce corresponding QoS requirements.
 
 Maybe in the future: system inspired by network function chaining, where load is dynamically distributed on different nodes depending on a number of factors, \eg , current load, computational power, etc. Optimization problem.
-
-
-
-Further testing of Weave: How fast can \wnet\ reconnect?
-
-Can weave be used in PaaS systems or EC2?
-
 
 The proposed system is not yet truly ubiquitous. So far, the system connects two entities: the vehicle, and the cloud. In the future, V2X will become increasingly important, especially in the light of recent autonomous driving advances. A desirable goal is to extend the system to other road-traffic participants, such as other cars, and the surrounding infrastructure. 

@@ -85,22 +85,21 @@ In \autoref{tab:qos}, an excerpt of the available QoS policies is given. For the
 %
 %
 \begin{table}[htpb]
-  \caption[An excerpt of DDS QoS policies]{An excerpt of QoS policies.}\label{tab:qos}
+  \caption[An excerpt of DDS QoS policies]{An excerpt of QoS policies}\label{tab:qos}
   \centering
   \begin{tabular}{p{0.25\textwidth} p{0.2\textwidth}  p{0.45\textwidth}}
     \toprule
       \textbf{Name} & \textbf{Legal values} & \textbf{Description} \\
     \midrule
     	\reliability  & \texttt{RELIABLE}, \texttt{BEST\_EFFORT} & Indicates whether a Data Writer may drop samples or whether a Data Reader approves of Data Writers that drop samples.\\
-    	\tbf  & An integer value denoting time & Specifies a Data Reader's desired "minimum separation period" between incoming messages.\\
-    	\liveliness  & An integer value denoting time &\\
-    	\deadline  & An integer value denoting time &\\
+    	\tbf  & An integer value denoting time & Specifies a Data Reader's desired data reception rate. Superfluous samples will be discarded.\\
+    	\liveliness  & An integer value denoting time & Defines the rules to determine whether a particular entity is "alive", \eg\ by emitting heart beats. \\
+    	\deadline  & An integer value denoting time & Establishes a contract between Data Writer and Data Reader to determine the acceptable data rate. \\
     	\ownership  & \texttt{SHARED}, \texttt{EXCLUSIVE} & Specifies whether multiple Data Writers may write to a given Topic simultaneously or just the one with the highest \ostrength\  value.\\
     	\ostrength  & An integer value denoting relative priority & Determines a Data Writer's priority in cases where its Topic's \ownership\ is set to \texttt{EXCLUSIVE}. \\
-    	\tpriority  & An integer value denoting relative priority &\\
+    	%\tpriority  & An integer value denoting relative priority &\\
     \bottomrule
   \end{tabular}
-    \todo[inline]{fill in blanks}
 \end{table}
 %
 %
