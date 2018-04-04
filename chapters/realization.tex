@@ -57,14 +57,14 @@ The last question that remains is how services are connected. Since services may
 
 \autoref{fig:idea} depicts a schematic example. The box on the left-hand side represents a vehicle. In the vehicle, several interconnected services are deployed. What is omitted from the image is that these services run on distributed embedded devices spread over the vehicle's on-board system. Several of these services rely on sensor data and/or control actors (indicated by the semicircles). On the right-hand side, the cloud is depicted, which, in actuality, is a collection of high-performance computing nodes. Vehicle and cloud are physically separated and connected via some sort of network, which the vehicle may access by means of a cellular network. As can be observed in the figure, some of the vehicle-intrinsic services are replicated in the cloud (\ding{117}, \ding{115}). Examples of such services could be functions for predicting trajectories, gaze detection, or machine learning algorithms. The duplication and varying size of the service boxes depicted in the image is indicative of horizontal and vertical scaling, respectively. It doesn't always make sense to replicate services in the cloud, \eg , because they are computationally inexpensive, or because they require access to sensors and actors which are inherently bound to the vehicle (\ding{70}, \ding{108}, \ding{58}). Those services have their firm place within the vehicle and are referred to as \emph{fixed} services. Their counterpart, \ie , services that may run ubiquitously, are called \emph{volatile} services. The discrepancy between fixed and volatile services emphasizes the need to split functionality into fine-grained services so that computational bottlenecks can be isolated and then eliminated. A good advice is to extract services connected to sensors and actors in minimal services ("\emph{access services}") that do nothing but provide a low-level interface to sensor data.
 
-\subsection{Key Challenges}
-
+\subsection{Key Challenges} 
+\label{sec:challenges}
 In this chapter a conceptual approach was presented to connect a vehicle's on-board system to the cloud to facilitate computation offloading, data collection, and other use cases. To achieve this, the approach suggests to split functionality into fine-grained services that may be replicated and migrated smoothly between vehicle and cloud. Three key challenges can be identified which need to be addressed in order to realize the system:
 
 \begin{enumerate}[(i)]
 \item \textbf{Reliable, anonymous information exchange}: Services must be able to communicate in a reliable manner, without needing direct references to one another.
 \item \textbf{Isolation}: Services need to be packed in self-contained execution environments with all their dependencies to ensure portability.
-\item \textbf{Connectivity}: Services need to be able to autonomously create and maintain connections between each other, regardless of where they are located.
+\item \textbf{Connectivity}: Services need to be able to autonomously create and maintain connections between each other, regardless of their location.
 \end{enumerate}
 
 %
@@ -83,6 +83,7 @@ The system sketched in the previous section can be utilized in a number of ways.
 
 \paragraph{Supportive Autonomous Driving.}
 One of the salient features of the presented approach is the ability to offload computations. 
+\todo[inline]{Fertig schreiben}
 
 \paragraph{Data Collection.} 
 Another benefit of the approach is that it greatly eases data collection. One could think of an example where passive listeners, implemented as subscribers, would run in the cloud at all times for the sole purpose of accumulating telemetry data. The on-board system would not be concerned with those listeners as they would not take an active part in the functioning of the system. The collected data could be used for real-time monitoring and analytics purposes, remote trouble shooting, or to feed machine learning algorithms. Furthermore, location-based services and applications utilizing crowd-sourced traffic data would be possible. An example for this type of application is Google Maps' traffic congestion detection which is based on the accumulative GPS information collected from numerous user's Android phones.
@@ -133,6 +134,7 @@ To enhance security and to preserve the integrity, authenticity, and confidentia
 
 
 \paragraph{Performance.}
+\todo[inline]{TODO}
 Services in an automotive SOA are deployed on embedded computing devices that must fulfill real-time requirements. This is in stark contrast to services in traditional SOAs that often run on high performance machines. The resource constrained nature of embedded systems requires special operating systems, communication technologies and programming techniques.
 
 low response times, high throughput and timeliness (Real-time requirements must be fulfilled)
@@ -185,7 +187,7 @@ After having discussed the basic concept of the approach in \autoref{sec:concept
 \begin{inparaenum}[(i)]
   \item \emph{reliable, anonymous information exchange},
   \item \emph{isolation}, and
-  \item \emph{connectivity}. 
+  \item \emph{connectivity} (\cf \ref{sec:challenges}). 
 \end{inparaenum}
 To tackle these challenges, three technologies are proposed:
 

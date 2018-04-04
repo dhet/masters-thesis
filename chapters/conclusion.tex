@@ -1,11 +1,9 @@
 
 \chapter{Conclusion}\label{chapter:conclusion}
+\section{Summary}\label{sec:summary}
+Current trends in the field of automotive mobility, such as autonomous driving, are the cause of an increased demand for computational power and data collection opportunities\todo{sounds weird} . Associated with this development is an inherent increase in energy consumption. However, an objective should be to keep the energy usage of vehicles' electronic systems as low as possible. This applies especially in the wake of the ever-increasing importance of electro mobility where every bit of energy is needed to fuel the vehicle. In the face of this dilemma traditional vehicular on-board technologies are reaching their limits, and thus, new ways to deal with tomorrow's mobility challenges need to be investigated. One possibility to overcome the constraints imposed by the limited capabilities of current vehicles' computing infrastructure is offered by \emph{cloud computing}. Supported by modern cellular networking technology, clouds pave the way for new, innovative functions, such as the offloading of computationally intensive tasks to high-performance computing systems. Cloud computing has been around for many years now and many modern businesses thrive on the innovation opportunities that clouds facilitate. However, comparatively little attention has been paid to the prospect of integrating them into the automotive domain. A reason for this might be the special requirements that apply to this particular industry. The most prominent challenge is the mobility aspect of vehicles which makes it difficult to maintain a reliable communication channel to the outside world. 
 
-\section{Summary}
-
-Recent trends in automotive require innovative approaches to facilitate communication between distributed components and handle resource utilization. because traditional technologies are reaching their limits. 
-
-Current research discusses the possibility to use publish-subscribe middleware in automotive systems. This is necessary because.... DDS is suitable for this purpose because.... 
+As a reaction to these challenges, a novel approach was presented to enable cloud connectivity for automotive systems.
 
 This thesis presented a novel approach that brings together reliable communication and cloud computing. The approach utilizes a combination of different technologies to warrant for a high degree of location transparency, decoupling,  and ...
 
@@ -33,21 +31,25 @@ With the aid of state-of-the-art SDN technology a VXLAN-based overlay network is
 There is yet a lack of suitable tools to adapt the approach to safety-critical systems---the general idea still stands though.
 
 \section{Future Work}
+Although considerable effort was directed to quantifying the quality attributes of the approach, it is far from being fully evaluated. Future research could investigate many questions which were left unanswered in this thesis. Especially \wnet , which is a technology rooted in the software industry, and has no bonds to the scientific domain, would greatly benefit from further research efforts. Questions of interest would be, for example: To which extent can \wnet\ scale to a greater number of nodes, and does it suffer from performance degradations with an increase in participating entities? How fast can \wnet\ adapt to changes in the underlay's topology? Can it deal with nodes getting assigned new IP addresses? It was furthermore stated that nodes in a \wnet\ overlay automatically reconnect when they lose connection to the other nodes---how fast can the reconnection be accomplished? To which degree does \weave 's sleeve mode impact performance, compared to fast datapath mode? Can \weave\ be used in elastically scaling PaaS systems or Amazon's EC2? Apart from all that, how does \weave\ compare to other, competing technologies, such as \emph{flannel}\footnote{\url{www.github.com/coreos/flannel}} and \docker 's native overlays?
 
-The approach is not yet fully evaluated. Too many questions are left unanswered. Things to evaluate in the future:
-\begin{itemize}
-	\item Empirical study: How well does \wnet\ support many nodes? Are there performance degradations?
-	\item Empirical study: How fast can \wnet\ reconnect?
-	\item Empirical study: How fast can \wnet\ adapt to changes in topology? Can it deal with changes in IP addressing?
-	\item Question: Can \weave\ be used in elastically scaling PaaS systems or EC2?
-\end{itemize}
+These questions assume that it is worth pursuing \wnet\ as overlay networking technology. This, however, in itself is an unanswered question. Because, as it stands, \wnet\ is the major weak point of the approach. While it is still the only viable solution available, as it supports encryption and IP multicast, many deficiencies relevant to the automotive use case are evident. However, the underlying principles are well known and well understood, and the general feasibility of the these principles was successfully demonstrated in this work. Thus, there are no technical barriers to realizing a system based on the underlying concepts which is better suited for the automotive use case. 
+
+\todo{übergang} A weak point in the testing methodology which pervades throughout all benchmarks in \autoref{chapter:evaluation} is that the tests were performed under laboratory conditions. The setup was connected to the cloud by means of a stable broadband Internet connection. These conditions obviously don't apply to real life scenarios. Thus, further testing in such scenarios would be required to make a grounded assessment of the approaches' real-world applicability. Optimally, the system would be integrated into a real, moving vehicle with 5G-enabled Internet access. In this context, it would also be interesting to see to which extent the approach would benefit from 5G's rich set of innovative features, such as \emph{network slicing}---a novel way to facilitate advanced network scaling techniques. By means of slicing, the network is separated into a number isolated slices which are then used by different applications. Each slice is highly specific to its application's use case and can enforce corresponding QoS requirements\todo{citation}. Intuitively, the approach, and especially systems based on DDS, would benefit greatly from this.
+
+Further research potential lies in the continuative exploration of other use cases. This work investigated only a small subset of possible applications facilitated by publish-subscribe communication in overlay networks. A major strength of the approach lies in its ubiquity, \ie\ it is meant to be applied in systems consisting of many interconnected entities. So far, however, only the "vehicular cloud" use case was investigated. While a vehicle, with all its contained ECUs, is in itself a distributed system, only dozens of components are connected. It would be interesting to see the approach being used in other use cases in which not dozens, but thousands, of entities are present, \eg in the context of sensor networks and other (industrial) IoT applications. Another possible use case would be an V2X scenario in which not a single vehicle is connected to the cloud, but also vehicles among each other.
+
+\todo[inline]{
+Rolling updates via Docker?
+}
 
 
-
-The presented approach does not consider that certain functionalities have different hardware requirements, \ie , a service requiring camera footage needs to be deployed on a node that has a camera attached to it. The approach does not yet accommodate this. Container orchestration systems such as kubernetes or Docker swarm offer a solution to this problem. Such systems may control compatibilities through \emph{tags} that may be attached to containers and nodes alike. Only if a node and a container have matching tags then the container may be deployed on that node. In the example, a tag like "front-camera" could be used to indicate that a service may only be deployed on a node with an attached camera. A container orchestration system could be easily integrated into the presented approach. 
-
-Integrate into real vehicle connected over 5G: the approach may benefit greatly from 5G's network slicing, which facilitates advanced network scaling techniques. By means of slicing, the network is separated into a number isolated slices which are then used by different applications. Each slice is highly specific to its application's use case and can enforce corresponding QoS requirements.
-
+\todo[inline]{
 Maybe in the future: system inspired by network function chaining, where load is dynamically distributed on different nodes depending on a number of factors, \eg , current load, computational power, etc. Optimization problem.
+}
 
-The proposed system is not yet truly ubiquitous. So far, the system connects two entities: the vehicle, and the cloud. In the future, V2X will become increasingly important, especially in the light of recent autonomous driving advances. A desirable goal is to extend the system to other road-traffic participants, such as other cars, and the surrounding infrastructure. 
+\todo[inline]{
+The presented approach does not consider that certain functionalities have different hardware requirements, \ie , a service requiring camera footage needs to be deployed on a node that has a camera attached to it. The approach does not yet accommodate this. Container orchestration systems such as kubernetes or \docker\ Swarm offer a solution to this problem. Such systems may control compatibilities through \emph{tags} that may be attached to containers and nodes alike. Only if a node and a container have matching tags then the container may be deployed on that node. In the example, a tag like "front-camera" could be used to indicate that a service may only be deployed on a node with an attached camera. A container orchestration system could be easily integrated into the presented approach. 
+}
+
+
