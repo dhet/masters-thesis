@@ -1,27 +1,9 @@
 \chapter{Discussion}\label{chapter:discussion}
 In \autoref{chapter:realization}, the thesis' main approach was introduced. As part of this, an exemplary technology stack to realize the system was proposed. The exemplary solution, which is based on DDS, \docker , and \wnet , was then assessed with the aid of a number of benchmarks (\cf \autoref{chapter:evaluation}). In this chapter, the proposed solution is discussed, and its merits as well as its flaws are pointed out. The list of requirements given in \autoref{sec:requirements} and the benchmark results from the previous chapter serve as the foundation of the discussion. 
 
-\paragraph{Location transparency}
-A high degree of distribution transparency is achieved while preserving a good amount of performance and comprehensibility.
-
-Access transparency: DDS provides a uniform access to data through its reconstruction layer, even though the messages transmitted on the wire may look different.
-
-location transparency: there is no notion of addressing. Services that provide data push it on a topic from where it gets distributed by the middleware to all concerned recipients.
-
-relocation transparency: A service can be moved from one node to another seamlessly. Without having to take action proactively. This is achieved by DDS' ownership QoS.
-
-migration transparency: can the system handle changing IP addresses?
-
-replication transparency: provided by DDS: again, through ownership QoS
-
-failure transparency: by having multiple service instances running concurrently, one may take over in an instant in case the other one fails. In terms of DDS, there is no distinction between a failing service and a service that responds slowly. When a service doesn't fulfill QoS requirements it is considered "dead".
-
-\paragraph{Benchmarks.}
-Routing traffic over an overlay network results in increased CPU utilization. If not used with caution, offloading a small computation to the cloud may end up putting more load on the CPU than simply performing the computation on the on-board computer.
 
 \section{Requirement Analysis}
-
-\todo{bring list in correct order}
+\todo[inline]{bring list in correct order}
 \paragraph{Scalability.}
 The approach is strongly focused on scalability. 
 
@@ -46,7 +28,7 @@ Adding containers to a Weave overlay happens implicitly when the host is already
 \paragraph{Availability / Reliability.}
 Moving vehicles are are very likely to lose reception during operation, \eg , when navigating through remote areas. At the center of the presented approach is cloud connectivity, and hence, the reliability of the network is a major concern. Thus, a primary objective when designing the system was to make it as resilient to connection losses as possible. A prerequisite for handling reliability issues is fast failure detection and a quick fail-over mechanism so that timing requirements can be met and downtime is kept at a minimum. With its support for redundancy and failure detection, DDS is perfectly equipped for such cases. DDS' way of guaranteeing reliable information exchange is achieved by QoS policies. For failure detection, DDS employs a liveliness mechanism whereby services are either proactively, or reactively, probed for responsiveness. If a service fails to meet the demand, it is declared "dead". In such cases, fallback services may be elected as (temporary) replacement. As soon as the original service's operability restored, it may take over again.
 
-While \wnet\ doesn't quite reach the level of failure transparency provided by DDS, it has other ways to deal with unreliable underlay networks. When a link between two nodes is interrupted \weave\ takes no proactive measures to find an alternative link but it reconnects as soon as connectivity is restored. Thus, a moderate resilience to connection loss is discernible.
+While \wnet\ doesn't quite reach the level of replication- and failure transparency provided by DDS, it has other ways to deal with unreliable underlay networks. When a link between two nodes is interrupted \weave\ takes no proactive measures to find an alternative link but it reconnects as soon as connectivity is restored. Thus, a moderate resilience to connection loss is discernible.
 
 \paragraph{Security.}
 Security was a major concern when designing the approach. In fact, \weave 's security features were one of the primary reasons why it was chosen as overlay networking technology. In particular, its support for end-to-end encryption ensures the confidentiality and integrity of the communication channel, even in insecure networks such as the Internet. \wnet 's security is based on IPSec and state-of-the-art encryption algorithms. However, questions remain about the usability of \weave 's encryption mechanism. \weave\ employs a shared secret approach, \ie , a password needs to be present on all participating hosts. How this secret is to be securely stored and how situations of leakage are dealt with are an open question yet to be answered.
@@ -64,7 +46,7 @@ DDS exhibits great performance characteristics because it is, from the ground up
 
 Similar to DDS, \docker\ was built with performance in mind. Many benchmarks have been conducted with the aim to challenge this statement \cite{felter2015updated,morabito2015hypervisors}. They all agree that \docker\ incurs minimal computational and IO overhead, provided that it is configured properly\todo{mehr info? Mehr referenzen!} .
 
-A slightly less optimistic picture paint the benchmark results for the evaluation of \wnet . The results reveal that the overlay technology adds a barely noticeable latency overhead, even when applying encryption (\cf section \ref{sec:plainlatency}). Likewise, network throughput takes only a minor hit (\cf section \ref{sec:throughput}). However, these properties only apply when enough computing resources are present. In cases where computing power is insufficient, severe performance degradations may be the result. The reason for this is that overlay networking, \ie\ the wrapping and unwrapping of encapsulated data, puts significant load on the CPU. In section \ref{sec:utilization}, a case was explored in which the test nodes reached their computational limit such that the CPU became the bottleneck. As a result, only a fraction of the theoretically achievable network bandwidth could be utilized. Expressed in figures, the effective throughput stalled at around 23 Mbit/s. The severe computational overhead can be explained by \weave 's custom encapsulation protocol ("sleeve"), which is automatically used for overlays that span over the Internet. In this mode, packets need to traverse the \weave\ router. Because the router is a user space process, many context switches need to be performed during continuous data transmissions. This circumstance causes significant delays if many packets need to be sent in rapid succession. Considering that it is a goal of the approach to minimize energy consumption, it can be concluded that \wnet\ is definitely not the best suited technology for the use case at hand\todo{satz meh.} .
+A slightly less optimistic picture paint the benchmark results for the evaluation of \wnet . The results reveal that the overlay technology adds a barely noticeable latency overhead, even when applying encryption (\cf section \ref{sec:plainlatency}). Likewise, network throughput takes only a minor hit (\cf section \ref{sec:throughput}). However, these properties only apply when enough computing resources are present. In cases where computing power is insufficient, severe network performance degradations may be the result. The reason for this is that overlay networking, \ie\ the wrapping and unwrapping of encapsulated data, puts significant load on the CPU. In section \ref{sec:utilization}, a case was explored in which the test nodes reached their computational limit such that the CPU became the bottleneck. As a result, only a fraction of the theoretically achievable network bandwidth could be utilized. Expressed in figures, the effective throughput stalled at around 23 Mbit/s. The severe computational overhead can be explained by \weave 's custom encapsulation protocol ("sleeve"), which is automatically used for overlays that span over the Internet. In this mode, packets need to traverse the \weave\ router. Because the router is a user space process, many context switches need to be performed during continuous data transmissions. This circumstance causes significant delays if many packets need to be sent in rapid succession. Considering that it is a goal of the approach to minimize energy consumption, it can be concluded that \wnet\ is definitely not the best suited technology for the use case at hand\todo{satz meh.} .
 
 \paragraph{Extensibility.}
 The extensibility of the approach is to a large extent facilitated by DDS. In the DCPS paradigm, data is provided "as is", \ie , there are no implications or restrictions \wrt\ how that data is used. A newly added service is not concerned with the original \emph{purpose}, or intent, of the data, nor can any other service dictate how the data is supposed to be used---a service just takes advantage of the \emph{presence} the data. Hence, data can be reused in ways that weren't even intended when first designing the system.
@@ -125,4 +107,6 @@ The approach is by no means production ready.
 
 
 Not all requirements were addressed to a satisfying degree: Safety, Testability
+
+If not used with caution, offloading a small computation to the cloud may end up putting more load on the CPU than simply performing the computation on the on-board computer.
 

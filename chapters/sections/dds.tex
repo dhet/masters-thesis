@@ -1,12 +1,18 @@
 \section{Data Distribution Service}
 
-DDS is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-time requirements. As such, DDS aims to function in a resource efficient and predictable manner, and is subject to minimal computational and transport overhead.
+DDS is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-time requirements. As such, DDS aims to function in a resource efficient and predictable manner, and is subject to minimal computational and transport overhead.\todo{benchmarks die das belegen?}
 
-DDS is built around the data-centric publish-subscribe (DCPS) paradigm\todo{explanation of data centric here?}. In the publish-subscribe paradigm, two kinds of peers are present: publishers and subscribers. Publishers offer data, while subscribers consume that data. A crucial characteristic of publish-subscribe is that data exchange between the peers is anonymous. \Ie , subscribers do not know where a given message originated. Similarly, publishers have no knowledge about where the sent data will end up at -- or even if there are any receivers. Thus, there is no concept of \emph{direct addressing}. Instead, peers communicate on the basis of a shared understanding of what \emph{kind of data} they are interested in. 
-For example, given a temperature sensor offering temperature measurements in a publish-subscribe setting. A subscriber that is interested in that data only knows that it wants to receive \emph{temperature data} while at the same time being entirely oblivious to the concept of \emph{temperature sensors}. 
+DDS is fundamentally based on the data-centric publish-subscribe (DCPS) paradigm. In the publish-subscribe-style communication, data flows between two kinds of entities: publishers and subscribers. Publishers offer data, while subscribers consume that data. A crucial characteristic of publish-subscribe is that data exchange between the peers is anonymous, \ie , publishers have no way of sending data to individual subscribers. Instead, both communicate by means of a shared, logical medium that takes data samples and forwards them to the appropriate receivers. In the context of DDS, this medium is called \emph{topic}. When subscribers receive a data sample they do not know where that sample originated. Similarly, publishers have no knowledge about where the sent data will end up at---or even if there are any receivers at all. Entities in this system find each other not by way of addressing, but rather on the basis of a shared understanding of what \emph{kind of data} they want to exchange. This approach is called \emph{data centricity}. Data centricity is in contrast to message centricity, in which data exchange is driven by \emph{messages}, or \emph{instructions}, which are directed at individual receivers. A prominent example of a message-centric technology is Remote Procedure Call (RPC). To illustrate the difference between the two paradigms consider \todo{direkte ansprache?} the example of a temperature sensor which propagates temperature data to multiple receivers. 
+
+\todo[inline]{beispiel nicht so gut beschrieben}
+In the message-centric paradigm, the sensor transmits data samples encapsulated in messages to the receivers. Messages are directed at each receiver individually, similar to a letter that is addressed to a certain postal address. For this, the sender needs to know the addresses of all interested receivers a-priori. The sender would have to maintain a list of receivers that it needs to update regularly. When a previously uninvolved entity decides to join the communication, it first needs to register to the sensor in order to make its address known. The sender would then have to add the address to its list of receivers. This causes overhead and makes the system inflexible and hard to scale.
+
+In the DCPS approach, on the other hand, a subscriber that is interested in the sensor's data only knows that it wants to receive \emph{temperature data} while at the same time being entirely oblivious to the concept of \emph{temperature sensors}. 
 Since publishers and subscribers have no references to one another, and know as little of each other as possible, a high level of loose coupling is achieved. This allows for a simple extension of the system, making it extraordinarily scalable.
 
-By abstracting away the source of data, a virtual \emph{global data space} is created. Each component connected to the system views data as if it were available in a local storage, when in reality, it is distributed among many peers.
+Through the DCPS approach, DDS aims to provide a virtual \emph{global data space}. In this data space, data is universally accessible for all peers involved in the system. Data is not owned. 
+
+Each component connected to the system views data as if it were available in a local storage, when in reality, it is distributed among many peers.
 
 
 \paragraph{Programming Interface.}
@@ -30,29 +36,27 @@ RTPS is designed to work atop best-effort protocols, and in particular, UDP/IP. 
 
 
 \paragraph{Bla}
-Offers transport transparency.
 
 data-centric instead of message-centric. The difference is that the former implies a shared data model. The middleware has an understanding of the data and its context and is responsible that all components have a common view of the data.
 The advantage of data-centric messaging is that it allows a higher abstraction. Developers can focus on the data itself and on developing business logic instead of having to implement data sharing through exchange of messages.
 
 DDS is a message bus. This is in contrast to a broker-based architecture. A broker enables flexible routing patterns featuring filtering, variable numbers of message queues etc. However, it can be considered a single point of failure.
 
-
 peer discovery, transport methods, sampling rates, etc. are a matter of configuration
 
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=\textwidth]{figures/dds.pdf}
+  \includegraphics[width=0.8\textwidth]{figures/dds.pdf}
   \caption[An example of a distributed application connected via DDS]{An example of a distributed application connected via DDS}\label{fig:dds}
 \end{figure}
 
 \subsection{DDS Components}
 
-DDS defines a number of components for which it uses its own nomenclature. In the following, each component is described. \autoref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS. 
+The DDS specification defines a number of components for which it uses its own nomenclature. In the following, each component is described. \autoref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS. 
 
 \paragraph{Topics.}
-\emph{Topics} are the common ground on the basis of which peers communicate in the publish-subscribe paradigm. When a Publisher offers a certain kind of data, it does so by means of a Topic. When a data sample should be written, the Publisher pushes that data sample to a Topic appropriate for that sort of data. Conversely, when a Subscriber is interested in receiving data of a certain kind, then it subscribes to a Topic associated with that data. A Topic is defined by a unique identifier (name) and a data type. The data type represents the message format for messages sent over that Topic. For example, a suitable data type for a Topic concerned with temperature data would be a \texttt{struct} containing a single \texttt{float} value representing a temperature reading.
+\emph{Topics} form the basis on which peers communicate in the publish-subscribe paradigm. When a Publisher offers a certain kind of data, it does so by means of a Topic. When a data sample should be written, the Publisher pushes that data sample to a Topic appropriate for that sort of data. Conversely, when a Subscriber is interested in receiving data of a certain kind, then it subscribes to a Topic associated with that data. A Topic is defined by a unique identifier (name) and a data type. The data type represents the message format for messages sent over that Topic. For example, a suitable data type for a Topic concerned with temperature data would be a \texttt{struct} containing a single \texttt{float} value representing a temperature reading.
 
 In \autoref{fig:dds}, two Topics are depicted (Topic A and Topic B), each with a number of associated Data Writers and Data Readers (see below). 
 
@@ -73,8 +77,7 @@ Depicted in \autoref{fig:dds} is only one Domain. However, there could just as w
 \subsection{Quality of Service}
 
 \todo[inline]{get rid of term "service"}
-
-One of DDS's salient features is its intrinsic QoS support realized by so-called \emph{QoS policies}. QoS policies specify service attributes for controlling each component's behavior and quality properties. They make specifying a service's attributes a matter of \emph{configuration}, rather than \emph{implementation}, as it is the case with other communication paradigms. For example, consider a Data Writer which writes data to a Topic at a high rate. A Data Reader may be interested in that data but not at such a high rate, \eg\ because it runs on an embedded device powered by a battery and therefore needs to manage power consumption carefully. The Data Reader may now apply a \tbf , which instructs DDS to block all messages that exceed a specified frequency threshold. This way, the rate of incoming messages can be controlled via configuration. This is beneficial for the programmer as they do not need to accommodate for this at code level, but let the middleware take care of it.
+One of DDS's salient features is its intrinsic QoS support realized by so-called \emph{QoS policies}. QoS policies specify service attributes for controlling each component's behavior and quality properties. They make specifying a service's attributes a matter of \emph{configuration}, rather than \emph{implementation}. For example, consider \todo{direkte ansprache?} a Data Writer which writes data to a Topic at a high rate. A Data Reader may be interested in that data but not at such a high rate, \eg\ because it runs on an embedded device powered by a battery and therefore needs to manage power consumption carefully. The Data Reader may now apply a \tbf , which instructs DDS to block all messages that exceed a specified frequency threshold. This way, the rate of incoming messages can be controlled via configuration. This is beneficial for the programmer as they do not need to accommodate for this at code level, but let the middleware take care of it.
 
 QoS policies can be set for each Topic, Publisher, Subscriber, Data Writer and Data Reader individually. 
 In \autoref{tab:qos}, an excerpt of the available QoS policies is given. For the exhaustive list of all available QoS policies refer to the official standard \cite{dds-1.4-standard}.
@@ -113,15 +116,6 @@ In addition to specifying quality attributes, QoS policies may also serve as ser
 
 Despite their name, QoS policies do not only concern \emph{quality} attributes per se. They can also be used to specify the priority of messages, their lifespan, \ie , how long they are valid, or how many messages are kept in local memory.
 
-
-\paragraph{Limitations.}
-Requires full fledged operating system which can not be guaranteed in embedded systems.
-
-OpenDDS: Up to 120 domain participants
-
-
-
-
 \subsection{Implementations}
 DDS, in itself, is only a standard. As such, DDS does not dictate, in detail, how to implement the concepts presented in the earlier sections. A number of DDS implementations from different vendors exist, all varying in terms of standard compliance, features beyond the standard, licensing, and other distinguishing factors. Compatibility between the respective implementations can be achieved by the use of the DDSI-RTPS wire protocol, which all major implementations support.
 
@@ -137,5 +131,23 @@ Only supports C++ and Java
 out of the implementations available to the broad public, it is by far the most mature and feature rich implementation.
 Features encryption, compliance to several safety standards
 
-\paragraph{Others.}
-Miltech
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%

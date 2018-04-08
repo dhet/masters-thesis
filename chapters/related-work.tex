@@ -3,7 +3,7 @@
 \paragraph{Similar Approaches}
 
 In their paper, \citeauthor*{berger2017containerized} \cite{berger2017containerized} describe their experiences of employing containerization in the context of self-driving vehicles. 
-In accordance with the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services deployed on distributed nodes within the vehicle. The services are connected via \emph{OpenDaVINCI}\footnote{code.opendavinci.org}, a real-time capable middleware for publish-subscribe communication. This approach is very similar to the one proposed in this thesis in that communication is based on multicast over a middleware. However, their approach lacks cloud connectivity. The authors furthermore struggle to get multicast to work over Docker overlay networks -- a problem that was solved in this thesis. 
+In accordance with the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services deployed on distributed nodes within the vehicle. The services are connected via \emph{OpenDaVINCI}\footnote{\url{code.opendavinci.org}}, a real-time capable middleware for publish-subscribe communication. This approach is very similar to the one proposed in this thesis in that communication is based on multicast over a middleware. However, their approach lacks cloud connectivity. The authors furthermore struggle to get multicast to work over Docker overlay networks -- a problem that was solved in this thesis. 
 
 %The interplay of their services is based on a \emph{pipes-and-filters} methodology.
 %Multi platform images are achieved through different base layers employing different compilers. Disadvantage: containers cannot be moved freely between nodes of different hardware architectures.
@@ -14,14 +14,21 @@ In accordance with the microservice architecture pattern, vehicular functionalit
 %
 %
 %
-%
-%
 
-\citeauthor*{schneider2016achieving} \cite{schneider2016achieving} also use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that cars may connect to. Their approach does not consider the use of microservices within the vehicle and is generally described in rather vague terms.
+\citeauthor*{schneider2016achieving} \cite{schneider2016achieving} also use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that vehicles may connect to. Their approach does not consider the use of microservices within the vehicle. Furthermore, their methodology is described in rather vague terms.
 
 %
 %
 %
+
+PubNub\footnote{\url{www.pubnub.com}} is a commercial service that aims to provide publish-subscribe-style communication for large numbers of devices dispersed on a global scale. Their focus lies on IoT devices and mobile phone applications. Thus, there is a pronounced focus on handling mobility challenges such as changing IP addresses, etc. PubNub is a holistic, all-in-one solution, \ie , their service includes everything from client APIs to infrastructure provisioning. This severely inhibits adaptability and therefore limits the product's applicability---especially for the automotive use case, which is characterized by highly specific requirements. While it may be true that PubSub is a good starting point to kick off new businesses (as advertised), it is doubtful that it is the right tool for the intended use case.
+
+%
+%
+%
+%
+%
+
 
 \paragraph{DDS over SDN}
 
