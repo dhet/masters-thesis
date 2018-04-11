@@ -80,7 +80,6 @@ The approach is based on containerization as means to achieve a maximum of inter
 Weave runs entirely within \docker\ containers. As a consequence, and unsurprisingly, it may run on any platform which is capable of running \docker\ containers. However, Weave is specifically built to work with Docker, and a great deal of modifications to the software would be needed to make it work with other technologies. Hence, an inherent dependency is present. Consequently, in order to swap \docker\ with a competing containerization tool, one would have to drop \wnet\ from the approach. Similarly, when deciding to go without any sort of containerization, Weave could not be used anymore.
 
 Setting containerization aside, the chosen messaging middleware offers decent interoperability support. The approach suggests to define service contracts by means of topics, and in particular, their associated name, type, and QoS policies. The type is specified in a language-independent format (IDL), and is not bound to a specific technology. Thus, platform-independent service contracts are given. But interoperability support goes beyond service contracts. Contracts are of no use if services can't communicate in a platform-neutral manner. DDS provides a solution for this: its wire protocol, RTPS, ensures that applications using different DDS implementations may communicate with each other. Hence, interoperability is given---at least within the realm of DDS. 
-\todo{Dependency on network stack? Which network stacks does DDS run on?}
 
 
 

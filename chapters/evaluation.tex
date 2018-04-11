@@ -220,6 +220,18 @@ In the process of sending data, a failure of \proda\ is simulated by abruptly sh
 \todo[inline]{which QoS settings were used? how many test runs were conducted? Describe how clocks are synchronized between the two producing services}
 
 
+
+%%% Setup
+% Pub1: docker run -ti --rm --entrypoint /bin/bash kugele1337/spammer-pub-qemu
+% Pub2: docker run -ti --rm --entrypoint /bin/bash kugele1337/spammer-pub
+% Sub: docker run --rm -ti  --entrypoint /bin/bash -v $(pwd)/results:/opt/workspace/results kugele1337/spammer-sub-qemu
+
+%%% Execute
+% Pub1: ./publisher -DCPSConfigFile rtps.ini --samples 9999999 --delay 80 --failafter 99999999 --liveliness 100 --payload a
+% Pub2: ./publisher -DCPSConfigFile rtps.ini --samples 10000000999 --delay 80 --liveliness 100 --payload bb
+% Sub: ./subscriber -DCPSConfigFile rtps.ini --debug --liveliness 100 --filename-fail 100liveliness-80delay19.csv
+
+
 \paragraph{Results.} Reliability can be ensured, even when offloading work into a remote data center.
 
 %
@@ -232,11 +244,6 @@ In the process of sending data, a failure of \proda\ is simulated by abruptly sh
 %
 %
 %
-
-\section{Case Study}
-
-\paragraph{Motivation.} Motivation
-
 %
 %
 %
