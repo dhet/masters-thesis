@@ -69,9 +69,7 @@ In \autoref{fig:dds}, two Topics are depicted (Topic A and Topic B), each with a
 \paragraph{Domains and Domain Participants.}
 \emph{Domains} are the DDS way of grouping together sets of coherent \emph{Domain Participants} and to separate those sets from each other. Speaking in terms of distributed systems, Domains are a mechanism to manage group memberships of nodes \cite{tanenbaum2017distributed}. 
 
-Domain Participants are entities that belong to a particular Domain. Each Publisher, Subscriber and Topic is derived from one Domain Participant and is therefore dedicated to exactly that Domain. As a consequence, participants of different Domains are entirely separated from each other and there is no way for them to interface with each other.
-
-Depicted in \autoref{fig:dds} is only one Domain. However, there could just as well be other Domains. 
+Domain Participants are entities that belong to a particular Domain. Each Publisher, Subscriber and Topic is derived from one Domain Participant and is therefore dedicated to exactly that Domain. As a consequence, participants of different Domains are entirely separated from each other and there is no way for them to interface with each other. Depicted in \autoref{fig:dds} is only one Domain. However, there could just as well be other Domains. 
 
 
 \subsection{Quality of Service}
@@ -87,7 +85,7 @@ In \autoref{tab:qos}, an excerpt of the available QoS policies is given. For the
 %
 %
 %
-\begin{table}[htpb]
+\begin{table}[H]
   \caption[An excerpt of DDS QoS policies]{An excerpt of QoS policies}\label{tab:qos}
   \centering
   \begin{tabular}{p{0.25\textwidth} p{0.2\textwidth}  p{0.45\textwidth}}

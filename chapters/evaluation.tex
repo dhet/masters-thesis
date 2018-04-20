@@ -1,31 +1,29 @@
-
 \chapter{Evaluation}\label{chapter:evaluation}
-
-In the previous chapter this thesis' main approach was presented and an exemplary implementation based on well-established technologies was suggested. What now follows is an evaluation of the implementation. Points of interest are the system's performance characteristics, reliability properties and general feasibility. For the purpose of evaluation a number of tests were conducted which are presented in the following. But first, the experiment setup is thoroughly described.
+In the previous two chapters this thesis' main approach was presented and an exemplary implementation based on well-established technologies was suggested. What now follows is an evaluation of the implementation. Points of interest are the system's performance characteristics, reliability properties and general feasibility. For the purpose of evaluation a number of tests were conducted which are presented in the following. But first, the experiment setup is thoroughly described.
 
 
 \section{Experimental Setup}\label{sec:testsetup}
 
 As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For the thesis the testbed was extended by a network link to the Internet to enable cloud connectivity. 
 
-The test environment's network topology is depicted in \autoref{fig:network-topology}. The original testbed ("on-premise") consisted of three ARM-based SOCs\footnote{System on a Chip} (Raspberry Pi 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the switch was also a workstation which fulfilled the sole purpose of conducting the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center over the open Internet via 100 Mbit/s connection.
+The test environment's network topology is depicted in \autoref{fig:network-topology}. The original testbed ("on-premise") consisted of three ARM-based SOCs (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the switch was also a workstation which fulfilled the sole purpose of conducting the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center through a 100 Mbit/s broadband Internet connection.
 
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figures/network-setup}
-  \caption[Network topology of the experimental setup]{The experimental setup's network topology}\label{fig:network-topology}\todo[inline]{copy rights on raspberry pi logo?}
+  \caption[Network topology of the experimental setup]{The experimental setup's network topology}\label{fig:network-topology}
 \end{figure}
 %
-Representative of the "cloud" in the tests is a single root server supplied by the IaaS provider \emph{DigitalOcean}\footnote{\url{www.digitalocean.com}} (right-hand side in \autoref{fig:network-topology}). To ensure realistic latency values, a server location was chosen that was in the vicinity of the test setup -- but not too close. Considering its vicinity to Munich, Frankfurt (Main) was a suitable choice. The two cities are about 300 km away from each other (as the crow flies).
+Representative of the "cloud" in the tests is a single root server supplied by the IaaS provider \emph{DigitalOcean}\footnote{\url{www.digitalocean.com}} (right-hand side in \autoref{fig:network-topology}). To ensure realistic latency values, a server location was chosen that was in the vicinity of the test setup---but not too close. Considering its vicinity to Munich, Frankfurt (Main) was a suitable choice. The two cities are about 300 km away from each other (as the crow flies).
 
-Throughout the whole study the software composition remained unchanged. As DDS implementation \emph{OpenDDS}\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (no service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL) was used, by which messages are converted into type safe data structures. This causes some overhead which was evaluated and discussed in \autoref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in \autoref{sec:failovertest}. Moreover, all benchmarks were programmed in C++ to maximize their run-time performance.
+Throughout the whole study the software composition remained unchanged. As DDS implementation \emph{OpenDDS}\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (no service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL), by which messages are converted into type safe data structures, was used. The overhead caused by this was evaluated and discussed in section \ref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in section \ref{sec:failovertest}. Moreover, all benchmarks were programmed in C++ to maximize their run-time performance.
 
 Naturally, in the benchmarks concerned with the testing of \wnet  , containers were connected by means of a \wnet\ overlay network. For the connection between all local nodes (on-premise), fast datapath forwarding mode was used. Due to the characteristics of the network between the local nodes and the cloud, fast datapath was not applicable for that connection. Consequently, local containers and cloud containers were connected via sleeve mode.
 
 The detailed specifications of the involved computing nodes and the employed software are given in \autoref{tab:test-specs}
 %
-\begin{table}[htpb]
-  \caption[Test environment specifications]{Test environment specifications}\label{tab:test-specs}\todo[inline]{check again}
+\begin{table}[H]
+  \caption[Test environment specifications]{Test environment specifications}\label{tab:test-specs}
   \centering
   \begin{tabular}{p{0.235\textwidth} | p{0.335\textwidth}  p{0.335\textwidth}}
     \toprule
@@ -33,13 +31,12 @@ The detailed specifications of the involved computing nodes and the employed sof
     \midrule
     	Description & Raspberry Pi 3 Model B  & DigitalOcean 1 GB Droplet\\
     	Number of nodes & 3  & 1\\
-    Theoretical network bandwidth  & 100 Mbit/s & 40 Gbit/s\\
+    Theoretical network bandwidth & 100 Mbit/s (down), \newline 40 Mbit/s (up) & 40  Gbit/s (up- and down)\\
     	\midrule
     	Operating system & Raspbian GNU/Linux 9.3  & Ubuntu 16.04.3 LTS\\
     	Kernel & 4.9.59-v7+ w/ real-time patch \emph{PREEMPT\_RT} 4.4.9-rt17 & 4.4.0-112-generic \\
       CPU & ARMv7 rev 5  Quad Core (1.2 GHz) & Intel(R) Xeon(R) E5-2650 v4 Single Core (2.20GHz) x86\_64 \\
       Memory (RAM) & 1 GB & 1 GB  \\
-      Max. network interface bandwidth  & 100 Mbit/s & ?? Gbit/s\\
       \midrule
       DDS & \multicolumn{2}{c}{OpenDDS 3.12.1}\\
       Docker  & \multicolumn{2}{c}{18.03.0-ce}\\
@@ -69,12 +66,11 @@ To evaluate the aptitude of the presented system it is essential to consider the
 
 \paragraph{Methodology.} 
 
-\todo[inline]{Klammer auf um a), etc.}
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figures/ping-test}
   \caption[Latency experiment setup]{Latency experiment investigating three cases. 
-\begin{inparaenum}[(a)]
+\begin{inparaenum}[a)]
   \item \experim{Plain}: two hosts connected without overlay network.
   \item \experim{Weave}: two containers connected via \wnet .
   \item \experim{Encrypted}: two containers connected via encrypted \wnet .
@@ -143,7 +139,7 @@ The results of this benchmark are depicted in \autoref{fig:throughput}. The resu
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.79\textwidth]{figures/cpu}
-  \caption[\weave\ CPU utilization test results]{In \weave\ overlays, CPU utilization increases linearly with network throughput. At around 21 Mbit/s, the test node reaches a computational limit (one of the four cores is fully utilized) such that throughput stagnates.}\label{fig:cpu}
+  \caption[\weave\ CPU utilization test results]{In \weave\ overlays, CPU utilization increases linearly with network throughput. At around 21 Mbit/s, the test node reaches a computational limit (one of the four cores is fully utilized) such that the effective throughput stagnates (not displayed).}\label{fig:cpu}
 \end{figure}
 
 The results show that CPU utilization increases linearly with the target bandwidth. What is striking is that the point of full resource utilization of a single core is reached quite early, at around 21 Mbit/s target bandwidth (dotted vertical line). \wnet\ is a single-threaded program, and as such, experiences performance stagnation once the core it runs on is fully occupied. At this point, first throughput degradations become evident, so that the setup begins to fall short on delivering the desired bandwidth. The maximum observed bandwidth that the setup could achieve over numerous test runs was 23.6 Mbit/s.

@@ -3,42 +3,42 @@
 \paragraph{Similar Approaches}
 
 In their paper, \citeauthor*{berger2017containerized} \cite{berger2017containerized} describe their experiences of employing containerization in the context of self-driving vehicles. 
-In accordance with the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services deployed on distributed nodes within the vehicle. The services are connected via \emph{OpenDaVINCI}\footnote{\url{code.opendavinci.org}}, a real-time capable middleware for publish-subscribe communication. This approach is very similar to the one proposed in this thesis in that communication is based on multicast over a middleware. However, their approach lacks cloud connectivity. The authors furthermore struggle to get multicast to work over Docker overlay networks -- a problem that was solved in this thesis. 
-
+In accordance with the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services deployed on distributed nodes within the vehicle. The services are connected via OpenDaVINCI\footnote{\url{code.opendavinci.org}}, a real-time capable middleware for publish-subscribe communication. This approach is very similar to the one proposed in this thesis in that communication is based on multicast over a middleware. However, their approach lacks cloud connectivity. The authors furthermore struggle to get multicast to work over Docker overlay networks---a problem that was solved in this thesis.
 %The interplay of their services is based on a \emph{pipes-and-filters} methodology.
 %Multi platform images are achieved through different base layers employing different compilers. Disadvantage: containers cannot be moved freely between nodes of different hardware architectures.
 %questionable design decisions: Centralized configuration protocol... but decentralization is key
 %Suggest to have private registry within the vehicle.
 %To provide a high degree of tracability, they present a versioning system that allows versioning of individual image layers which seamlessly integrates into their development workflow.
+Similarly, \citeauthor*{schneider2016achieving} \cite{schneider2016achieving} use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that vehicles may connect to. Their approach does not consider the use of microservices \emph{within} the vehicle. In addition, their methodology is described in rather vague terms and lacks detail.
+
+A similar approach to the one presented in this thesis is described by Asad \citeauthor*{javed2016container} \cite{javed2016container} in his master's thesis. In it, he explores the possibility of managing IoT nodes via \docker\ containers and the Kubernetes\footnote{\url{www.kubernetes.io}} container orchestration platform. The employed experimental setup is very similar to the one used in this thesis in that a local cluster of Raspberry Pis is connected in a LAN with cloud access. Attached to some of the Raspberry Pis are cameras that capture images which are then sent to the cloud via Apache Kafka. Like in this thesis, communication between the nodes and the cloud is publish-subscribe-based. However, the approach has a serious drawback: Kubernetes and Kafka are technologies designed for sophisticated cloud environments and are by no means suitable for the use within sensor networks due to their tremendously high system requirements. Moreover, no serious effort is evident to evaluate the approach in a neutral manner.
+\citeauthor*{grossmann2016hypriot} \cite{grossmann2016hypriot} describe another approach related to the previous one. But instead of heavy-weight enterprise container management solutions they follow a more light-weight philosophy. A drawback of their approach is a lack of failure resiliency inherent to their centralized architecture in which a master node may become a single point of failure. A follow-up to that work is presented by \citeauthor*{celesti2017watchdog} \cite{celesti2017watchdog} in which several weak points are addressed.
 
 %
 %
 %
 
-\citeauthor*{schneider2016achieving} \cite{schneider2016achieving} also use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that vehicles may connect to. Their approach does not consider the use of microservices within the vehicle. Furthermore, their methodology is described in rather vague terms.
+PubNub\footnote{\url{www.pubnub.com}} is a commercial service that aims to provide publish-subscribe-style communication for large numbers of devices dispersed on a global scale. Their focus lies on IoT devices and mobile phone applications. Thus, there is a pronounced focus on handling mobility challenges such as frequently changing IP addresses and general reliability issues. PubNub is a holistic, all-in-one solution, \ie , their service includes everything from client APIs to infrastructure provisioning. This severely inhibits adaptability and therefore limits the product's applicability---especially for the automotive use case, which is characterized by highly specific requirements. While it may be true that PubSub is a good starting point to kick off new businesses (as advertised), it is doubtful that it is the right tool for the intended use case.
 
 %
 %
 %
 
-PubNub\footnote{\url{www.pubnub.com}} is a commercial service that aims to provide publish-subscribe-style communication for large numbers of devices dispersed on a global scale. Their focus lies on IoT devices and mobile phone applications. Thus, there is a pronounced focus on handling mobility challenges such as changing IP addresses, etc. PubNub is a holistic, all-in-one solution, \ie , their service includes everything from client APIs to infrastructure provisioning. This severely inhibits adaptability and therefore limits the product's applicability---especially for the automotive use case, which is characterized by highly specific requirements. While it may be true that PubSub is a good starting point to kick off new businesses (as advertised), it is doubtful that it is the right tool for the intended use case.
 
 %
 %
 %
 %
 %
-
 
 \paragraph{DDS over SDN}
-
-\citeauthor*{farahzadi2017middleware} \cite{farahzadi2017middleware} analyze the problem domain of cloud connectivity for the IoT. For this purpose, they present a survey in which they analyze a number of different IoT middleware solutions and compile a set of key challenges and requirements for such systems.
-
-\citeauthor*{hakiri2015publish} \cite{hakiri2015publish} devise a system to interconnect IoT devices via DDS over an overlay network. However, the description of their approach lacks details and no real effort were made to evaluate it.
+\begin{itemize}
+	\item \citeauthor*{farahzadi2017middleware} \cite{farahzadi2017middleware} analyze the problem domain of cloud connectivity for the IoT. For this purpose, they present a survey in which they analyze a number of different IoT middleware solutions and compile a set of key challenges and requirements for such systems.
+	\item \citeauthor*{hakiri2015publish} \cite{hakiri2015publish} devise a system to interconnect IoT devices via DDS over an overlay network. However, the description of their approach lacks details and no real effort were made to evaluate it.
+\end{itemize}
 
 
 \paragraph{Docker specific}
-
 Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) is \citeauthor*{kratzke2017microservices}'s paper \cite{kratzke2017microservices} on the performance impact of using encrypted overlay networks for Linux containers on top of hypervisors. This setup -- containers atop hypervisors -- is very common in cloud scenarios as IaaS providers often provision servers in the form of virtual machines. This is also the case for the test setup described in this thesis. The author concludes that containers add a non-negligible impact on networking performance. In Weave Net-based overlay networks, the performance is further impaired. A minimal impact was observed when using encryption.
 
 % does not consider weave fast datapath
@@ -46,17 +46,18 @@ Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) i
 
 
 \paragraph{DDS + Virtualization}
-\cite{serrano2013virtualizing}: Virtualizing DDS middleware: performance challenges and measurements
+\begin{itemize}
+	\item \cite{serrano2013virtualizing}: Virtualizing DDS middleware: performance challenges and measurements
+	\item \citeauthor*{perez:gutierrez:ieeetpds16} \cite{perez:gutierrez:ieeetpds16} present a way to combine DDS and hypervisor-based inter-process communication to interconnect a time and space partitioned system. Their focus lies on mixed-criticality applications running atop a hypervisor designed for safety-critical scenarios. The performance tests they conduct show that DDS adds a reasonable overhead to the communication performance but the overhead caused by hypervisor-based partitioning is quite significant, albeit reducible by the use of multicore processors.
+	\item \cite{garcia2013benchmarking}: Benchmarking communication middleware for cloud computing virtualizers. Test performance overhead of hypervisors for DDS as well as the performance overhead of DDS compared to ICMP packets
+\end{itemize}
 
-\citeauthor*{perez:gutierrez:ieeetpds16} \cite{perez:gutierrez:ieeetpds16} present a way to combine DDS and hypervisor-based inter-process communication to interconnect a time and space partitioned system. Their focus lies on mixed-criticality applications running atop a hypervisor designed for safety-critical scenarios. The performance tests they conduct show that DDS adds a reasonable overhead to the communication performance but the overhead caused by hypervisor-based partitioning is quite significant, albeit reducible by the use of multicore processors.
-
-\cite{garcia2013benchmarking}: Benchmarking communication middleware for cloud computing virtualizers. Test performance overhead of hypervisors for DDS as well as the performance overhead of DDS compared to ICMP packets
 
 \paragraph{Publish-Subscribe in Embedded Systems}
-
-\cite{bouhouch2013dds}: DDS on top of FlexRay
-
-\cite{sommer2013race}: RACE: A centralized Platform computer based architecture for automotive applications
+\begin{itemize}
+	\item \cite{bouhouch2013dds}: DDS on top of FlexRay
+	\item \cite{sommer2013race}: RACE: A centralized Platform computer based architecture for automotive applications
+\end{itemize}
 
 
 Adaptive AUTOSAR's underlying messaging middleware is \emph{SOME/IP}
@@ -74,17 +75,19 @@ Supports TCP and therefore bandwidth intensive streams.
 
 Supports several communication models: request/response, async, events, "field", event groups (PubSub)
 
+\paragraph{Cloud + IoT}
+
+\begin{itemize}
+	\item \cite{nastic2014provisioning}: Provisioning Software-defined IoT Cloud Systems: suggest system for software-defined IoT. Encapsulate IoT devices as software artifacts that can be controlled via API. This allows a great deal of automation and run-time customizations
+\end{itemize}
+
 
 \paragraph{Cloud}
 
-\cite{greenberg2008cost}: The cost of a cloud: research problems in data center networks
-
-Insights: location-independent addressing is a major design objective
-
-\cite{wang2010impact}: The impact of virtualiztion on network performance.
-
-The authors perform networking benchmarks on Amazon EC2 instances and find that virtualization and processor sharing heavily impacts networking performance. In particular, network delay and TCP/UDP throughput suffers drastically.
-
+\begin{itemize}
+	\item \cite{greenberg2008cost}: The cost of a cloud: research problems in data center networks. Insights: location-independent addressing is a major design objective
+	\item \cite{wang2010impact}: The impact of virtualiztion on network performance. The authors perform networking benchmarks on Amazon EC2 instances and find that virtualization and processor sharing heavily impacts networking performance. In particular, network delay and TCP/UDP throughput suffers drastically.
+\end{itemize}
 
 \paragraph{computation offloading in cloud (cell phones)}
 \citeauthor*{barbera2013offload} \cite{barbera2013offload} analyze in which cases it is sensible to offload computations from cell phones to the cloud. There is a tradeoff to be made between the energy savings achieved by the offloading itself and the increased computational overhead of sending data over a mobile network. They aim to provide virtual replicas of the hardware in the cloud, running at all times alongside the physical device to support it whenever there is a need. They do not consider statelessness of the replicas and employ a synchronization mechanism to keep the state consistent. This incurs additional overhead. They use cell phone specific tools which are inapplicable in the automotive use case. They view their approach as holistic solution -> lack of flexibility

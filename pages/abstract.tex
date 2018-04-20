@@ -1,17 +1,19 @@
 \chapter{\abstractname}
+Several developments in recent years are the cause of an immense surge of complexity in automotive cyber-physical systems. This trend is ongoing and is expected to reach unprecedented levels with the continuous development towards autonomous driving. These new, increasingly complex software-driven functions impose demanding requirements on vehicular computing systems. Not only do they drive the need for high-performance computing but also the need to collect unrivaled amounts of data in order to facilitate big data applications. Current E/E architectures struggle to provide the necessary means to cope with this situation. Thus, current research is investigating the possibility of offloading computations to remote data centers ("the cloud") in an effort to discharge the constrained vehicular on-board systems.  
 
-Recent trends in the automotive industry are introducing new, increasingly complex and software-driven functions into vehicles. These functions put high demands on the the vehicle's on-board system. Autonomous driving and big data applications are the driving forces behind this development.
 
-Context
+\noindent
+\paragraph{Context}
 \begin{itemize}
 \item Vehicular functions become increasingly complex
 \item Hardware in vehicles is expensive and constrained
-\item Sensors are producing increased quantities of data and the vehicle intrinsic network needs to deal with increased bandwidth demands
+\item Sensors are producing increased quantities of data which needs to be collected
 \item There is a need for new architectures and technologies
 \item cloud computing has long been established as a viable alternative to on-premise infrastructures. Infrastructure can be outsourced. In addition to cost reductions, clouds aim to provide elastic scalability.
 \end{itemize}
 
-Aim
+\noindent
+\paragraph{Aim}
 \begin{itemize}
 \item provide a platform on which vehicular functions may run ubiquitously, i.e., on vehicle hardware, and cloud infrastructures alike
 \item facilitate computation offloading
@@ -21,9 +23,10 @@ Aim
 \item System needs to be modular to allow for fine-grained control over which functionality is offloaded
 \end{itemize}
 
-Method
+\noindent
+\paragraph{Method}
 \begin{itemize}
-\item  Conceptual framework is presented which enables a service-oriented, vehicular software architecture that plays well with vehicular resource constrained on-board system.
+\item Conceptual framework is presented which enables a service-oriented, vehicular software architecture that plays well with vehicular resource constrained on-board system.
 \item the system is able to replicate services and run instances in the vehicle and in the cloud
 \item SOA as means to modularize vehicular functions 
 \item Containerization as means to make services portable
@@ -34,8 +37,8 @@ Method
 \item the approach is then analyzed and discussed. Benchmarks are conducted.
 \end{itemize}
 
-
-Results
+\noindent
+\paragraph{Results}
 \begin{itemize}
 \item special emphasis is put in reliability. It is feasible to create replicas of services running alongside in vehicle and cloud.
 its reliability features are proven in one of the conducted benchmarks
