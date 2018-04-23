@@ -13,8 +13,9 @@ To tackle these challenges, three technologies are proposed:
 \item \textbf{\wnet} as means to provide \emph{connectivity} between the containerized services.
 \end{enumerate}
 
+In the following, these three tools are presented and it is described how they were leveraged to realize the system.
 
-\section{DDS as Messaging Middleware}
+\section{DDS for Data Exchange}
 
 DDS is a promising candidate for a middleware that fulfills requirements to a satisfying degree.
 
@@ -72,19 +73,45 @@ Gladly, DDS offers a solution to this. In DDS, topics are not restricted to a si
 %
 %
 
-\section{\docker\ as Containerization Technology}
-\paragraph{Portability} Containers need to run in vehicles and cloud -> \docker is available on many platforms, ARM version is fully functional
+\section{\docker\ for Containerization}
 
-Besides providing isolation, \docker\ has a number of other benefits. 
-\paragraph{Innovation Pressure}(not docker specific) calls for fast development cycles -> CI/CD.
+\todo[inline]{todo}
+\begin{itemize}
+	\item Portability: Containers need to run in vehicles and cloud -> \docker is available on many platforms, ARM version is fully functional
+Besides providing isolation, \docker\ has a number of other benefits.
+	\item Innovation Pressure: not docker specific) calls for fast development cycles -> CI/CD.
+	\item light-weight: Important for embedded systems, provides: fast spin-up, low overhead
+\end{itemize}
 
-\paragraph{Light-weight}: Important for embedded systems, provides: fast spin-up, low overhead
 
-\paragraph{Flexible network interfaces}: provide connection between distributed containers
+\docker\ is a holistic containerization platform which includes everything needed to build, run, deploy, and distribute containers. The \docker\ application is structured in a client-server model (\cf \autoref{fig:docker-arch}). The server is a daemon process running at all times on the host machine. Its primary purpose is to manage containers, images, networks and data volumes, and to provide the means to  build images and run containers. The \docker\ server exposes a RESTful HTTP API by which it can be controlled. The client side of the \docker\ application is a command line interface (CLI) which acts as a user friendly façade for the server's API.
 
-\paragraph{layered images}: save disk space
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/docker-arch.pdf}
+  \caption[\docker\ architecture]{\docker\ architecture}\label{fig:docker-arch}
+\end{figure}
 
-\paragraph{Isolation}: how is isolation achieved?
+\subsection{\docker\ Components}
+Container images may be seen as the "blueprint" on the basis of which containers are built. They define exactly which files and directories are contained in a container once it comes to life. Effectively, every container is an instantiation of an image of a certain type, in the same way an object is an instantiation of a class in an object-oriented programming language. While the concept of images is very common among containerization and virtualization tools, \docker\ follows a rather unconventional approach. In \docker , images are made up of series of read-only file system layers. Each layer may add files and directories to its respective underlying layer. If a layer tries to modify a file from an underlying layer it creates a copy of that file and adds it to its own layer. The modification is then performed on the copy instead of the original. This principle called "Copy on Write" (CoW) ensures that layers cannot be modified which makes it possible to share individual layers with other images stored on the host. By treating images as a collection of individual, sharable pieces instead of atomic units, massive storage space savings can be achieved. Another benefit of this is that whenever a container is started, only a thin writable layer needs to be added on top of an image, and the underlying layers do not need to be copied. That way, start-up times of containers are kept extremely low. \todo{how low? quellen} Virtual Machines, in contrast, would first need to boot into an operating system prior to operation.
+\paragraph{}
+\docker\ images are defined in so-called \emph{Dockerfiles}. Dockerfiles are made up of series of instructions that tell \docker\ how to build a certain image. Each instruction adds another file system layer to the image. An example of a Dockerfile is depicted in \autoref{lst:dockerfile}. The first line defines the base image on top of which this particular image shall be built. In this case, an image called "debian" was chosen. As the name suggests, that base image contains a basic installation of the Linux distribution Debian\footnote{\url{www.debian.org}}. Next, the line \ \texttt{COPY . /application} \ instructs \docker\ to copy the contents of the current (host) directory to the image's \ \texttt{/application} \ directory. The changes in the file system are added in the form of a layer---the underlying layers are not affected. The \ \texttt{RUN} \ instruction in the following line causes \docker\ to run the subsequent commands within the container. In this case, the newly added application directory is entered and the command \ \texttt{make} \ is executed, effectively compiling the application. Again, the resulting changes to the file system are encapsulated within another layer. In practice, the now topmost layer would contain all files produced by \ \texttt{make}. Finally, the \ \texttt{ENTRYPOINT} \ instruction defines the action to be performed once the container is started. In this case, the shell script \ \texttt{run.sh} \ would be executed within the container. This command, too, would add a layer to the image, albeit an empty one. By defining images as sequences of instructions, reproducibility is guaranteed.
+\begin{lstlisting}[caption=An examplary Dockerfile, label=lst:dockerfile, numbers=left, numberstyle=\tiny]
+FROM debian
+COPY . /application
+RUN cd /application && make
+ENTRYPOINT /application/run.sh
+\end{lstlisting}
+By running the command \ \mbox{\texttt{docker build -t IMAGENAME .}} \ in the directory of the Dockerfile, an image based on that Dockerfile would be built. Using the command \ \texttt{docker run IMAGENAME}, a new container of that image type would be launched.
+
+
+
+\paragraph{}
+\docker\ images may be stored in \emph{\docker\ Registries}, where they can be browsed, managed, and distributed. The command \ \texttt{docker push IMAGENAME[:TAG]} \ causes the image with the name \ \texttt{IMAGENAME} \ to be uploaded to a registry. Analogously, to download an image from a registry, one would have to run the command \ \texttt{docker pull IMAGENAME[:TAG]}. \docker\ registries are implemented as a server software which exposes an HTTP API. The registry server is open source\footnote{\url{www.github.com/docker/distribution}} and may be deployed on any server that supports it. The \docker\ company itself hosts one of such registries, Docker Hub\footnote{\url{hub.docker.com}}, which is provided as a publicly available  and free-to-use service. 
+
+\subsection{\docker\ Engine}
+The engine takes a container image and turns it into a container, \ie , a running process.
+
 
 
 \subsection{Multi Platform Compatibility} 
@@ -93,7 +120,9 @@ The primary purpose of containerization is to provide portable execution environ
 Several approaches exist to tackle this problem. For example, one could embed a thin platform compatibility layer at the base of each container. This approach was popularized by \emph{resin.io}\footnote{\url{www.resin.io}}. resin.io is a company that specializes in containerization for IoT devices. On their Docker Hub page\footnote{\url{hub.docker.com/u/resin}} they provide \docker\ images which have the \emph{QEMU}\footnote{\url{www.qemu.org}} machine emulator built in. Facilitated by QEMU's user emulation mode, binaries built for a given processor architecture may be executed on otherwise incompatible processors. QEMU achieves this by translating any guest system calls into host system calls. The previously mentioned images are built in a way that allows any arbitrary binary executed within such container to be run in the context of QEMU. Thus, the container may run on a multitude of hardware platforms.
 This approach simplifies the software build process tremendously as only one container per service needs to be built. This container can then be reused for all platforms. However, this way of achieving multi-platform portability turned out to be unsuitable for the intended use case as multicast is not well supported by QEMU. 
 
-Thus, another approach was leveraged to solve the multi-platform compatibility issue. This approach builds on Continuous Integration (CI) in accord with Docker Hub, and in particular, Docker Hub's \emph{image manifest} feature. By default, a \docker\ image name corresponds to exactly one image. Thus, whenever an image with a given name is requested from the \docker\ repository, only that specific image is returned to the requester. Image manifests extend repositories by the option to define \emph{multiple} images per image name. That way, several containers, each specifically built for a given platform, may be deployed under the same name. Depending on the requesting node's hardware architecture, a different image may be returned. \autoref{fig:manifest-pull} depicts an example for this. In the example, an x86-based machine requests the \texttt{some/image:v1.0} image from the repository. What is then returned from the repository is an image specifically made for x86 architectures. On the other hand, an ARM-based machine which requests the very same image, \texttt{some/image:v1.0}, receives an entirely different image as a response. This kind of behavior is achieved through an image look-up in the manifest file which is performed behind the scenes. 
+Thus, another approach was leveraged to solve the multi-platform compatibility issue. This approach builds on Continuous Integration (CI) in accord with Docker Hub, and in particular, Docker Hub's \emph{image manifest} feature. By default, a \docker\ image name corresponds to exactly one image. Thus, whenever an image with a given name is requested from the \docker\ registry, only that specific image is returned to the requester. Image manifests extend registries by the option to define \emph{multiple} images per image name. That way, several containers, each specifically built for a given platform, may be deployed under the same name. Depending on the requesting node's hardware architecture, a different image may be returned. \autoref{fig:manifest-pull} depicts an example for this. In the example, an x86-based machine requests the \texttt{some/image:v1.0} image from the registry. What is then returned from the registry is an image specifically made for x86 architectures. On the other hand, an ARM-based machine which requests the very same image, \texttt{some/image:v1.0}, receives an entirely different image as a response. This kind of behavior is achieved through an image look-up in the manifest file which is performed behind the scenes. 
+
+\todo[inline]{Bilder: docker repository -> docker registry}
 
 \begin{figure}[htpb]
   \centering
@@ -101,12 +130,12 @@ Thus, another approach was leveraged to solve the multi-platform compatibility i
   \caption[Pulling \docker\ images via manifest file]{Two nodes request the same image name but receive different images which are specifically built for their respective processor architecture. Which node requires which image is determined by a look-up in the manifest file.}\label{fig:manifest-pull} 
 \end{figure}
 
-A disadvantage of this approach (compared to the QEMU one) is that multiple versions of the same container need to be built every time a service receives a software update. To cope with this hindrance, a minimal CI pipeline was leveraged. Consider \autoref{fig:manifest-push} in which the employed service deployment process is depicted. The build process is initiated whenever a code change is pushed to the remote git repository. Once a push is registered, the CI Platform (Travis CI\footnote{\url{www.travis-ci.org}} was used) pulls the latest version from the git repository and executes a build script. The build script compiles several version of the service for each target platform, embeds the binaries in images and pushes those images to the image repository (Docker Hub).
+A disadvantage of this approach (compared to the QEMU one) is that multiple versions of the same container need to be built every time a service receives a software update. To cope with this hindrance, a minimal CI pipeline was leveraged. Consider \autoref{fig:manifest-push} in which the employed service deployment process is depicted. The build process is initiated whenever a code change is pushed to the remote git repository. Once a push is registered, the CI Platform (Travis CI\footnote{\url{www.travis-ci.org}} was used) pulls the latest version from the git repository and executes a build script. The build script compiles several version of the service for each target platform, embeds the binaries in images and pushes those images to the \docker\ registry (Docker Hub).
 
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figures/manifest-push}
-  \caption[Pushing \docker\ images via CI]{A git push to a service's git repository triggers the build process in the CI platform: the code is compiled for several platforms and the resulting images are pushed to the image repostory.}\label{fig:manifest-push} 
+  \caption[Pushing \docker\ images via CI]{A git push to a service's git repository triggers the build process in the CI platform: the code is compiled for several platforms and the resulting images are pushed to the \docker\ registry.}\label{fig:manifest-push} 
 \end{figure}
 
 %
@@ -121,15 +150,13 @@ A disadvantage of this approach (compared to the QEMU one) is that multiple vers
 %
 %
 \subsection{Containerized Services}
-In the envisaged system, each service is packed into its own Linux container with all its dependencies. That way, a great deal of portability is achieved, \ie , services may run wherever they are placed. The approach greatly benefits from \docker 's layered images.
-
+In the envisaged system, each service is packed into its own container with all its dependencies. That way, services may run wherever they are placed, and thus, a great deal of portability is achieved. \docker 's layered approach to images is immensely helpful in this.\todo{???}
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\textwidth]{figures/docker-sharing}
   \caption[An example of containerized services]{An example of four containerized service instances, some sharing common logic to save disk space and facilitate fast updates}\label{fig:service-containers} 
 \end{figure}
-
-\autoref{fig:service-containers} shows an example of three containerized services running on two different machines, \experim{Host I} and \experim{Host II}. The former hosts two instances of \experim{Service A}, and one instance of \experim{Service B}. On the second host only one service instance is running, namely one of type \experim{Service C}. All services are packaged in their own, separate container. The containers are made up of three stacked images---the bottom two are common to all services. The bottommost image ("\emph{base image}") contains the file system layers of a minimal operating system. In this thesis, the Linux distribution \emph{Debian}\footnote{\url{www.debian.org}} was used. The base image only contains a limited selection of Linux tools, such as \texttt{ls}, \texttt{cat}, etc. The purpose of a base image is to lay a solid foundation that enables users to work comfortably within the container. In the case of Debian, the \emph{aptitude} package manager is additionally included which enables users to easily install further tools. 
+\autoref{fig:service-containers} shows an example of three containerized services running on two different machines, \experim{Host I} and \experim{Host II}. On the former, two instances of \experim{Service A}, and one instance of \experim{Service B} are placed. On the second host only one service instance is deployed, namely one of type \experim{Service C}. All services are packaged in their own, separate container. The containers are made up of three stacked images---the bottom two are common to all services. The bottommost image ("\emph{base image}") contains the file system layers of a minimal operating system. In this thesis, the Linux distribution Debian was used. The base image only contains a limited selection of Linux tools, such as \ \texttt{ls}, \texttt{cat}, \texttt{ps} \ etc. The purpose of a base image is to lay a solid foundation that enables users to work comfortably within the container. In the case of Debian, the \emph{aptitude} package manager is additionally included which enables users to easily install further tools. 
 
 Next, an \emph{intermediate image} is built on top of the base image. The intermediate image adds further layers containing the \emph{run-time environment}, and in particular, the shared libraries of OpenDDS. This image could optionally contain more libraries and tools that are common to all services. For the purpose of demonstration, however, DDS is sufficient\todo{updaten, falls es zu case study kommt} . The base image and the intermediate image lay the foundation of all services. Any image built on top of these could run an DDS-enabled service. \docker 's layered images allows these layers to be shared \todo{besser erklaeren}
 

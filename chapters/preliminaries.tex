@@ -48,7 +48,7 @@ Industry profile according to \citeauthor*{broy2006challenges}:
 %
 
 \section{Distributed Systems}
-Modern vehicular E/E-Architectures\footnote{Electric/Electronic} are comprised of a large number of distributed, connected sensors, actors and control units, and hence, fall into the category of \emph{distributed systems}. The term "distributed system" entails many things and just as many definitions of the term exist. A definition that most would agree upon is the one given by \citeauthor*{tanenbaum2017distributed} \cite{tanenbaum2017distributed}: 
+Modern vehicular E/E-architectures\footnote{"Electric/Electronic architectures"} are comprised of a large number of distributed, connected sensors, actors and control units, and hence, fall into the category of \emph{distributed systems}. The term "distributed system" entails many things and just as many definitions of the term exist. A definition that most would agree upon is the one given by \citeauthor*{tanenbaum2017distributed} \cite{tanenbaum2017distributed}: 
 \begin{quote}
 "A distributed system is a collection of autonomous computing elements that appears to its users as a single coherent system."
 \end{quote}
@@ -76,32 +76,21 @@ The last kind of distribution transparency that \citeauthor*{tanenbaum2017distri
 \section{Middlewares} \label{sec:middlewares}
 A prerequisite for the coherence property of distributed systems is the need for nodes to engage in collaboration. More precisely, distributed applications need a way to pass messages, or data, between different threads of execution. For this purpose, \emph{middlewares} \cite{bernstein1996middleware} are commonly used. Although message passing is a prime example of a middleware's use case, there are many other important concepts for which middlewares exist, \eg , transaction management in database systems. The primary goal of middlewares is to abstract away such concepts so that programmers can focus on implementing business logic and shipping features, instead of having to deal with the underlying specifics. Middlewares are implemented as a software layer that sits between operating system and the actual applications. They are often included in the form of libraries that make the middleware's functionality available to the programmers by means of an Application Programming Interface (API). 
 
-The need for middlewares becomes particularly evident in the example of \emph{messaging}. Messages need to be sent over a physical mediums which are often, by nature, unreliable. To ensure reliability, many things need to be taken care of, \eg , error detection, repetition mechanisms, etc. In addition, guarantees must be given that messages are delivered to the right receivers. Therefore, addressing and routing mechanisms must be in place. These are just a few examples of hard-to-solve problems related to messaging. Managing these things manually, and implementing according measures from the ground up is hardly feasible for programmers. Messaging middlewares greatly ease this process. 
-
-\begin{figure}[htpb]
-  \begin{tabular}{c}
-  \begin{lstlisting}[language=C++]
+The need for middlewares becomes particularly evident in the example of \emph{messaging}. Messages need to be sent over a physical mediums which are often, by nature, unreliable. To ensure reliability, many things need to be taken care of, \eg , error detection, repetition mechanisms, etc. In addition, guarantees must be given that messages are delivered to the right receivers. Therefore, addressing and routing mechanisms must be in place. Thes
+e are just a few examples of hard-to-solve problems related to messaging. Managing these things manually, and implementing according measures from the ground up is hardly feasible for programmers. Messaging middlewares greatly simplify this process. 
+\todo[inline]{fix caption in list of listings}
+\begin{lstlisting}[title={Middleware send example}, caption={An exemplary code snippet demonstrating a broadcast dispatch via middleware}, label={lst:send}, language={C++}]
 auto& middleware = MW::register_by_name("Alice");
 middleware.broadcast("Hello, World!");
-  \end{lstlisting}
-  \end{tabular}
-  \caption[Middleware send example]{An examplary code snippet demonstrating a broadcast dispatch via middleware}\label{fig:send}
-\end{figure}
-
-\begin{figure}[htpb]
-  \begin{tabular}{c}
-  \begin{lstlisting}[language=C++]
+\end{lstlisting}
+\begin{lstlisting}[title={Middleware receive example}, caption={An exemplary callback function to receive messages via middleware}, label={lst:receive}, language={C++}]
 void receive(const std::string& message, const std::string& sender) 
 { 
   // message = "Hello, World!"
   // sender = "Alice"    
 }
-  \end{lstlisting}
-  \end{tabular}
-  \caption[Middleware receive example]{An examplary callback function to receive messages via middleware}\label{fig:receive}
-\end{figure}
-
-\autoref{fig:send} and \autoref{fig:receive} show code snippets demonstrating the sending and receiving capabilities of a hypothetical messaging middleware. In the example, all a programmer needs to do to send messages is to invoke a simple function, \eg , \texttt{sendBroadcast} in \autoref{fig:send}. The middleware then ensures that the message is delivered to the right recipients over whichever transport is available. To receive messages, the programmer may, in the case of this exemplary middleware, define a callback function which the middleware calls automatically whenever a new message is available. An example of such function is depicted in \autoref{fig:receive}. In the callback function's body, logic could be implemented to process the message content passed in the \texttt{message} parameter.
+\end{lstlisting}
+\autoref{lst:send} and \autoref{lst:receive} show code snippets demonstrating the sending and receiving capabilities of a hypothetical messaging middleware. In the example, all a programmer needs to do to send messages is to invoke a simple function, \eg , \texttt{sendBroadcast} in \autoref{lst:send}. The middleware then ensures that the message is delivered to the right recipients over whichever transport is available. To receive messages, the programmer may, in the case of this exemplary middleware, define a callback function which the middleware calls automatically whenever a new message is available. An example of such function is depicted in \autoref{lst:receive}. In the callback function's body, logic could be implemented to process the message content passed in the \texttt{message} parameter.
 
 %
 %
@@ -197,13 +186,12 @@ Cloud computing presents itself in the form of several usage models. The most no
 %
 %
 
-\section{Software Architectures}
-\todo[inline]{move / remove}
-\todo[inline]{
-Today, there is a tendency for software architectures to shift away from the \emph{monolithic} paradigm of having a single software entity deployed on a single, potent server to a more \emph{distributed} paradigm where multiple components are spread over a number of less potent physical hosts connected over a network.
-The benefits of this approach became evident in the early 2000's when a new type of software architecture utilizing this concept became popular: \emph{service-oriented architectures} (SOAs).
+%\section{Software Architectures}
+%\todo[inline]{
+%Today, there is a tendency for software architectures to shift away from the \emph{monolithic} paradigm of having a single software entity deployed on a single, potent server to a more \emph{distributed} paradigm where multiple components are spread over a number of less potent physical hosts connected over a network.
+%The benefits of this approach became evident in the early 2000's when a new type of software architecture utilizing this concept became popular: \emph{service-oriented architectures} (SOAs).
 
-In recent years, SOAs have made a revival in the form of \emph{microservices}, which, in essence, is a more fine grained type of SOA that avoids the complexity induced by \emph{Enterprise-Service-Buses} (ESBs). Similar to SOA, the idea behind microservices is to split functionality into a collection of reusable components, each fulfilling a single specific purpose. Recent research efforts are evaluating the possibility to include such paradigm in the realm of automotive software systems -- in part achieving great success \cite{berger2017containerized}. 
+%In recent years, SOAs have made a revival in the form of \emph{microservices}, which, in essence, is a more fine grained type of SOA that avoids the complexity induced by \emph{Enterprise-Service-Buses} (ESBs). Similar to SOA, the idea behind microservices is to split functionality into a collection of reusable components, each fulfilling a single specific purpose. Recent research efforts are evaluating the possibility to include such paradigm in the realm of automotive software systems -- in part achieving great success \cite{berger2017containerized}. 
 
-Since Microservices are very limited in scope they may be built and deployed in a matter of minutes, rather than hours, as is the case with monolithic applications. Thus, microservices have the potential to tremendously accelerate the software development process when being combined with modern development practices such as \emph{continuous integration / continous delivery} (CI/CD).
-}
+%Since Microservices are very limited in scope they may be built and deployed in a matter of minutes, rather than hours, as is the case with monolithic applications. Thus, microservices have the potential to tremendously accelerate the software development process when being combined with modern development practices such as \emph{continuous integration / continous delivery} (CI/CD).
+%}

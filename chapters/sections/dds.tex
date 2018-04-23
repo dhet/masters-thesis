@@ -23,13 +23,17 @@ The DDS standard specifies an API which is split into two separate parts. The ma
 No single point of failure. No information brokers. no name servers.
 
 \paragraph{Wire Protocol.}
-The DDS standard does not dictate a wire protocol. DDS implementations may therefore utilize UDP, TCP and other protocols to exchange messages. This leaves room for ambiguity in the standard. As a result, DDS implementations are by default not interoperable. For this reason, a complementary wire protocol by the name of DDSI-RTPS\footnote{The "DDSI" in DDSI-RTPS is often omitted. The shortened form will henceforth be used.} (DDS Interoperability--Real-time Publish-Subscribe) was devised. Although RTPS is related to DDS, its specifics are outsourced in a separate standard. \cite{rtps-2.2-standard}
+The DDS standard does not dictate a wire protocol. DDS implementations may therefore utilize UDP, TCP and other protocols to exchange messages. This, and the fact that no common message format is defined, leaves room for ambiguity in the standard. As a result, DDS implementations are by default not interoperable. For this reason, a complementary wire protocol by the name of DDSI-RTPS\footnote{The "DDSI" in DDSI-RTPS is often omitted. The shortened form will henceforth be used.} (DDS Interoperability--Real-Time Publish-Subscribe) was devised. Although RTPS is related to DDS, its specifics are outsourced in a separate standard \cite{rtps-2.2-standard}.
+
+
 
 It uses the OMG \emph{Common Data Representation} (CDR) to encode data in a platform-neutral way. 
 
 As a wire protocol, RTPS is deliberately tailored to DCPS-style communication among dispersed peers. In addition to the previously mentioned interoperability features, it provides multicast capabilities as means to enable simultaneous message delivery to several peers.
 
 It also features multicast based service discovery.
+
+IP multicast, by its very nature, is not connection-oriented. Thus, packets may be dropped and as a result it is unreliable. RTPS allows reliable multicast.
 
 RTPS is designed to work atop best-effort protocols, and in particular, UDP/IP. Because of the low overhead typical for such protocols, low latencies and high throughput can be achieved. However, the performance gain comes with tradeoffs, such as reduced reliability. The tradeoffs can be compensated by QoS settings. In a nutshell, RTPS is like an extension protocol to unreliable transports to make them more reliable, or rather, to allow for fine-grained control over the degree of the transport's reliability.
 
