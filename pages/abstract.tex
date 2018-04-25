@@ -1,48 +1,9 @@
 \chapter{\abstractname}
-Several developments in recent years are the cause of a significant increase of complexity in automotive cyber-physical systems. This trend is ongoing and is expected to reach unprecedented levels with the continuous progression towards autonomous driving. These new, increasingly complex software-driven functions impose demanding requirements on vehicular computing systems. Not only do they drive the need for high-performance computing but also the need to collect unrivaled amounts of data for machine learning and big data applications. Current E/E architectures struggle to provide the necessary means to cope with this situation. Thus, current research is investigating the possibility of offloading computations to remote data centers ("the cloud") as means to support the constrained vehicular on-board systems and to save energy. 
-In this thesis, a novel method is presented which allows for this and other use cases. The method proposes to split vehicular functionality into self-contained, portable \emph{services} which may be replicated and deployed in both, the vehicle and the cloud, in the exact same way. The services communicate anonymously via multicast-enabled publish-subscribe middleware. This approach greatly facilitates scalability, extensibility, and redundancy. All services are organized in a ubiquitous, self-governing overlay network that spans from the vehicle into the cloud. Through that overlay network, which is realized by VXLAN tunnels, services may communicate in a location-transparent fashion, i.e., they are entirely oblivious to their own and their peer's locality.
-
-
-
-\noindent
-\paragraph{Context}
-\begin{itemize}
-\item Vehicular functions become increasingly complex
-\item Hardware in vehicles is expensive and constrained
-\item Sensors are producing increased quantities of data which needs to be collected
-\item There is a need for new architectures and technologies
-\item cloud computing has long been established as a viable alternative to on-premise infrastructures. Infrastructure can be outsourced. In addition to cost reductions, clouds aim to provide elastic scalability.
-\end{itemize}
-
-\noindent
-\paragraph{Aim}
-\begin{itemize}
-\item provide a platform on which vehicular functions may run ubiquitously, i.e., on vehicle hardware, and cloud infrastructures alike
-\item facilitate computation offloading
-\item ease data collection to enable big data innovation and to provide crowd-sourced services
-\item Special requirements: Must deal with spotty reception
-\item Therefore: Seamless switch between cloud and on-board
-\item System needs to be modular to allow for fine-grained control over which functionality is offloaded
-\end{itemize}
-
-\noindent
-\paragraph{Method}
-\begin{itemize}
-\item Conceptual framework is presented which enables a service-oriented, vehicular software architecture that plays well with vehicular resource constrained on-board system.
-\item the system is able to replicate services and run instances in the vehicle and in the cloud
-\item SOA as means to modularize vehicular functions 
-\item Containerization as means to make services portable
-\item Middlewares based on the publish-subscribe communication paradigm excel in dealing with complexity. They feature location transparency. Thus, they are promising contenders. 
-\item DDS as messaging middleware suitable for cyber-physical systems due to its reliability features. (Data centricity, because...?)
-\item to bridge the gap between vehicle and cloud, an overlay network based on VLAN encapsulation is suggested
-\item  An exemplary implementation of this framework is then presented using state-of-the-art technologies. It is comprised of Docker for containerization, and DDS as messaging middleware
-\item the approach is then analyzed and discussed. Benchmarks are conducted.
-\end{itemize}
-
-\noindent
-\paragraph{Results}
-\begin{itemize}
-\item special emphasis is put in reliability. It is feasible to create replicas of services running alongside in vehicle and cloud.
-its reliability features are proven in one of the conducted benchmarks
-\item lay ground for further innovations.
-\end{itemize}
+Several developments in recent years are the cause of a significant increase of complexity in automotive cyber-physical systems. This trend is ongoing and is expected to reach unprecedented levels with the continuous progression towards autonomous driving. These new, increasingly complex software-driven functions impose demanding requirements on vehicular computing systems. Not only do they drive the need for high-performance computing but also the need to collect unrivaled amounts of data for machine learning and other data-driven applications. Current E/E architectures struggle to provide the necessary means to cope with this situation. Thus, current research is investigating the possibility of offloading computations to remote data centers ("the cloud") as means to support the constrained vehicular on-board systems and to save energy. 
+In line with this spirit, this thesis presents a novel method which enables cloud connectivity for vehicles.
+%In this thesis, a novel method is presented which allows for this and other use cases. 
+The method proposes to split vehicular functionality into self-contained, portable \emph{services} which may be replicated and deployed in both, the vehicle and the cloud, in the exact same way. The services communicate anonymously via multicast-enabled publish-subscribe middleware and are organized in a ubiquitous, self-governing overlay network that spans from the vehicle into the cloud. Through that overlay network, which is realized by means of software-defined networking, services may communicate in a location-transparent fashion, i.e., they are entirely oblivious to their own and their peers' locality. 
+Thus, the system promotes anonymity, agnosticism and isolation which greatly aids in achieving a high degree of scalability, extensibility and loose coupling. 
+%Special emphasis is furthermore put on reliability, redundancy properties
+An exemplary implementation of the approach is presented and evaluated w.r.t. its performance and reliability attributes, and other aspects. 
+As part of this evaluation effort, an in-depth discussion about the system's aptitude and limitations is provided. The discussion is supported by a number of benchmarks which were carried out on a purpose-built testbed consisting of a cluster of Raspberry Pi computers connected to a cloud. The results reveal that the approach is indeed feasible and performs well. However, there is evidence that the employed technologies do not meet the high demands of the automotive domain. Nevertheless, the fundamental mechanisms were demonstrated successfully. 
