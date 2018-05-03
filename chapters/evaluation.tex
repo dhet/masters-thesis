@@ -6,7 +6,7 @@ In the previous two chapters this thesis' main approach was presented and an exe
 
 As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For the thesis the testbed was extended by a network link to the Internet to enable cloud connectivity. 
 
-The test environment's network topology is depicted in \autoref{fig:network-topology}. The original testbed ("on-premise") consisted of three ARM-based SOCs (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the switch was also a workstation which fulfilled the sole purpose of conducting the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center through a 100 Mbit/s broadband Internet connection.
+The test environment's network topology is depicted in \autoref{fig:network-topology}. The original testbed ("on-premise") consisted of three ARM-based SBCs\footnote{"Single Board Computers"} (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the switch was also a workstation which fulfilled the sole purpose of conducting the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center through a 100 Mbit/s broadband Internet connection.
 
 \begin{figure}[htpb]
   \centering
@@ -54,7 +54,7 @@ The detailed specifications of the involved computing nodes and the employed sof
 %
 %
 %
-
+\pagebreak
 \section{Benchmarks}
 
 \subsection{Latency Benchmark} \label{sec:plainlatency}
@@ -105,7 +105,8 @@ Three experiments were conducted, comparing the average latencies of
 %
 %
 \subsection{Throughput Benchmark} \label{sec:throughput}
-\paragraph{Motivation.} Another important metric for a network's performance is throughput. Throughput is a measure for how much data can be transmitted, over that network, per time. Since little data is available on \wnet 's throughput performance, according tests were conducted.
+\paragraph{Motivation.} 
+In modern vehicles, unprecedented amounts of data, originating from cameras, lidars and other sensors, is accumulated and distributed to the vehicle's various computing nodes. The presented approach allows scenarios in which that data is processed in the cloud. This prospect raises the question how well the approach can deal with such high volumes of data. In particular, the maximum theoretically achievable throughput is of primary interest. Throughput is a measure for how much data per time can be transmitted over a network. Since little data is available on \wnet 's throughput performance, according benchmarks were carried out.
 
 \paragraph{Methodology.} To measure throughput, the tool \emph{iperf3}\footnote{\url{www.iperf.fr}} was used. iperf continuously sends data from one node to another over a TCP/IP connection. From the volume of the transmitted data and the duration of the transmission, the effective network throughput can be calculated. In each test run iperf would continuously send as much data as possible within a timeframe of 60 seconds. As in the previous test, three scenarios were tested:  \experim{Plain}, \experim{Weave}, and \experim{Encryped}. Explanations of these scenarios can be found in the description of the previous test. 
 
@@ -115,7 +116,7 @@ A fact to consider is that routing packets over overlays is computationally expe
 The results of this benchmark are depicted in \autoref{fig:throughput}. The results show that unencrypted \wnet\ (\experim{Weave}) slightly reduces throughput performance when compared to \experim{Plain} scenario (5\% reduction). When furthermore encryption is applied to the overlay network (\experim{Encrypted}), an additional throughput impairment can be observed. Overall, encryption incurs an overhead of 6.7\% compared to the \experim{Plain} scenario. These values can be considered decent. Once more, it shall be noted that in this case enough computational resources were available. \Ie , the CPU was not fully utilized but the network channel was at its limits.
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.7\textwidth]{figures/throughput}
+  \includegraphics[width=0.65\textwidth]{figures/throughput}
   \caption[\weave\ throughput benchmark results]{Relative throughput in the scenarios \experim{Plain}, \experim{Weave}, and \experim{Encrypted}}\label{fig:throughput}
 \end{figure} 
 %
@@ -135,10 +136,9 @@ The results of this benchmark are depicted in \autoref{fig:throughput}. The resu
 
 \paragraph{Results.} 
 \autoref{fig:cpu} depicts the test results. In the diagram, each data sample represents the average CPU utilization of the sending node during a particular test run. The Y-axis represents the overall CPU utilization of the sending machine (Raspberry Pi), and includes the cumulative load of all programs running on the system. Hence, the measurements include a bit of noise. The dashed horizontal line indicates the maximum load of a single core in a quad core CPU.
-
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.79\textwidth]{figures/cpu}
+  \includegraphics[width=0.73\textwidth]{figures/cpu}
   \caption[\weave\ CPU utilization test results]{In \weave\ overlays, CPU utilization increases linearly with network throughput. At around 21 Mbit/s, the test node reaches a computational limit (one of the four cores is fully utilized) such that the effective throughput stagnates (not displayed).}\label{fig:cpu}
 \end{figure}
 
@@ -159,28 +159,41 @@ However, the maximum (theoretically) achievable throughput in the test setup was
 
 \paragraph{Motivation.} So far, all experiments were concerned with \wnet\ exclusively and did not involve DDS. To the best of the author's knowledge, there are no empirical studies yet on how well DDS performs in VXLAN-based overlay networks spanning over the Internet. Hence, benchmarks were conducted to evaluate latency overhead incurred by DDS in such scenarios.
 
-\paragraph{Methodology.} The methodology of this experiment is similar to the previous latency experiment (\autoref{sec:plainlatency}) in that the RTT between two hosts connected over the Internet are used as the measure of latency. Two cases are investigated: 
+\paragraph{Methodology.} The methodology of this experiment is similar to the previous latency experiment (section \ref{sec:plainlatency}) in that the RTT between two hosts connected over the Internet are used as the measure of latency. Two cases are investigated: 
 \begin{inparaenum}[(i)]
 	\item RTTs via ICMP ping, and
 	\item RTTs via DDS ping.
 \end{inparaenum}
-For the former case, the ICMP ping results from the previous latency experiment are used. These results serve as a reference point to which DDS is compared to. In order to measure DDS RTTs, a ping application was developed that functions similar to classic ping: a message containing a recent timestamp ($T_1$) is sent from one endpoint ($A$) to another ($B$), and the same message is then sent back to $A$ without modifications. Upon reception of the returned message, $A$ subtracts the reception timestamp ($T_2$) from $T_1$, and thus calculates the RTT. This process is then repeated multiple times. Between the reception of a returned message and the dispatch of the next message, the sender was configured to wait for a few milliseconds to make sure that only a single message was in circulation at any time.
+For the former case, the ICMP ping results from the previous latency experiment are used. These results serve as a reference point to which DDS is compared to. In order to measure DDS RTTs, a ping application was developed that functions similar to classic ping: a message containing a recent timestamp ($T_1$) is sent from one endpoint ($A$) to another ($B$) via a topic named "ping", and the same message is then sent back to $A$ without modifications. The returned message is published on a topic named "pong", which $A$ is subscribed to. Upon reception of the returned message, $A$ creates a reception timestamp ($T_2$) and subtracts that timestamp from $T_1$, effectively calculating the RTT. This process is then repeated multiple times. Between the reception of a returned message and the dispatch of the next message, the sender was configured to wait for a few milliseconds to make sure that only a single message was in circulation at any time.
 
 Of course, sending data via DDS entails a lot more than simple ICMP pings, like \eg\ the marshaling and parsing of messages. The comparison with ICMP is therefore a very ambitious one. As ICMP pings require very little processing, the largest part of the measured round trip time accounts for pure message transmission. ICMP ping is therefore a good reference point to measure the overhead induced by DDS, and in particular, RTPS. 
 
-Multiple test runs with different message sizes were carried out to factor in the influence of packet fragmentation and other distorting factors. Payload sizes typical for real life applications were chosen, ranging from 100 bytes to one kilobyte. The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network to ensure practical experiment conditions. The results presented below are the average values calculated from 300 pings per test case.
+The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network ("\experim{Encrypted}") to ensure practical experiment conditions. Both times, ping messages carried a payload of 1 kB. The results presented below are the average values calculated from 300 pings.
 
 
 \paragraph{Results.} 
-The results of the benchmark are presented in \autoref{fig:dds-latency}. With the experiment it was shown that DDS adds reasonable overhead when compared to the plain transmission time of ICMP ping. The overhead ranged between 11.45\% at min, and 17.55\% at max. On average, the overhead was at 14.74\%. The overhead can be explained by the fact that DDS does a lot more than just transmit data. Most notably, the enforcement of certain QoS policies took their toll on latency, as well as the marshaling, serialization and parsing of message payloads by the DLRL.
+The results of the benchmark are presented in \autoref{tab:dds-latency}. The overhead incurred by DDS, when compared to ICMP ping, is in the 15-to-18 per cent range. The overhead can be explained by the fact that DDS does a lot more than just transmit data from point to point. Most notably, the enforcement of certain QoS policies takes their toll on latency, as well as the marshaling, serialization and parsing of message payloads by the DLRL. Considering this, the overhead of DDS can be considered reasonable.
 
-
-\begin{figure}[htpb]
+\begin{table}[H]
+  \caption[DDS latecy benchmark results]{DDS latency benchmark results: ICMP and DDS round-trip-times}\label{tab:dds-latency}
   \centering
-  \includegraphics[width=0.7\textwidth]{figures/dds-latency}
-  \caption[DDS latency benchmark results]{The average RTT of differently sized packets when using DDS versus ICMP}\label{fig:dds-latency}
-\end{figure}
-
+  \begin{tabular}{p{0.2\textwidth} | p{0.2\textwidth} p{0.2\textwidth} | p{0.2\textwidth}}
+    \toprule
+       & \textbf{ICMP} & \textbf{DDS} & \textbf{DDS Overhead} \\
+    \midrule
+    	Minimum & 24.32 ms & 28.05 ms & +15.36 \%\\
+    	Average & 27.00 ms & 30.84 ms & +14.27 \%\\
+    	Maximum & 47.36 ms & 55.96 ms & +18.16 \% \\
+    	$\sigma$ & 1.75 ms & 2.39 ms &\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% The results of the benchmark are presented in \autoref{fig:dds-latency}. With the experiment it was shown that DDS adds reasonable overhead when compared to the plain transmission time of ICMP ping. The overhead ranged between 11.45\% at min, and 17.55\% at max. On average, the overhead was at 14.74\%. The overhead can be explained by the fact that DDS does a lot more than just transmit data. Most notably, the enforcement of certain QoS policies took their toll on latency, as well as the marshaling, serialization and parsing of message payloads by the DLRL.
+%\begin{figure}[htpb]
+%  \centering
+%  \includegraphics[width=0.7\textwidth]{figures/dds-latency}
+%  \caption[DDS latency benchmark results]{The average RTT of differently sized packets when using DDS versus ICMP}\label{fig:dds-latency}
+%\end{figure}
 %
 %
 %
@@ -191,31 +204,21 @@ The results of the benchmark are presented in \autoref{fig:dds-latency}. With th
 %
 %
 %
-
-
 \subsection{Failover Test}\label{sec:failovertest}
-
 \paragraph{Motivation.} The presented approach allows for many innovative usage scenarios. For instance, consider the following situation: A service running on an on-board computer within a vehicle suddenly fails, \eg\ due to a hardware defect. As a reaction, a fallback service needs to take over. Consider now that the fallback service is not running on another on-board computer but within the cloud. Through DDS QoS policies, a failover mechanism can be realized (\cf \ref{sec:failover}) which allows for a quick transition to the remote backup service. An interesting question is how long the whole failover process, \ie\ switching to a backup service in case of failure, takes in a cloud scenario.
 
+\newcommand{\proda}{$S\textsubscript{A}$}
+\newcommand{\prodb}{$S\textsubscript{A*}$}
+\newcommand{\cons}{$S\textsubscript{B}$}
 
-\newcommand{\proda}{\texttt{S\textsubscript{main}}}
-\newcommand{\prodb}{\texttt{S\textsubscript{backup}}}
-\newcommand{\cons}{\texttt{S\textsubscript{consume}}}
+\paragraph{Methodology.} To test the performance of DDS's failover qualities an experiment was designed to replicate a scenario in which a service fails so that another, remote service must take over. In the test scenario there are three services: two services which continuously produce data (\proda , \prodb) in the interval $t_i$, and one which consumes the data (\cons). \proda\ has precedence over \prodb\ (\ie\ it possesses a higher \ownership\ value) and is therefore the "main supplier", while \prodb\ is considered the "backup supplier". \proda\ and \cons\ are both deployed two on separate Raspberry Pis (representative of two ECUs in a vehicle), and \prodb\ is running in the cloud. A schematic of the experiment is depicted in \autoref{fig:failover}. It shall be noted that, contrary to what the figure suggests, communication is not point-to-point, but topic-based. \proda\ as well as \prodb\ publish data samples on the same topic and \cons\ is subscribed to that topic.
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/takeover}
+  \caption[Failover experiment schematic]{Failover scenario: vehicular service \proda\ fails to supply \cons\ with data so that cloud-based service \prodb\ must take over}\label{fig:failover}
+\end{figure}
 
-\paragraph{Methodology.} To test the performance of DDS's failover qualities an experiment was designed to replicate a scenario in which a service fails so that another, remote service must take over operation. In the test scenario there are three services: two services which continuously produce data (\proda , \prodb) and one which consumes the data (\cons). \proda\ has precedence over \prodb\ (\ie\ it possesses a higher \ownership\ value) and is therefore the "main supplier", while \prodb\ is considered the "backup supplier". 
-
-In the process of sending data, a failure of \proda\ is simulated by abruptly shutting down the application process. Once that happens, a procedure in \cons\ is triggered to determine the time span between the reception of the last message sent by \proda\ and the first message by \prodb . The resulting time is the effective gap between the reception of two messages: the last one from \proda\ and the first one from \prodb . In particular, the measured time includes
-\begin{itemize}
-  \item the time DDS needs to detect \proda 's change of liveliness and to propagate the change in the system
-  \item the time it takes \prodb\ to take over
-  \item the transmission time of \prodb 's first message to \cons
-\end{itemize} 
-
-\proda\ and \cons\ are deployed as individual applications on two of the Raspberry Pis. \prodb\ is deployed on the remote host. All communication goes through an encrypted Weave network spanning over the LAN and the cloud.
-
-\todo[inline]{which QoS settings were used? how many test runs were conducted? Describe how clocks are synchronized between the two producing services}
-
-
+In the process of sending data, a failure of \proda\ is simulated by abruptly shutting down the application process (indicated by the cross in the image). In this event, the cloud-based backup service, \prodb , needs to take over. To determine the effective failover time, $t_{fo}$, the time between the last message from \proda\ and the first message from \prodb\ is measured. The failover is performed implicitly by DDS through the failover mechanism described in section \ref{sec:failover}. In this experiment, \liveliness\ is set to 100 ms, indicating that after 100 ms of inactivity, a service is declared "dead". The experiment is performed on an encrypted Weave overlay (case "\experim{Encrypted}").
 
 %%% Setup
 % Pub1: docker run -ti --rm --entrypoint /bin/bash kugele1337/spammer-pub-qemu
@@ -227,9 +230,7 @@ In the process of sending data, a failure of \proda\ is simulated by abruptly sh
 % Pub2: ./publisher -DCPSConfigFile rtps.ini --samples 10000000999 --delay 80 --liveliness 100 --payload bb
 % Sub: ./subscriber -DCPSConfigFile rtps.ini --debug --liveliness 100 --filename-fail 100liveliness-80delay19.csv
 
-
-\paragraph{Results.} Reliability can be ensured, even when offloading work into a remote data center.
-
+\paragraph{Results.} In 100 test runs, an average $t_{fo}$ of 131.3 ms was measured. The fastest failover took 103.2 ms, and the slowest one took 181 ms. Of course, the \liveliness\ settings heavily influence the failover times as \liveliness\ determines how fast a failure is detected. After subtracting the 100 ms needed for failure detection, the resulting figures may be considered reasonable.
 %
 %
 %
@@ -250,5 +251,3 @@ In the process of sending data, a failure of \proda\ is simulated by abruptly sh
 %
 %
 %
-
-
