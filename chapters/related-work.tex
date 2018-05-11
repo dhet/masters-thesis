@@ -57,23 +57,10 @@ Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) i
 \begin{itemize}
 	\item \cite{bouhouch2013dds}: DDS on top of FlexRay
 	\item \cite{sommer2013race}: RACE: A centralized Platform computer based architecture for automotive applications
+	\item \cite{gundougan2018hopp}: HoPP: Robust and Resilient Publish-Subscribe for an Information-Centric Internet of Things
+	\item SOME/IP
 \end{itemize}
 
-
-Adaptive AUTOSAR's underlying messaging middleware is \emph{SOME/IP}
-
-Can be used on top of AUTOSAR.
-
-Service discovery based on modes. Client: request / listen, server: offer / silent.
-Service discovery takes is pretty fast < 10 ms. Depends on parameters.
-
-Designed to be used over Ethernet.
-
-Network representation and internal representation are similar to allow for fast serialization at the expense of message size. But this is not a problem since the transport channel doesn't have stringent bandwidth and frame size limitations.
-
-Supports TCP and therefore bandwidth intensive streams.
-
-Supports several communication models: request/response, async, events, "field", event groups (PubSub)
 
 \paragraph{Cloud + IoT}
 

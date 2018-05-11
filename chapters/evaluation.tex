@@ -1,12 +1,12 @@
 \chapter{Evaluation}\label{chapter:evaluation}
-In the previous two chapters this thesis' main approach was presented and an exemplary implementation based on well-established technologies was suggested. What now follows is an evaluation of the implementation. Points of interest are the system's performance characteristics, reliability properties and general feasibility. For the purpose of evaluation a number of tests were conducted which are presented in the following. But first, the experiment setup is thoroughly described.
+In the two previous chapters, this thesis' main approach was presented and an exemplary implementation based on well-established technologies was suggested. What now follows is an evaluation of the implementation. Points of interest are the system's performance characteristics, reliability properties and general feasibility. For the purpose of evaluation a number of tests were conducted which are presented in the following. But first, the experiment setup is thoroughly described.
 
 
 \section{Experimental Setup}\label{sec:testsetup}
 
 As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For the thesis the testbed was extended by a network link to the Internet to enable cloud connectivity. 
 
-The test environment's network topology is depicted in \autoref{fig:network-topology}. The original testbed ("on-premise") consisted of three ARM-based SBCs\footnote{"Single Board Computers"} (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the switch was also a workstation which fulfilled the sole purpose of conducting the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center through a 100 Mbit/s broadband Internet connection.
+The test environment's network topology is depicted in \autoref{fig:network-topology}. The original testbed (``on-premise'') consisted of three ARM-based SBCs\footnote{``Single Board Computers''} (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces were connected by a Gigabit LAN switch (left-hand side). The three nodes represent on-board computing devices in a hypothetical vehicle. Connected to the switch was also a workstation which fulfilled the sole purpose of conducting the tests, \ie , it was not directly involved in the test execution per se. The local test environment was connected to the remote data center through a 100 Mbit/s broadband Internet connection.
 
 \begin{figure}[htpb]
   \centering
@@ -14,7 +14,7 @@ The test environment's network topology is depicted in \autoref{fig:network-topo
   \caption[Network topology of the experimental setup]{The experimental setup's network topology}\label{fig:network-topology}
 \end{figure}
 %
-Representative of the "cloud" in the tests is a single root server supplied by the IaaS provider \emph{DigitalOcean}\footnote{\url{www.digitalocean.com}} (right-hand side in \autoref{fig:network-topology}). To ensure realistic latency values, a server location was chosen that was in the vicinity of the test setup---but not too close. Considering its vicinity to Munich, Frankfurt (Main) was a suitable choice. The two cities are about 300 km away from each other (as the crow flies).
+Representative of the ``cloud'' in the tests is a single root server supplied by the IaaS provider \emph{DigitalOcean}\footnote{\url{www.digitalocean.com}} (right-hand side in \autoref{fig:network-topology}). To ensure realistic latency values, a server location was chosen that was in the vicinity of the test setup---but not too close. Considering its vicinity to Munich, Frankfurt (Main) was a suitable choice. The two cities are about 300 km away from each other (as the crow flies).
 
 Throughout the whole study the software composition remained unchanged. As DDS implementation \emph{OpenDDS}\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (no service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL), by which messages are converted into type safe data structures, was used. The overhead caused by this was evaluated and discussed in section \ref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in section \ref{sec:failovertest}. Moreover, all benchmarks were programmed in C++ to maximize their run-time performance.
 
@@ -78,20 +78,20 @@ To evaluate the aptitude of the presented system it is essential to consider the
 }\label{fig:latency-setup}
 \end{figure}
 
-In this test, latency was measured between two hosts connected over the Internet, both with, and without overlay-enabled container networking. To sample RTTs, a constant stream of ping messages was sent from one of the Raspberry Pis to the remote host and back. The Linux tool \emph{ping}, which pings hosts via ICMP\footnote{"Internet Control Message Protocol"} Echo Requests and Replies, was employed to take the measurements. 
+In this test, latency was measured between two hosts connected over the Internet, both with, and without overlay-enabled container networking. To sample RTTs, a constant stream of ping messages was sent from one of the Raspberry Pis to the remote host and back. The Linux tool \emph{ping}, which pings hosts via ICMP\footnote{``Internet Control Message Protocol''} Echo Requests and Replies, was employed to take the measurements. 
 
 Three experiments were conducted, comparing the average latencies of 
 \begin{inparaenum}[(a)]
-  \item plain host-to-host communication ("\experim{Plain}"),
-  \item via \wnet\ ("\experim{Weave}"), and when employing
-  \item encryption over \wnet\ ("\experim{Encrypted}")
+  \item plain host-to-host communication (``\experim{Plain}''),
+  \item via \wnet\ (``\experim{Weave}''), and when employing
+  \item encryption over \wnet\ (``\experim{Encrypted}'')
 \end{inparaenum}
 (\cf Figure \ref{fig:latency-setup}). The results from \experim{Plain} serve as the baseline for the two consecutive experiments. In each test run 3000 pings, each with a payload of 1 KB were transmitted. The sending peer would wait for the response of the previous message before sending another request. Thus, only one packet was in flight at a time.
 
 \paragraph{Results.} \autoref{fig:latency-relative} depicts the results of the benchmark. The Y-values of the chart represent the average round trip time of the 3000 pings. Note that the Y-axis is cropped to the interval between 28 and 29 ms to emphasize the differences in the bars' heights. The results reveal that the latency overhead incurred by \wnet\ is very minor. In the case of plain host-to-host communication (\experim{Plain}), round trips took on average 28.4 ms. When sending the pings over a \weave\ overlay (\experim{Weave}), RTTs increased to an average of 28.6 ms, which is equivalent to an 0.9\% increase. Lastly, in the case of encrypted overlay networking (\experim{Encrypted}), the average RTTs reached a maximum of 29.0 ms---an increase of 2.1\% compared to \experim{Plain}.
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.69\textwidth]{figures/ping-bar}
+  \includegraphics[width=0.45\textwidth]{figures/ping-bar}
   \caption[\weave\ latency experiment results]{Average round trip times in the scenarios \experim{Plain}, \experim{Weave}, and \experim{Encrypted}}\label{fig:latency-relative}
 \end{figure}
 %
@@ -116,7 +116,7 @@ A fact to consider is that routing packets over overlays is computationally expe
 The results of this benchmark are depicted in \autoref{fig:throughput}. The results show that unencrypted \wnet\ (\experim{Weave}) slightly reduces throughput performance when compared to \experim{Plain} scenario (5\% reduction). When furthermore encryption is applied to the overlay network (\experim{Encrypted}), an additional throughput impairment can be observed. Overall, encryption incurs an overhead of 6.7\% compared to the \experim{Plain} scenario. These values can be considered decent. Once more, it shall be noted that in this case enough computational resources were available. \Ie , the CPU was not fully utilized but the network channel was at its limits.
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.65\textwidth]{figures/throughput}
+  \includegraphics[width=0.4\textwidth]{figures/throughput}
   \caption[\weave\ throughput benchmark results]{Relative throughput in the scenarios \experim{Plain}, \experim{Weave}, and \experim{Encrypted}}\label{fig:throughput}
 \end{figure} 
 %
@@ -164,11 +164,11 @@ However, the maximum (theoretically) achievable throughput in the test setup was
 	\item RTTs via ICMP ping, and
 	\item RTTs via DDS ping.
 \end{inparaenum}
-For the former case, the ICMP ping results from the previous latency experiment are used. These results serve as a reference point to which DDS is compared to. In order to measure DDS RTTs, a ping application was developed that functions similar to classic ping: a message containing a recent timestamp ($T_1$) is sent from one endpoint ($A$) to another ($B$) via a topic named "ping", and the same message is then sent back to $A$ without modifications. The returned message is published on a topic named "pong", which $A$ is subscribed to. Upon reception of the returned message, $A$ creates a reception timestamp ($T_2$) and subtracts that timestamp from $T_1$, effectively calculating the RTT. This process is then repeated multiple times. Between the reception of a returned message and the dispatch of the next message, the sender was configured to wait for a few milliseconds to make sure that only a single message was in circulation at any time.
+For the former case, the ICMP ping results from the previous latency experiment are used. These results serve as a reference point to which DDS is compared to. In order to measure DDS RTTs, a ping application was developed that functions similar to classic ping: a message containing a recent timestamp ($T_1$) is sent from one endpoint ($A$) to another ($B$) via a topic named ``ping'', and the same message is then sent back to $A$ without modifications. The returned message is published on a topic named ``pong'', which $A$ is subscribed to. Upon reception of the returned message, $A$ creates a reception timestamp ($T_2$) and subtracts that timestamp from $T_1$, effectively calculating the RTT. This process is then repeated multiple times. Between the reception of a returned message and the dispatch of the next message, the sender was configured to wait for a few milliseconds to make sure that only a single message was in circulation at any time.
 
 Of course, sending data via DDS entails a lot more than simple ICMP pings, like \eg\ the marshaling and parsing of messages. The comparison with ICMP is therefore a very ambitious one. As ICMP pings require very little processing, the largest part of the measured round trip time accounts for pure message transmission. ICMP ping is therefore a good reference point to measure the overhead induced by DDS, and in particular, RTPS. 
 
-The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network ("\experim{Encrypted}") to ensure practical experiment conditions. Both times, ping messages carried a payload of 1 kB. The results presented below are the average values calculated from 300 pings.
+The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network (``\experim{Encrypted}'') to ensure practical experiment conditions. Both times, ping messages carried a payload of 1 kB. The results presented below are the average values calculated from 300 pings.
 
 
 \paragraph{Results.} 
@@ -211,14 +211,14 @@ The results of the benchmark are presented in \autoref{tab:dds-latency}. The ove
 \newcommand{\prodb}{$S\textsubscript{A*}$}
 \newcommand{\cons}{$S\textsubscript{B}$}
 
-\paragraph{Methodology.} To test the performance of DDS's failover qualities an experiment was designed to replicate a scenario in which a service fails so that another, remote service must take over. In the test scenario there are three services: two services which continuously produce data (\proda , \prodb) in the interval $t_i$, and one which consumes the data (\cons). \proda\ has precedence over \prodb\ (\ie\ it possesses a higher \ownership\ value) and is therefore the "main supplier", while \prodb\ is considered the "backup supplier". \proda\ and \cons\ are both deployed two on separate Raspberry Pis (representative of two ECUs in a vehicle), and \prodb\ is running in the cloud. A schematic of the experiment is depicted in \autoref{fig:failover}. It shall be noted that, contrary to what the figure suggests, communication is not point-to-point, but topic-based. \proda\ as well as \prodb\ publish data samples on the same topic and \cons\ is subscribed to that topic.
+\paragraph{Methodology.} To test the performance of DDS's failover qualities an experiment was designed to replicate a scenario in which a service fails so that another, remote service must take over. In the test scenario there are three services: two services which continuously produce data (\proda , \prodb) in the interval $t_i$, and one which consumes the data (\cons). \proda\ has precedence over \prodb\ (\ie\ it possesses a higher \ownership\ value) and is therefore the ``main supplier'', while \prodb\ is considered the ``backup supplier''. \proda\ and \cons\ are both deployed two on separate Raspberry Pis (representative of two ECUs in a vehicle), and \prodb\ is running in the cloud. A schematic of the experiment is depicted in \autoref{fig:failover}. It shall be noted that, contrary to what the figure suggests, communication is not point-to-point, but topic-based. \proda\ as well as \prodb\ publish data samples on the same topic and \cons\ is subscribed to that topic.
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.5\textwidth]{figures/takeover}
   \caption[Failover experiment schematic]{Failover scenario: vehicular service \proda\ fails to supply \cons\ with data so that cloud-based service \prodb\ must take over}\label{fig:failover}
 \end{figure}
 
-In the process of sending data, a failure of \proda\ is simulated by abruptly shutting down the application process (indicated by the cross in the image). In this event, the cloud-based backup service, \prodb , needs to take over. To determine the effective failover time, $t_{fo}$, the time between the last message from \proda\ and the first message from \prodb\ is measured. The failover is performed implicitly by DDS through the failover mechanism described in section \ref{sec:failover}. In this experiment, \liveliness\ is set to 100 ms, indicating that after 100 ms of inactivity, a service is declared "dead". The experiment is performed on an encrypted Weave overlay (case "\experim{Encrypted}").
+In the process of sending data, a failure of \proda\ is simulated by abruptly shutting down the application process (indicated by the cross in the image). In this event, the cloud-based backup service, \prodb , needs to take over. To determine the effective failover time, $t_{fo}$, the time between the last message from \proda\ and the first message from \prodb\ is measured. The failover is performed implicitly by DDS through the failover mechanism described in section \ref{sec:failover}. In this experiment, \liveliness\ is set to 100 ms, indicating that after 100 ms of inactivity, a service is declared ``dead''. The experiment is performed on an encrypted Weave overlay (case ``\experim{Encrypted}'').
 
 %%% Setup
 % Pub1: docker run -ti --rm --entrypoint /bin/bash kugele1337/spammer-pub-qemu

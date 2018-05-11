@@ -1,29 +1,31 @@
 \section{Data Distribution Service}
 
-DDS is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-time requirements. As such, DDS aims to function in a resource efficient and predictable manner, and is subject to minimal computational and transport overhead.\todo{benchmarks die das belegen?}
+Data Distribution Service (DDS) is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-time requirements. As such, DDS aims to function in a resource efficient, predictable and reliable manner, and is subject to minimal computational and transport overhead.\todo{benchmarks die das belegen?}
 
-DDS is fundamentally based on the data-centric publish-subscribe (DCPS) paradigm. In the publish-subscribe-style communication, data flows between two kinds of entities: publishers and subscribers. Publishers offer data, while subscribers consume that data. A crucial characteristic of publish-subscribe is that data exchange between the peers is anonymous, \ie , publishers have no way of sending data to individual subscribers. Instead, both communicate by means of a shared, logical medium that takes data samples and forwards them to the appropriate receivers. In the context of DDS, this medium is called \emph{topic}. When subscribers receive a data sample they do not know where that sample originated. Similarly, publishers have no knowledge about where the sent data will end up at---or even if there are any receivers at all. Entities in this system find each other not by way of addressing, but rather on the basis of a shared understanding of what \emph{kind of data} they want to exchange. This approach is called \emph{data centricity}. Data centricity is in contrast to message centricity, in which data exchange is driven by \emph{messages}, or \emph{instructions}, which are directed at individual receivers. A prominent example of a message-centric technology is Remote Procedure Call (RPC). To illustrate the difference between the two paradigms consider \todo{direkte ansprache?} the example of a temperature sensor which propagates temperature data to multiple receivers. 
+\subsection{Data-Centric Publish-Subscribe}
+DDS is fundamentally based on the data-centric publish-subscribe (DCPS) communication paradigm. In the publish-subscribe-style communication, data flows between two kinds of entities: publishers and subscribers. Publishers provide data, while subscribers consume that data. A crucial characteristic of publish-subscribe is that data exchange between the peers is anonymous, \ie , publishers have no way of sending data to individual subscribers. Instead, both communicate by means of a shared, logical medium that takes data samples and forwards them to the appropriate receivers. In the context of DDS, this medium is called \emph{topic}. When subscribers receive a data sample they do not know where that sample originated. Similarly, publishers have no knowledge about where the sent data will end up at---or even if there are any receivers at all. Entities in this system find each other not by way of addressing, but rather on the basis of a shared understanding of what \emph{kind of data} they want to exchange. This approach is called \emph{data centricity}. Data centricity is in contrast to \emph{message centricity}, in which data exchange is driven by \emph{messages}, or \emph{instructions}, which are directed at individual receivers. A prominent example of a message-centric technology is Remote Procedure Call (RPC). To illustrate the difference between the two paradigms consider the example of a temperature sensor (henceforth also ``provider'') which propagates temperature data to multiple receivers (henceforth ``consumers''). 
 
-\todo[inline]{beispiel nicht so gut beschrieben}
-In the message-centric paradigm, the sensor transmits data samples encapsulated in messages to the receivers. Messages are directed at each receiver individually, similar to a letter that is addressed to a certain postal address. For this, the sender needs to know the addresses of all interested receivers a-priori. The sender would have to maintain a list of receivers that it needs to update regularly. When a previously uninvolved entity decides to join the communication, it first needs to register to the sensor in order to make its address known. The sender would then have to add the address to its list of receivers. This causes overhead and makes the system inflexible and hard to scale.
+In the message-centric paradigm, the temperature sensor transmits data samples encapsulated in messages to the consumers. Messages are directed at each consumer individually, similar to a letter that is addressed to a certain postal address. This requires each participant to maintain their peers' location information in local memory.  
+Two patterns are common in message-centric communication: ``push-based'', and ``pull-based'' (often ``client-server'' style) communication.
 
-In the DCPS approach, on the other hand, a subscriber that is interested in the sensor's data only knows that it wants to receive \emph{temperature data} while at the same time being entirely oblivious to the concept of \emph{temperature sensors}. 
-Since publishers and subscribers have no references to one another, and know as little of each other as possible, a high level of loose coupling is achieved. This allows for a simple extension of the system, making it extraordinarily scalable.
+If communication is push-based, the sensor needs to know the addresses of all interested consumers a-priori. The provider thus has to maintain a list of consumers that it needs to update continuously. When a previously uninvolved consumer decides that it wants to receive temperature data, it first needs to register to the sensor in order to make its address known. The sensor then has to add the consumer's address to its list of consumers. Similarly, when a consumer is shut down, the sensor needs to remove the respective address, and has to deal with unexpected errors in case a consumer is suddenly unreachable. This (un)registration procedure is the cause of overhead and additional management effort, and makes the system inflexible and hard to scale. In contrast, pull-based communication don't rely on lists of consumers, but consumers request information from the provider. In this regard, pull-based communication is more scalable, however, additional overhead is incurred since two messages (instead of one) need to be transmitted for each data sample: a request and a response. Furthermore, consumers can not predict when a new data sample is available. The situation is made worse when there is not one producer, but many. Thus, both approaches are highly inefficient in the use case at hand.
 
-Through the DCPS approach, DDS aims to provide a virtual \emph{global data space}. In this data space, data is universally accessible for all peers involved in the system. Data is not owned. 
+The DCPS approach, on the other hand, is exclusively push-based. The temperature sensor is a publisher in the publish-subscribe relationship, and the consumers are subscribers. A subscriber that is interested in the sensor's data only knows that it wants to receive \emph{temperature data}, \ie\ data samples of type ``temperature'', and thus, subscribes to the ``temperature'' topic. The subscriber is entirely oblivious to the concept of \emph{temperature sensors}, or even if there are any sensors---it just listens in on that topic. Similarly, the temperature sensor is only concerned with the provisioning of temperature data, and doesn't know which subscribers to send the data to. Thus, the temperature sensor publishes all samples it gathers on the ``temperature'' topic. If more temperature sensors were to be introduced to the system, they could simply be added by registering new publishers which would post data on the same topic. Since all publishers of a topic identify themselves purely on the basis of their topic, and not by their address or location, a great deal of redundancy can be achieved---all publishers of a given topic are entirely interchangeable. 
+Due to the agnostic relationship between publishers and subscribers, a high level of loose coupling is achieved. This allows for a simple extension of the system, making it extraordinarily scalable. 
 
-Each component connected to the system views data as if it were available in a local storage, when in reality, it is distributed among many peers.
+It is often helpful to think of publish-subscribe communication not in terms of messages that are sent from one entity to another, but rather as a \emph{shared global data space} in which data is universally accessible to all entities involved in the system. In this data space, each entity views data as if it were available in a local storage, when in reality, it is distributed among many other entities.
+
+\subsection{Under the Hood}
+Naturally, in order to realize a publish-subscribe system, addresses and locations of nodes are still crucial, as publish-subscribe, like other communication paradigms, rely on IP-based computer networks. This fact, however, is hidden behind the curtains of the middleware (in this case DDS). The middleware is responsible for the registering of publishers/subscribers, the dissemination of data to the appropriate receivers, and the enforcement of network reliability policies. In order to do this efficiently, the middleware maintains lists of subscribers, publishers and topics. Many middlewares employ centralized components called ``brokers'' for this. Depending on the view point, the central nature is brokers may be considered advantageous, or disadvantageous. On the one hand, centralization is associated with simplicity since everything is managed in one spot, and only one single source of truth exists. On the other hand, this approach brings the danger of a single point of failure that causes the whole system to fail if the broker fails. Additionally, centralized brokers may introduce bottlenecks, inhibiting the scalability of the system. As DDS is strongly focused on scalability, DDS employs a \emph{brokerless} architecture in which the functionality of the communication system is distributed among all participating entities. Consequently, message delivery as well as service discovery is performed in a decentralized manner. For this, DDS optionally employs IP multicast, by which is all communication is directed at dedicated multicast group IP addresses, instead of each node's individual address. The delivery of data is then the responsibility of the underlying infrastructure.
+
 
 
 \paragraph{Programming Interface.}
-The DDS standard specifies an API which is split into two separate parts. The main one, which is concerned with \emph{Data-Centric Publish-Subscribe} (DCPS), defines a low level API that enables basic DCPS-style message passing. The second part revolves around a \emph{Data Local Reconstruction Layer} (DLRL). DLRL sits on top of DCPS and is optional. The purpose of DLRL is to provide typed interfaces to messages. The delivered messages are conceived in a format suitable for direct processing in the application -- without the need to check the message's format. More precisely, DCPS performs a transformation of the unprocessed messages into language-specific data types. With the aid of DLRL, type-safety of communication is ensured and verification can be performed at compile-time, which helps to prevent bugs and reduces the application's error-proneness.
+The DDS standard specifies an API which is split into two separate parts. The main one, which is concerned with \emph{Data-Centric Publish-Subscribe} (DCPS), defines a low level API that enables basic DCPS-style message passing. The second part revolves around a \emph{Data Local Reconstruction Layer} (DLRL). DLRL sits on top of DCPS and is optional. The purpose of DLRL is to provide typed interfaces to messages. The delivered messages are conceived in a format suitable for direct processing in the application -- without the need to check the message's format. More precisely, DCPS performs a transformation of the unprocessed messages into language-specific data types. With the aid of DLRL, type-safety of communication is ensured and verification can be performed at compile-time, which helps to prevent bugs and reduces the application's error-proneness. 
 
-
-\paragraph{Decentralization.}
-No single point of failure. No information brokers. no name servers.
 
 \paragraph{Wire Protocol.}
-The DDS standard does not dictate a wire protocol. DDS implementations may therefore utilize UDP, TCP and other protocols to exchange messages. This, and the fact that no common message format is defined, leaves room for ambiguity in the standard. As a result, DDS implementations are by default not interoperable. For this reason, a complementary wire protocol by the name of DDSI-RTPS\footnote{The "DDSI" in DDSI-RTPS is often omitted. The shortened form will henceforth be used.} (DDS Interoperability--Real-Time Publish-Subscribe) was devised. Although RTPS is related to DDS, its specifics are outsourced in a separate standard \cite{rtps-2.2-standard}.
+The DDS standard does not dictate a wire protocol. DDS implementations may therefore utilize UDP, TCP and other protocols to exchange messages. This, and the fact that no common message format is defined, leaves room for ambiguity in the standard. As a result, DDS implementations are by default not interoperable. For this reason, a complementary wire protocol by the name of DDSI-RTPS\footnote{The ``DDSI'' in DDSI-RTPS is often omitted. The shortened form will henceforth be used.} (DDS Interoperability--Real-Time Publish-Subscribe) was devised. Although RTPS is related to DDS, its specifics are outsourced in a separate standard \cite{rtps-2.2-standard}.
 
 
 
@@ -47,17 +49,27 @@ The advantage of data-centric messaging is that it allows a higher abstraction. 
 DDS is a message bus. This is in contrast to a broker-based architecture. A broker enables flexible routing patterns featuring filtering, variable numbers of message queues etc. However, it can be considered a single point of failure.
 
 peer discovery, transport methods, sampling rates, etc. are a matter of configuration
-
-
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+\subsection{Components}
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.8\textwidth]{figures/dds.pdf}
   \caption[An example of a distributed application connected via DDS]{An example of a distributed application connected via DDS}\label{fig:dds}
 \end{figure}
-
-\subsection{DDS Components}
-
-The DDS specification defines a number of components for which it uses its own nomenclature. In the following, each component is described. \autoref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS. 
+The DDS specification defines a number of components which are introduced in the following. \autoref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS. 
 
 \paragraph{Topics.}
 \emph{Topics} form the basis on which peers communicate in the publish-subscribe paradigm. When a Publisher offers a certain kind of data, it does so by means of a Topic. When a data sample should be written, the Publisher pushes that data sample to a Topic appropriate for that sort of data. Conversely, when a Subscriber is interested in receiving data of a certain kind, then it subscribes to a Topic associated with that data. A Topic is defined by a unique identifier (name) and a data type. The data type represents the message format for messages sent over that Topic. For example, a suitable data type for a Topic concerned with temperature data would be a \texttt{struct} containing a single \texttt{float} value representing a temperature reading.
@@ -65,10 +77,10 @@ The DDS specification defines a number of components for which it uses its own n
 In \autoref{fig:dds}, two Topics are depicted (Topic A and Topic B), each with a number of associated Data Writers and Data Readers (see below). 
 
 \paragraph{Publishers and Data Writers.}
-\emph{Publishers} are entities that provide information in the publish-subscribe communication paradigm. Publishers are not bound to a single Topic. Instead, they contain one or more \emph{Data Writers}, each dedicated to a single Topic, who perform the actual message submission. Thus, Publishers may be seen as containers for a number of (unrelated) Data Writers. This concept is emphasized in \autoref{fig:dds} where a Publisher in Application c) controls two independent Data Writers that both write to different Topics.
+\emph{Publishers} are entities that provide information in the publish-subscribe communication paradigm. Publishers are not bound to a single Topic. Instead, they contain one or more \emph{Data Writers}, each dedicated to a single Topic, who perform the actual data submission. Thus, Publishers may be seen as containers for a number of (unrelated) Data Writers. This concept is emphasized in \autoref{fig:dds} where a Publisher in Application c) controls two independent Data Writers that both write to different Topics.
 
 \paragraph{Subscribers and Data Readers.}
-\emph{Subscribers} are the exact compliment to Publishers in that they seek to receive data from Publishers. Analogous to Publishers, Subscribers are a way to group together sets of \emph{Data Readers}. Data Readers are entities whose purpose it is to receive messages from their respective Topic. Through its API, DDS allows Data Writers to receive data in three ways: either by waiting for messages (blocking the main thread), by pro-actively polling for new messages, or by specifying asynchronous callbacks which are invoked whenever a message arrives.
+\emph{Subscribers} are the exact compliment to Publishers in that they seek to receive data from Publishers. Analogous to Publishers, Subscribers are a way to group together sets of \emph{Data Readers}. Data Readers are entities whose purpose it is to receive data samples from their respective Topic. Through its API, DDS allows Data Writers to receive data in three ways: either by waiting for data samples (blocking the main thread), by pro-actively polling for new data samples, or by specifying asynchronous callbacks which are invoked whenever a data sample arrives.
 
 \paragraph{Domains and Domain Participants.}
 \emph{Domains} are the DDS way of grouping together sets of coherent \emph{Domain Participants} and to separate those sets from each other. Speaking in terms of distributed systems, Domains are a mechanism to manage group memberships of nodes \cite{tanenbaum2017distributed}. 
@@ -77,18 +89,11 @@ Domain Participants are entities that belong to a particular Domain. Each Publis
 
 
 \subsection{Quality of Service}
-
-\todo[inline]{get rid of term "service"}
-One of DDS's salient features is its intrinsic QoS support realized by so-called \emph{QoS policies}. QoS policies specify service attributes for controlling each component's behavior and quality properties. They make specifying a service's attributes a matter of \emph{configuration}, rather than \emph{implementation}. For example, consider \todo{direkte ansprache?} a Data Writer which writes data to a Topic at a high rate. A Data Reader may be interested in that data but not at such a high rate, \eg\ because it runs on an embedded device powered by a battery and therefore needs to manage power consumption carefully. The Data Reader may now apply a \tbf , which instructs DDS to block all messages that exceed a specified frequency threshold. This way, the rate of incoming messages can be controlled via configuration. This is beneficial for the programmer as they do not need to accommodate for this at code level, but let the middleware take care of it.
+One of DDS's salient features is its intrinsic support for Quality of Service (QoS), which is realized by so-called \emph{QoS policies}. QoS policies specify attributes for controlling each component's behavior and quality properties. They make specifying a component's behavior a matter of \emph{configuration}, rather than \emph{implementation}. For example, consider a Data Writer which writes data to a Topic at a high rate. A Data Reader may be interested in that data but not at such a high rate, \eg\ because it runs on an embedded device powered by a battery and therefore needs to manage power consumption carefully. The Data Reader may now apply a \tbf , which instructs DDS to block all samples that exceed a specified frequency threshold. This way, the rate of incoming messages can be controlled via configuration. This is beneficial for the programmer as they do not need to accommodate for this at code level, but let the middleware take care of it.
 
 QoS policies can be set for each Topic, Publisher, Subscriber, Data Writer and Data Reader individually. 
 In \autoref{tab:qos}, an excerpt of the available QoS policies is given. For the exhaustive list of all available QoS policies refer to the official standard \cite{dds-1.4-standard}.
 
-%
-%
-%
-%
-%
 \begin{table}[H]
   \caption[An excerpt of DDS QoS policies]{An excerpt of QoS policies}\label{tab:qos}
   \centering
@@ -98,25 +103,19 @@ In \autoref{tab:qos}, an excerpt of the available QoS policies is given. For the
     \midrule
     	\reliability  & \texttt{RELIABLE}, \texttt{BEST\_EFFORT} & Indicates whether a Data Writer may drop samples or whether a Data Reader approves of Data Writers that drop samples.\\
     	\tbf  & An integer value denoting time & Specifies a Data Reader's desired data reception rate. Superfluous samples will be discarded.\\
-    	\liveliness  & An integer value denoting time & Defines the rules to determine whether a particular entity is "alive", \eg\ by emitting heart beats. \\
+    	\liveliness  & An integer value denoting time & Defines the rules to determine whether a particular entity is ``alive'', \eg\ by emitting heart beats. \\
     	\deadline  & An integer value denoting time & Establishes a contract between Data Writer and Data Reader to determine the acceptable data rate. \\
     	\ownership  & \texttt{SHARED}, \texttt{EXCLUSIVE} & Specifies whether multiple Data Writers may write to a given Topic simultaneously or just the one with the highest \ostrength\  value.\\
     	\ostrength  & An integer value denoting relative priority & Determines a Data Writer's priority in cases where its Topic's \ownership\ is set to \texttt{EXCLUSIVE}. \\
-    	%\tpriority  & An integer value denoting relative priority &\\
     \bottomrule
   \end{tabular}
 \end{table}
-%
-%
-%
-%
-%
 
-Another example of a QoS policy is the \deadline\ policy. It specifies the minimum message frequency of a service. If the deadline period of a hypothetical Data Writer is set to, e.g., 100 ms, then this Data Writer is obligated to send a message at least every 100 ms. If it fails to send messages at this rate, the Data Writer and all the respective Topic's readers will be notified about that circumstance and are free to act accordingly.
+Another example of a QoS policy is the \deadline\ policy. It specifies the minimum sampling frequency of a service. If the deadline period of a hypothetical Data Writer is set to, e.g., 100 ms, then this Data Writer is obligated to send a data sample at least every 100 ms. If it fails to send samples at this rate, the Data Writer and all the respective Topic's readers will be notified about that circumstance and are free to act accordingly.
 
 In addition to specifying quality attributes, QoS policies may also serve as service contracts. They specify non-functional requirements that services must fulfill to be able to communicate with each other. For example, a service provider's \reliability\ policy may have been set to the \texttt{BEST\_EFFORT} level, thereby allowing the service to drop samples. A service consumer, on the other hand, may require the service provider's policy to be set to \texttt{RELIABLE}, which prohibits the dropping of samples. Since the service provider only insufficiently fulfills the service consumer's QoS requirements, the services are considered incompatible with each other.
 
-Despite their name, QoS policies do not only concern \emph{quality} attributes per se. They can also be used to specify the priority of messages, their lifespan, \ie , how long they are valid, or how many messages are kept in local memory.
+Despite their name, QoS policies do not only concern \emph{quality} attributes per se. They can also be used to specify the priority of data samples, their lifespan, \ie , how long they are valid, or how many data samples of a certain type are kept in local memory.
 
 \subsection{Implementations}
 DDS, in itself, is only a standard. As such, DDS does not dictate, in detail, how to implement the concepts presented in the earlier sections. A number of DDS implementations from different vendors exist, all varying in terms of standard compliance, features beyond the standard, licensing, and other distinguishing factors. Compatibility between the respective implementations can be achieved by the use of the DDSI-RTPS wire protocol, which all major implementations support.
