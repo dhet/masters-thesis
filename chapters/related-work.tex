@@ -11,25 +11,45 @@ In accordance with the microservice architecture pattern, vehicular functionalit
 %To provide a high degree of tracability, they present a versioning system that allows versioning of individual image layers which seamlessly integrates into their development workflow.
 Similarly, \citeauthor*{schneider2016achieving} \cite{schneider2016achieving} use containerization in a microservice environment for vehicular functionality. However, the authors only focus on the backend part, \ie , services provisioned in data centers that vehicles may connect to. Their approach does not consider the use of microservices \emph{within} the vehicle. In addition, their methodology is described in rather vague terms and lacks detail.
 
-A similar approach to the one presented in this thesis is described by Asad \citeauthor*{javed2016container} \cite{javed2016container} in his master's thesis. In it, he explores the possibility of managing IoT nodes via \docker\ containers and the Kubernetes\footnote{\url{www.kubernetes.io}} container orchestration platform. The employed experimental setup is very similar to the one used in this thesis in that a local cluster of Raspberry Pis is connected in a LAN with cloud access. Attached to some of the Raspberry Pis are cameras that capture images which are then sent to the cloud via Apache Kafka. Like in this thesis, communication between the nodes and the cloud is publish-subscribe-based. However, the approach has a serious drawback: Kubernetes and Kafka are technologies designed for sophisticated cloud environments and are by no means suitable for the use within sensor networks due to their tremendously high system requirements. Moreover, no serious effort is evident to evaluate the approach in a neutral manner.
+A similar approach to the one presented in this thesis is described by Asad \citeauthor*{javed2016container}. In his master's thesis \cite{javed2016container}, he explores the possibility of managing IoT nodes via \docker\ containers and the Kubernetes\footnote{\url{www.kubernetes.io}} container orchestration platform. The employed experimental setup is very similar to the one used in this thesis in that a local cluster of Raspberry Pis is connected in a LAN with cloud access. Attached to some of the Raspberry Pis are cameras that capture images which are then sent to the cloud via Apache Kafka. Like in this thesis, communication between the nodes and the cloud is publish-subscribe-based. However, the approach has a serious drawback: Kubernetes and Kafka are technologies designed for sophisticated cloud environments and are by no means suitable for the use within sensor networks due to their tremendously high system requirements. Moreover, no serious effort is evident to evaluate the approach in a neutral manner.
 \citeauthor*{grossmann2016hypriot} \cite{grossmann2016hypriot} describe another approach related to the previous one. But instead of heavy-weight enterprise container management solutions they follow a more light-weight philosophy. A drawback of their approach is a lack of failure resiliency inherent to their centralized architecture in which a master node may become a single point of failure. A follow-up to that work is presented by \citeauthor*{celesti2017watchdog} \cite{celesti2017watchdog} in which several weak points are addressed.
 
-%
-%
-%
+PubNub\footnote{\url{www.pubnub.com}} is a commercial service that aims to provide publish-subscribe-style communication for large numbers of devices dispersed on a global scale. Their focus lies on IoT devices and mobile phone applications. Thus, there is a pronounced focus on handling mobility challenges such as frequently changing IP addresses and general reliability issues. PubNub is a holistic, all-in-one solution, \ie , their service includes everything from client APIs to infrastructure provisioning. The fact that \mbox{PubNub} is a closed platform severely inhibits its adaptability and limits its applicability---especially for the automotive use case, which is characterized by highly specific requirements. While it may be true that PubNub is a good starting point to kick off new businesses (as advertised), it is doubtful that it is the right tool for the intended use case.
 
-PubNub\footnote{\url{www.pubnub.com}} is a commercial service that aims to provide publish-subscribe-style communication for large numbers of devices dispersed on a global scale. Their focus lies on IoT devices and mobile phone applications. Thus, there is a pronounced focus on handling mobility challenges such as frequently changing IP addresses and general reliability issues. PubNub is a holistic, all-in-one solution, \ie , their service includes everything from client APIs to infrastructure provisioning. This severely inhibits adaptability and therefore limits the product's applicability---especially for the automotive use case, which is characterized by highly specific requirements. While it may be true that PubSub is a good starting point to kick off new businesses (as advertised), it is doubtful that it is the right tool for the intended use case.
+Another commercial product that follows the same goal is offered by ADLINK (formerly PrismTech). ADLINK provides a holistic data sharing platform based on DDS named ``Vortex DDS''. Aside from their own DDS implementation called ``OpenSplice'', the Vortex platform includes a service called ``Vortex Cloud''\footnote{\url{www.prismtech.com/vortex/vortex-cloud}}. Like this thesis' approach, Vortex Cloud aims to connect globally dispersed DDS components, and also provides means to deploy DDS-based applications in the cloud. Unfortunately, no information about the inner workings of Vortex Cloud and its aptitude can be found online. As it is a commercial, closed-source product, this option was not further pursued.
 
-%
-%
-%
+Real-Time Innovations (RTI) is another company which provides an DDS implementation called ``RTI Connext DDS''\footnote{\url{www.rti.com/products}}. A salient feature of Connext is that it supports DDS-based data transmission over WANs natively. However, this ``RTI Secure WAN Transport'' has several drawbacks. Firstly, it needs to be configured on code-level in all applications that participate in the communication network. This is in contrast to the presented approach in which the applications themselves are kept unaware of the fact that they are communicating with distant peers. This agnostic approach promotes loose coupling, simplifies network management, and ultimately enables applications to migrate freely between computing nodes. Further disadvantages of RTI's approach are that it doesn't support multicast, that it requires a central ``rendezvous'' server which acts as a participant repository, and that it is not resilient to connection loss.\footnote{\url{community.rti.com/static/documentation/connext-dds/5.3.0/doc/manuals/connext_dds/html_files/RTI_ConnextDDS_CoreLibraries_UsersManual/index.htm}}
+
+%For this, a central, publicly accessible ``Cloud Discovery Service'' is required which acts as a repository that holds all participating applications' locations. 
+
+\paragraph{IoT}
+Furthermore, much of the work that can be found in the context of IoT is relevant to this thesis. First and foremost, the thoroughly executed and exhaustive survey \cite{nath2018survey} on fog computing by \citeauthor*{nath2018survey} shall be mentioned as highly relevant and recommended reading. In their literature study, the authors present and summarize work pertaining to a variety of subjects related to IoT and embedded computing. 
+%Most notably, they present and summarize work pertaining to service-oriented architectures for embedded systems.
+An important and much-discussed aspect in this domain is the \emph{management} of the of widely dispersed collections of embedded computing nodes that make up pervasive IoT systems. Similar to the system proposed in this thesis, many approaches exist that attempt to master the complexity inherent to these systems by means of service-oriented computing. Notable examples of service-oriented architecture (SOA) frameworks tailored specifically to the IoT and CPS are the SOCRADES project \cite{cannata2008socrades}, the IMC-AESOP project \cite{karnouskos2012soa} and the ARUM project \cite{marin2013conceptual}. Further noteworthy approaches are presented in \cite{butzin2016microservices}, \cite{kart2007distributed}, and \cite{teixeira2011service}. Of particular interest for this thesis are furthermore service-oriented approaches specifically tailored to \emph{automotive} systems. Contributions in this domain are provided, \eg , by \citeauthor*{kugele2017service} \cite{kugele2017service}...
+
+\paragraph{Embedded SOA}
+
+\begin{itemize}
+%\item \cite {scholz2009soa}: \citeauthor*{scholz2009soa} - ∈ SOA-Service Oriented Architectures adapted for embedded networks
+\item \cite{wagner2014developing}: \citeauthor*{wagner2014developing} - Developing self-adaptive automotive systems - On the integration of service-orientation into automotivedevelopment processes -- SOMA4DDAS
+\end{itemize}
 
 
-%
-%
-%
-%
-%
+\paragraph{Containers + Embedded/IoT}
+In recent years, substantial research efforts went into the integration of containerization into resource-constrained embedded systems. 
+\begin{itemize}
+	\item \cite{bellavista2017feasibility} Feasibility of Fog Computing Deployment based on Docker Containerization over RaspberryPi: only considers raspi
+	\item \cite{morabito2017virtualization} Virtualization on internet of things edge devices with container technologies: a performance evaluation: considers more than raspi, in-depth analysis that considers energy consumption, device temperature, as well as I/O and computing performance and other factors.
+	\item resin.io\footnote{\url{www.resin.io}} is a project dedicated to bringing containers to embedded devices. In the past, resin.io have made several significant contributions to enable container-based Continous Integration for embedded systems, and to minimize resource requirements of containerization. For this, they provide their own light-weight container engine called ``balena''\footnote{\url{www.balena.io}} and an accompanying host OS that is deliberately crafted to run containers (``resinOS'').\footnote{\url{www.resinos.io}}
+\end{itemize}
+
+
+
+
+\paragraph{DDS + Cloud}
+\begin{itemize}
+	\item %\cite{corradi2012dds}: propose and implement a decentralized cloud monitoring and management tool based on DDS which allows for [adjective] resource monitoring and VM placement. focuses on short-lived tasks, and not long running processes
+\end{itemize}
 
 \paragraph{DDS over SDN}
 \begin{itemize}
@@ -39,10 +59,11 @@ PubNub\footnote{\url{www.pubnub.com}} is a commercial service that aims to provi
 
 
 \paragraph{Docker specific}
-Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) is \citeauthor*{kratzke2017microservices}'s paper \cite{kratzke2017microservices} on the performance impact of using encrypted overlay networks for Linux containers on top of hypervisors. This setup -- containers atop hypervisors -- is very common in cloud scenarios as IaaS providers often provision servers in the form of virtual machines. This is also the case for the test setup described in this thesis. The author concludes that containers add a non-negligible impact on networking performance. In Weave Net-based overlay networks, the performance is further impaired. A minimal impact was observed when using encryption.
+Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) is \citeauthor*{kratzke2017microservices}'s paper \cite{kratzke2017microservices} on the performance impact of using encrypted overlay networks for Linux containers on top of hypervisors. This setup---containers atop hypervisors---is very common in cloud scenarios as IaaS providers often provision servers in the form of virtual machines. This is also the case for the test setup described in this thesis. The author concludes that containers add a non-negligible impact on networking performance. In \wnet -based overlay networks, the performance is further impaired, and another, less-significant impact is observed when employing encryption. This is in contrast to the benchmark results presented in this thesis, which suggest that both technologies incur a very minor overhead.
 
 % does not consider weave fast datapath
 % argues that weave would be faster if the weave routers weren't packaged in containers
+
 
 
 \paragraph{DDS + Virtualization}
@@ -82,21 +103,6 @@ Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) i
 In \cite{chun2011clonecloud} \citeauthor*{barbera2013offload} present \emph{Clone Cloud}, a system to offload workload from mobile applications to the cloud. They employ a combination of static analysis and dynamic profiling to automatically partition mobile applications. repartitioning is thread-wise. They achieve a 20-fold execution speed-up and 20-fold decrease of energy consumption.
 
 MAUI is not as automatic. Requires program code to be annotated.
-
-
-\paragraph{Embedded SOA}
-Work on service-oriented architectures is available in abundance. However, few attempts were made to build such architecture on top of embedded systems
-
-\begin{itemize}
-%\item \cite {scholz2009soa}: \citeauthor*{scholz2009soa} - ∈ SOA-Service Oriented Architectures adapted for embedded networks
-\item \cite{kugele2017service}: \citeauthor*{kugele2017service} - On Service-Orientation for Automotive Software
-\item \cite{wagner2014developing}: \citeauthor*{wagner2014developing} - Developing self-adaptive automotive systems - On the integration of service-orientation into automotive
-development processes -- SOMA4DDAS
-\end{itemize}
-
-
-
-
 
 \paragraph{Other}
 \citeauthor*{broy2006challenges} \cite{broy2006challenges}: Challenges in automotive software engineering... Takeaways: increasing amounts of code in cars, increasing complexity. Software is the main innovation driver. Broy states challenges, gives an industry profile of automotive industry. Lists requirements that are very different from other domains. Current development practices in the industry are lacking.
