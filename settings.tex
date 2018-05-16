@@ -83,3 +83,11 @@
   frame=single
 }
 \renewcommand{\lstlistlistingname}{List of Code Listings}
+
+\usepackage{afterpage}
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}

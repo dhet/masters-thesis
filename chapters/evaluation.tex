@@ -10,7 +10,7 @@ The test environment's network topology is depicted in \autoref{fig:network-topo
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=\textwidth]{figures/network-setup}
+  \includegraphics[width=0.8\textwidth]{figures/network-setup}
   \caption[Network topology of the experimental setup]{The experimental setup's network topology}\label{fig:network-topology}
 \end{figure}
 %
@@ -18,8 +18,7 @@ Representative of the ``cloud'' in the tests is a single root server supplied by
 
 Throughout the whole study the software composition remained unchanged. As DDS implementation \emph{OpenDDS}\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (no service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL), by which messages are converted into type safe data structures, was used. The overhead caused by this was evaluated and discussed in section \ref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in section \ref{sec:failovertest}. Moreover, all benchmarks were programmed in C++ to maximize their run-time performance.
 
-Naturally, in the benchmarks concerned with the testing of \wnet  , containers were connected by means of a \wnet\ overlay network. For the connection between all local nodes (on-premise), fast datapath forwarding mode was used. Due to the characteristics of the network between the local nodes and the cloud, fast datapath was not applicable for that connection. Consequently, local containers and cloud containers were connected via sleeve mode.
-
+Naturally, in the benchmarks concerned with the testing of \wnet , containers were connected by means of a \wnet\ overlay network. For the connection between all local nodes (on-premise), fast datapath forwarding mode was used. Due to the characteristics of the network between the local nodes and the cloud, fast datapath was not applicable for that connection. Consequently, local containers and cloud containers were connected via sleeve mode.
 The detailed specifications of the involved computing nodes and the employed software are given in \autoref{tab:test-specs}
 %
 \begin{table}[H]
@@ -54,11 +53,9 @@ The detailed specifications of the involved computing nodes and the employed sof
 %
 %
 %
-\pagebreak
 \section{Benchmarks}
 
 \subsection{Latency Benchmark} \label{sec:plainlatency}
-
 \paragraph{Motivation.} An essential non-functional requirement for computer networks is responsiveness. Especially in real-time systems, where timing requirements must be met, it is vital that information exchange is performed in the fastest, most predictable way possible. A common metric for a network's responsiveness is latency. Latency is usually measured by the time it takes for a packet to be transmitted from one peer to another and back again. The unit of this measure is round-trip time (RTT), and is typically indicated in milliseconds. 
 
 To evaluate the aptitude of the presented system it is essential to consider the latency overhead that \weave\ overlay networks incur. Since the approach is intended to work over the Internet---and public networks are inherently insecure---encryption is vital. Thus, in addition to the overhead induced by the overlay network itself, the overhead caused by encryption is also of interest. Hence, tests are needed measuring latency not only of \emph{plain} overlay networks but also of \emph{encrypted} overlay networks.

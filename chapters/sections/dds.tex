@@ -1,7 +1,8 @@
-\section{Data Distribution Service}
+\section{Data Distribution Service for Data Exchange}
 
 Data Distribution Service (DDS) is a messaging middleware standard \cite{dds-1.4-standard} for distributed applications. The standard is designed for mission- and business critical systems with real-time requirements. As such, DDS aims to function in a resource efficient, predictable and reliable manner, and is subject to minimal computational and transport overhead.
 \todo{benchmarks die das belegen?}
+Thus, DDS is a great fit for the automotive use case.
 
 \subsection{Data-Centric Publish-Subscribe}
 DDS is fundamentally based on the data-centric publish-subscribe (DCPS) communication paradigm. In the publish-subscribe-style communication, data flows between two kinds of entities: publishers and subscribers. Publishers provide data, while subscribers consume that data. A crucial characteristic of publish-subscribe is that data exchange between the peers is anonymous, \ie , publishers have no way of sending data to individual subscribers. Instead, both communicate by means of a shared, logical medium that takes data samples and forwards them to the appropriate receivers. In the context of DDS, this medium is called \emph{topic}. When subscribers receive a data sample they do not know where that sample originated. Similarly, publishers have no knowledge about where the sent data will end up at---or even if there are any receivers at all. Entities in this system find each other not by way of addressing, but rather on the basis of a shared understanding of what \emph{kind of data} they want to exchange. This approach is called \emph{data centricity}. Data centricity is in contrast to \emph{message centricity}, in which data exchange is driven by \emph{messages}, or \emph{instructions}, which are directed at individual receivers. A prominent example of a message-centric technology is Remote Procedure Call (RPC). To illustrate the difference between the two paradigms consider the example of a temperature sensor (henceforth also ``provider'') which propagates temperature data to multiple receivers (henceforth ``consumers''). 
@@ -120,6 +121,50 @@ Another example of a QoS policy is the \deadline\ policy. It specifies the minim
 In addition to specifying quality attributes, QoS policies may also serve as ``service contracts'' between interacting DDS components. These contracts specify non-functional requirements that the involved components must fulfill to be able to communicate with each other. For example, a Data Writer's \reliability\ policy may have been set to the \texttt{BEST\_EFFORT} level, thereby allowing the writer to drop samples. A Data Reader, on the other hand, may require the writer's policy to be set to \texttt{RELIABLE}, which prohibits the dropping of samples. Since the writer does not fulfill the reader's QoS requirements, the two components are considered incompatible, and thus, they cannot interact with each other.
 
 Despite their name, QoS policies do not only concern \emph{quality} attributes per se. They can also be used to specify the priority of data samples, their lifespan, \ie , how long they are valid, or how many data samples of a certain type are kept in local memory.
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+\subsection{Redundancy and Automatic Failover} \label{sec:failover}
+DDS has ways to ensure reliable communication---even over unreliable transmission channels. Part of reliability is failure transparency, \ie , the ability to quickly substitute failed components by backup components. The substitution process involves two steps: first, the failure needs to be detected. Second, a backup component needs to be instructed to take over. By means of the three QoS policies \ownership , \ostrength\ and \liveliness\ (\cf \autoref{tab:qos}), DDS may realize this process.
+
+As the first step, a mechanism needs to determine whether a component has failed. In most cases, it is not possible for a failing component to properly shut down and ``sign off'', \ie , to notify the rest of the system that it will become unavailable. For this reason, the failure needs to be automatically registered. The \liveliness\ policy can be used to achieve this. \liveliness\ is the mechanism that determines whether a component is responsive (``alive''), or unresponsive (``dead''). The policy's value can be set to number indicating the maximum time interval between each liveliness signal. If a component fails to show a vital sign during that period, it is considered dead by the rest of the system. Passive components, \ie\ those which do not actively emit data, can be instructed to automatically send liveliness signals, or heartbeats, in certain intervals.
+
+After a component has been declared dead it is up to the middleware to elect a substitute component. This is done through the \ownership\ and \ostrength\ QoS policies. By assigning a topic the \ownership\ value ``\qos{exclusive}'' one can specify that only a single data writer may write to that topic at any given time. Which data writer is given that prerogative is determined by the data writer's \ostrength\ value. The data writer that possesses the higher value is eligible to write to the topic. In the failover scenario, both, the primary data writer and the backup writer are assigned to the same topic, and both are configured to have exclusive \ownership\ rights. The former one has a higher \ostrength\ than the latter one. Based on both writer's \ostrength\ values, it is decided which one has precedence over the other.
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%\subsection{Separation of User Data}
+%The presented approach relies on a single cloud infrastructure, while at the same time, a vast number of customers need to be served. This poses a challenge concerning the separation of data. Confidentiality and privacy of user-specific application data must be preserved. Similarly, the result of a computation commissioned by a specific vehicle must be returned to exactly that vehicle, and no one else. 
+
+%Gladly, DDS offers a solution to this. In DDS, topics are not restricted to a single domain, \ie , they may be reused in multiple domains. If, \eg , a publisher belongs to \texttt{Domain $\alpha$} and publishes data on \texttt{Topic A}. Then, a data reader that reads from \texttt{Topic A} but belongs to \texttt{Domain $\beta$} may not read the data. Therefore, through domains, the same application may be reused several times on the same network, while keeping topic data separate. This principle is taken advantage of in the presented approach: domains are used to separate user data, such that for each user there is one user-specific domain. Thus, there is no way that data from one vehicle may interfere with data from another vehicle.
+
+\subsection{DDS for Automotive Systems}
+Automotive software systems have previously relied---and, to some degree, will continue to do so---on low-level, low-bandwidth transport protocols such as CAN, LIN, etc. For the longest time, networks stacks based on those protocols were sufficient to meet the basic requirements of delivering vehicular sensor data. However, driven by the emergence of innovative functions, the demands for vehicle intrinsic networks are skyrocketing. In particular, more and more sensor data from increasingly bandwidth-hungry sensors, such as cameras and lidars is feeding into advanced systems such as ADAS. 
+%At the same time, these functions require computational capabilities that go way beyond of what is possible with the microcontrollers typically used in traditional ECUs. High-performance computer systems based on high-level operating systems, supported by bandwidth-friendly networking protocols are needed to meet the new requirements. 
+A new generation of low-level network protocols found their way into the vehicle. Notable mentions are FlexRay, and TSN. A question that remains is whether DDS is a suitable choice for the use within vehicles, and whether DDS may be used efficiently on top of these lower level protocols. \citeauthor*{bouhouch2013dds} have shown \cite{bouhouch2013dds} that DDS is indeed a suitable middleware to be used in vehicular networks.
+
+DDS allows to configure how much of a system's resources an DDS-enabled application may use. Consequently, it is the middleware's responsibility to allocate resources as needed while still staying within the specified boundaries. At the same time, priorities aligning with the application's QoS settings need to be considered. DDS takes this burden off the programmer's shoulders.
+\todo[inline]{TODO}
+
+
 %
 %
 %
