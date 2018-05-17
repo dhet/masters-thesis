@@ -2,7 +2,7 @@
 
 \paragraph{Similar Approaches}
 
-In their paper, \citeauthor*{berger2017containerized} \cite{berger2017containerized} describe their experiences of employing containerization in the context of self-driving vehicles. 
+In their paper, \citeauthor*{berger2017containerized} \cite{berger2017containerized} describe their experiences of employing containerization in the context of self-driving vehicles.
 In accordance with the microservice architecture pattern, vehicular functionality in their approach is split into a number of fine-granular services deployed on distributed nodes within the vehicle. The services are connected via OpenDaVINCI\footnote{\url{code.opendavinci.org}}, a real-time capable middleware for publish-subscribe communication. This approach is very similar to the one proposed in this thesis in that communication is based on multicast over a middleware. However, their approach lacks cloud connectivity. The authors furthermore struggle to get multicast to work over Docker overlay networks---a problem that was solved in this thesis.
 %The interplay of their services is based on a \emph{pipes-and-filters} methodology.
 %Multi platform images are achieved through different base layers employing different compilers. Disadvantage: containers cannot be moved freely between nodes of different hardware architectures.
@@ -20,10 +20,10 @@ Another commercial product that follows the same goal is offered by ADLINK (form
 
 Real-Time Innovations (RTI) is another company which provides an DDS implementation called ``RTI Connext DDS''\footnote{\url{www.rti.com/products}}. A salient feature of Connext is that it supports DDS-based data transmission over WANs natively. However, this ``RTI Secure WAN Transport'' has several drawbacks. Firstly, it needs to be configured on code-level in all applications that participate in the communication network. This is in contrast to the presented approach in which the applications themselves are kept unaware of the fact that they are communicating with distant peers. This agnostic approach promotes loose coupling, simplifies network management, and ultimately enables applications to migrate freely between computing nodes. Further disadvantages of RTI's approach are that it doesn't support multicast, that it requires a central ``rendezvous'' server which acts as a participant repository, and that it is not resilient to connection loss.\footnote{\url{community.rti.com/static/documentation/connext-dds/5.3.0/doc/manuals/connext_dds/html_files/RTI_ConnextDDS_CoreLibraries_UsersManual/index.htm}}
 
-%For this, a central, publicly accessible ``Cloud Discovery Service'' is required which acts as a repository that holds all participating applications' locations. 
+%For this, a central, publicly accessible ``Cloud Discovery Service'' is required which acts as a repository that holds all participating applications' locations.
 
 \paragraph{IoT}
-Furthermore, much of the work that can be found in the context of IoT is relevant to this thesis. First and foremost, the thoroughly executed and exhaustive survey \cite{nath2018survey} on fog computing by \citeauthor*{nath2018survey} shall be mentioned as highly relevant and recommended reading. In their literature study, the authors present and summarize work pertaining to a variety of subjects related to IoT and embedded computing. 
+Furthermore, much of the work that can be found in the context of IoT is relevant to this thesis. First and foremost, the thoroughly executed and exhaustive survey \cite{nath2018survey} on fog computing by \citeauthor*{nath2018survey} shall be mentioned as highly relevant and recommended reading. In their literature study, the authors present and summarize work pertaining to a variety of subjects related to IoT and embedded computing.
 %Most notably, they present and summarize work pertaining to service-oriented architectures for embedded systems.
 An important and much-discussed aspect in this domain is the \emph{management} of the of widely dispersed collections of embedded computing nodes that make up pervasive IoT systems. Similar to the system proposed in this thesis, many approaches exist that attempt to master the complexity inherent to these systems by means of service-oriented computing. Notable examples of service-oriented architecture (SOA) frameworks tailored specifically to the IoT and CPS are the SOCRADES project \cite{cannata2008socrades}, the IMC-AESOP project \cite{karnouskos2012soa} and the ARUM project \cite{marin2013conceptual}. Further noteworthy approaches are presented in \cite{butzin2016microservices}, \cite{kart2007distributed}, and \cite{teixeira2011service}. Of particular interest for this thesis are furthermore service-oriented approaches specifically tailored to \emph{automotive} systems. Contributions in this domain are provided, \eg , by \citeauthor*{kugele2017service} \cite{kugele2017service}...
 
@@ -36,7 +36,7 @@ An important and much-discussed aspect in this domain is the \emph{management} o
 
 
 \paragraph{Containers + Embedded/IoT}
-In recent years, substantial research efforts went into the integration of containerization into resource-constrained embedded systems. 
+In recent years, substantial research efforts went into the integration of containerization into resource-constrained embedded systems.
 \begin{itemize}
 	\item \cite{bellavista2017feasibility} Feasibility of Fog Computing Deployment based on Docker Containerization over RaspberryPi: only considers raspi
 	\item \cite{morabito2017virtualization} Virtualization on internet of things edge devices with container technologies: a performance evaluation: considers more than raspi, in-depth analysis that considers energy consumption, device temperature, as well as I/O and computing performance and other factors.
@@ -59,7 +59,7 @@ In recent years, substantial research efforts went into the integration of conta
 
 
 \paragraph{Docker specific}
-Relevant for the evaluation part of this thesis (\autoref{chapter:evaluation}) is \citeauthor*{kratzke2017microservices}'s paper \cite{kratzke2017microservices} on the performance impact of using encrypted overlay networks for Linux containers on top of hypervisors. This setup---containers atop hypervisors---is very common in cloud scenarios as IaaS providers often provision servers in the form of virtual machines. This is also the case for the test setup described in this thesis. The author concludes that containers add a non-negligible impact on networking performance. In \wnet -based overlay networks, the performance is further impaired, and another, less-significant impact is observed when employing encryption. This is in contrast to the benchmark results presented in this thesis, which suggest that both technologies incur a very minor overhead.
+Relevant for the evaluation part of this thesis (\Cref{chapter:evaluation}) is \citeauthor*{kratzke2017microservices}'s paper \cite{kratzke2017microservices} on the performance impact of using encrypted overlay networks for Linux containers on top of hypervisors. This setup---containers atop hypervisors---is very common in cloud scenarios as IaaS providers often provision servers in the form of virtual machines. This is also the case for the test setup described in this thesis. The author concludes that containers add a non-negligible impact on networking performance. In \wnet -based overlay networks, the performance is further impaired, and another, less-significant impact is observed when employing encryption. This is in contrast to the benchmark results presented in this thesis, which suggest that both technologies incur a very minor overhead.
 
 % does not consider weave fast datapath
 % argues that weave would be faster if the weave routers weren't packaged in containers
