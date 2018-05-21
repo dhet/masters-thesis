@@ -4,22 +4,17 @@ In the two previous chapters, this thesis' main approach was presented and an ex
 
 \section{Experimental Setup}\label{sec:testsetup}
 
-As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For this thesis, the testbed was extended by a network link to the Internet to enable cloud connectivity.
+As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures.} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For this thesis, the testbed was extended by a network link to the Internet to enable cloud connectivity.
 
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.8\textwidth]{figures/network-setup}
   \caption[Network topology of the experimental setup]{The experimental setup's network topology}\label{fig:network-topology}
 \end{figure}
-The test environment's network topology is depicted in \Cref{fig:network-topology}. The original testbed (``on-premise'') consists of three ARM-based SBCs (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces are connected by a Gigabit LAN switch (left-hand side in \Cref{fig:network-topology}). The three nodes represent on-board computing devices in a hypothetical vehicle. Furthermore, connected to the switch is also a workstation which fulfills the sole purpose of conducting the tests, \ie , it is not directly involved in the test execution per se. The local test environment is connected to the remote data center through a 100 Mbit/s broadband Internet connection.
+The test environment's network topology is depicted in \Cref{fig:network-topology}. The original testbed (``on-premise'') consists of three ARM-based SBCs\footnote{``Single-Board Computers''} (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces are connected by a Gigabit LAN switch (left-hand side in \Cref{fig:network-topology}). The three nodes represent on-board computing devices in a hypothetical vehicle. Furthermore, connected to the switch is also a workstation which fulfills the sole purpose of conducting the tests, \ie , it is not directly involved in the test execution per se. The local test environment is connected to the remote data center through a 100 Mbit/s broadband Internet connection.
 
 Representative of the ``cloud'' in the tests is a single root server supplied by the cloud provider DigitalOcean\footnote{\url{www.digitalocean.com}} (right-hand side in \Cref{fig:network-topology}). To ensure realistic latency values, a server location was chosen that was in the vicinity of the test setup---but not too close. Considering its vicinity to Munich, Frankfurt (Main) was a suitable choice. The two cities are about 300 km away from each other (as the crow flies).
 
-Throughout the whole study, the software composition remained unchanged. As DDS implementation OpenDDS\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (without service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL), by which messages are converted into type safe data structures, was used. The overhead caused by this is evaluated and discussed in \Cref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in \Cref{sec:failovertest}. Moreover, all benchmark programs were developed in the C++ language to maximize their run-time performance.
-
-Naturally, in the benchmarks concerned with the testing of \wnet , containers were connected by means of a \wnet\ overlay network. For the connection between all local nodes (on-premise), fast datapath forwarding mode was used. Due to the characteristics of the network between the local nodes and the cloud, fast datapath was not applicable for that connection. Consequently, local containers and cloud containers were connected via sleeve mode.
-The detailed specifications of the involved computing nodes and the employed software are given in \Cref{tab:test-specs}
-%
 \begin{table}[H]
   \caption[Test environment specifications]{Test environment specifications}\label{tab:test-specs}
   \centering
@@ -42,6 +37,14 @@ The detailed specifications of the involved computing nodes and the employed sof
     \bottomrule
   \end{tabular}
 \end{table}
+
+Throughout the whole study, the software composition remained unchanged. As DDS implementation OpenDDS\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (without service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL), by which messages are converted into type safe data structures, was used. The overhead caused by this is evaluated and discussed in \Cref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in \Cref{sec:failovertest}. Moreover, all benchmark programs were developed in the C++ language to maximize their run-time performance.
+
+Naturally, in the benchmarks concerned with the testing of \wnet , containers were connected by means of a \wnet\ overlay network. For the connection between all local nodes (on-premise), fast datapath forwarding mode was used. Due to the characteristics of the network between the local nodes and the cloud, fast datapath was not applicable for that connection. Consequently, local containers and cloud containers were connected via sleeve mode.
+The detailed specifications of the involved computing nodes and the employed software are given in \Cref{tab:test-specs}
+
+
+%
 %
 %
 %
@@ -64,7 +67,7 @@ To evaluate the aptitude of the presented system it is essential to consider the
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=\textwidth]{figures/ping-test}
+  \includegraphics[width=0.9\textwidth]{figures/ping-test}
   \caption[Latency experiment setup]{Latency experiment investigating three cases.
 \begin{inparaenum}[a)]
   \item \experim{Plain}: two hosts connected without overlay network.
@@ -84,12 +87,14 @@ Three experiments were conducted, comparing the average latencies of
 \end{inparaenum}
 (\cf Figure \ref{fig:latency-setup}). The results from \experim{Plain} serve as the baseline for the two consecutive experiments. In each test run 3000 pings, each with a payload of 1 KB were transmitted. The sending peer would wait for the response of the previous message before sending another request. Thus, only one packet was in flight at a time.
 
-\paragraph{Results.} \Cref{fig:latency-relative} depicts the results of the benchmark. The Y-values of the chart represent the average round trip time of the 3000 pings. Note that the Y-axis is cropped to the interval between 28 and 29 ms to emphasize the differences in the bars' heights. The results reveal that the latency overhead incurred by \wnet\ is very minor. In the case of plain host-to-host communication (\experim{Plain}), round trips took on average 28.4 ms. When sending the pings over a \weave\ overlay (\experim{Weave}), RTTs increased to an average of 28.6 ms, which is equivalent to an 0.9\% increase. Lastly, in the case of encrypted overlay networking (\experim{Encrypted}), the average RTTs reached a maximum of 29.0 ms---an increase of 2.1\% compared to \experim{Plain}.
+\paragraph{Results.} 
+\Cref{fig:latency-relative} depicts the results of the benchmark. The Y-values of the chart represent the average round trip time of the 3000 pings. Note that the Y-axis is cropped to the interval between 28 and 29 ms to emphasize the differences in the bars' heights. The results reveal that the latency overhead incurred by \wnet\ is very minor. In the case of plain host-to-host communication (\experim{Plain}), round trips took on average 28.4 ms. When sending the pings over a \weave\ overlay (\experim{Weave}), RTTs increased to an average of 28.6 ms, which is equivalent to an 0.9\% increase. Lastly, in the case of encrypted overlay networking (\experim{Encrypted}), the average RTTs reached a maximum of 29.0 ms---an increase of 2.1\% compared to \experim{Plain}.
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.45\textwidth]{figures/ping-bar}
+  \includegraphics[width=0.4\textwidth]{figures/ping-bar}
   \caption[\weave\ latency experiment results]{Average round trip times in the scenarios \experim{Plain}, \experim{Weave}, and \experim{Encrypted}}\label{fig:latency-relative}
 \end{figure}
+
 %
 %
 %
@@ -106,15 +111,15 @@ In modern vehicles, unprecedented amounts of data, originating from cameras, lid
 
 \paragraph{Method.} To measure throughput, the tool \emph{iperf3}\footnote{\url{www.iperf.fr}} was used. iperf continuously sends data from one node to another over a TCP/IP connection. From the volume of the transmitted data and the duration of the transmission, the effective network throughput can be calculated. In each test run iperf would continuously send as much data as possible within a timeframe of 60 seconds. As in the previous test, three scenarios were tested:  \experim{Plain}, \experim{Weave}, and \experim{Encryped}. Explanations of these scenarios can be found in the description of the previous test.
 
-A fact to consider is that routing packets over overlays is computationally expensive---even to the extent that at a certain point the CPU may become the bottleneck of the operation. In other words, network throughput may hit a boundary incurred by insufficient computing resources, even though the networking capacity is not entirely exhausted. This experiment investigates the case where enough computing resources are available, such that the network channel's capacity is the limiting factor. The case where the CPU's performance is insufficient is investigated in the experiment after this one (\cf \ref{sec:utilization}).
+A fact to consider is that routing packets over overlays is computationally expensive---even to the extent that at a certain point the CPU may become the bottleneck of the operation. In other words, network throughput may hit a boundary incurred by insufficient computing resources, even though the networking capacity is not entirely exhausted. This experiment investigates the case where enough computing resources are available, such that the network channel's capacity is the limiting factor. The case where the CPU's performance is insufficient is investigated in the experiment after this one (\cf \Cref{sec:utilization}).
 
 \paragraph{Results.}
-The results of this benchmark are depicted in \Cref{fig:throughput}. The results show that unencrypted \wnet\ (\experim{Weave}) slightly reduces throughput performance when compared to \experim{Plain} scenario (5\% reduction). When furthermore encryption is applied to the overlay network (\experim{Encrypted}), an additional throughput impairment can be observed. Overall, encryption incurs an overhead of 6.7\% compared to the \experim{Plain} scenario. These values can be considered decent. Once more, it shall be noted that in this case enough computational resources were available. \Ie , the CPU was not fully utilized but the network channel was at its limits.
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.4\textwidth]{figures/throughput}
   \caption[\weave\ throughput benchmark results]{Relative throughput in the scenarios \experim{Plain}, \experim{Weave}, and \experim{Encrypted}}\label{fig:throughput}
 \end{figure}
+The results of this benchmark are depicted in \Cref{fig:throughput}. The results show that unencrypted \wnet\ (\experim{Weave}) slightly reduces throughput performance when compared to \experim{Plain} scenario (5\% reduction). When furthermore encryption is applied to the overlay network (\experim{Encrypted}), an additional throughput impairment can be observed. Overall, encryption incurs an overhead of 6.7\% compared to the \experim{Plain} scenario. These values can be considered decent. Once more, it shall be noted that in this case enough computational resources were available. \Ie , the CPU was not fully utilized but the network channel was at its limits.
 %
 %
 %
@@ -125,8 +130,10 @@ The results of this benchmark are depicted in \Cref{fig:throughput}. The results
 %
 %
 %
+
+
 \subsection{Resource Utilization Test} \label{sec:utilization}
-\paragraph{Motivation.} The routing of data packets through an overlay puts significant load on the host's CPU. Under circumstances, the transmission of data, which is typically an IO-bound operation, might become CPU-bound. In this situation the CPU becomes the bottleneck of the operation. In embedded systems, in which computing resources are limited, this might be problematic. Hence, an experiment was designed aimed to investigate the impact of overlays on CPU utilization.
+\paragraph{Motivation.} The routing of data packets through an overlay puts significant load on the host's CPU. Under circumstances, the transmission of data, which is typically an I/O-bound operation, might become CPU-bound. In this situation the CPU becomes the bottleneck of the operation. In embedded systems, in which computing resources are limited, this might be problematic. Hence, an experiment was designed aimed to investigate the impact of overlays on CPU utilization.
 
 \paragraph{Method.} In this experiment, sample data was sent from a Raspberry Pi to the remote host via iperf (\cf \Cref{sec:throughput}) over an encrypted \wnet\ overlay. During the time of data transmission, CPU utilization was measured using the Linux tool \emph{sar}. 25 test runs were conducted using different bandwidth settings: bandwidth was gradually increased in 1 Mbit/s increments, starting at 1 Mbit/s, and ending in 25 Mbit/s. This bandwidth will be called \emph{target bandwidth} in the following. The target bandwidth is an artificially imposed upper bound and may differ quite substantially from the bandwidth that is actually achieved. The achieved bandwidth will be called \emph{observed bandwidth}, or \emph{throughput}.
 
@@ -150,10 +157,10 @@ However, the maximum (theoretically) achievable throughput in the test setup was
 %
 %
 %
-
+\pagebreak
 \subsection{DDS Latency Benchmark} \label{sec:ddslatency}
 
-\paragraph{Motivation.} So far, all experiments were concerned with \wnet\ exclusively and did not involve DDS. To the best of the author's knowledge, there are no empirical studies yet on how well DDS performs in VXLAN-based overlay networks spanning over the Internet. Hence, benchmarks were conducted to evaluate latency overhead incurred by DDS in such scenarios.
+\paragraph{Motivation.} So far, all experiments were concerned with \wnet\ exclusively and did not involve DDS. To the best of the author's knowledge, there are no empirical studies yet on how well DDS performs in overlay networks spanning over the Internet. Hence, benchmarks were conducted to evaluate latency overhead incurred by DDS in such scenarios.
 
 \paragraph{Method.} The method of this experiment is similar to the previous latency experiment (section \ref{sec:plainlatency}) in that the RTT between two hosts connected over the Internet are used as the measure of latency. Two cases are investigated:
 \begin{inparaenum}[(i)]
@@ -164,7 +171,7 @@ For the former case, the ICMP ping results from the previous latency experiment 
 
 Of course, sending data via DDS entails a lot more than simple ICMP pings, like \eg\ the marshaling and parsing of messages. The comparison with ICMP is therefore a very ambitious one. As ICMP pings require very little processing, the largest part of the measured round trip time accounts for pure message transmission. ICMP ping is therefore a good reference point to measure the overhead induced by DDS, and in particular, RTPS.
 
-The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network (``\experim{Encrypted}'') to ensure practical experiment conditions. Both times, ping messages carried a payload of 1 kB. The results presented below are the average values calculated from 300 pings.
+The tests in both cases (ICMP an DDS) were performed in an encrypted \wnet\ overlay network (``\experim{Encrypted}'') to ensure practical experiment conditions. Both times, ping messages carried a payload of 1 kB. The results presented below are calculated from 300 pings.
 
 
 \paragraph{Results.}
@@ -201,13 +208,13 @@ The results of the benchmark are presented in \Cref{tab:dds-latency}. The overhe
 %
 %
 \subsection{Failover Test}\label{sec:failovertest}
-\paragraph{Motivation.} The presented approach allows for many innovative usage scenarios. For instance, consider the following situation: A service running on an on-board computer within a vehicle suddenly fails, \eg\ due to a hardware defect. As a reaction, a fallback service needs to take over. Consider now that the fallback service is not running on another on-board computer but within the cloud. Through DDS QoS policies, a failover mechanism can be realized (\cf \ref{sec:failover}) which allows for a quick transition to the remote backup service. An interesting question is how long the whole failover process, \ie\ switching to a backup service in case of failure, takes in a cloud scenario.
+\paragraph{Motivation.} The presented approach allows for many innovative usage scenarios. For instance, consider the following situation: A service running on an on-board computer within a vehicle suddenly fails, \eg\ due to a hardware defect. As a reaction, a fallback service needs to take over. Consider now that the fallback service is not running on another on-board computer but within the cloud. Through DDS QoS policies, a failover mechanism can be realized (\cf \Cref{sec:failover}) which allows for a quick transition to the remote backup service. An interesting question is how long the whole failover process, \ie\ switching to a backup service in case of failure, takes in a cloud scenario.
 
 \newcommand{\proda}{$S\textsubscript{A}$}
 \newcommand{\prodb}{$S\textsubscript{A*}$}
 \newcommand{\cons}{$S\textsubscript{B}$}
 
-\paragraph{Method.} To test the performance of DDS's failover qualities an experiment was designed to replicate a scenario in which a service fails so that another, remote service must take over. In the test scenario there are three services: two services which continuously produce data (\proda , \prodb) in the interval $t_i$, and one which consumes the data (\cons). \proda\ has precedence over \prodb\ (\ie\ it possesses a higher \ownership\ value) and is therefore the ``main supplier'', while \prodb\ is considered the ``backup supplier''. \proda\ and \cons\ are both deployed two on separate Raspberry Pis (representative of two ECUs in a vehicle), and \prodb\ is running in the cloud. A schematic of the experiment is depicted in \Cref{fig:failover}. It shall be noted that, contrary to what the figure suggests, communication is not point-to-point, but topic-based. \proda\ as well as \prodb\ publish data samples on the same topic and \cons\ is subscribed to that topic.
+\paragraph{Method.} To test the performance of DDS's failover qualities an experiment was designed to replicate a scenario in which a service fails so that another, remote service must take over. In the test scenario, there are three services: two services which continuously produce data (\proda , \prodb) in the interval $t_i$, and one which consumes the data (\cons). \proda\ has precedence over \prodb\ (\ie\ it possesses a higher \ownership\ value) and is therefore the ``main supplier'', while \prodb\ is considered the ``backup supplier''. \proda\ and \cons\ are both deployed on two separate Raspberry Pis (representative of two ECUs in a vehicle), and \prodb\ is running in the cloud. A schematic of the experiment is depicted in \Cref{fig:failover}. It shall be noted that, contrary to what the figure suggests, communication is not point-to-point, but topic-based. \proda\ as well as \prodb\ publish data samples on the same topic and \cons\ is subscribed to that topic.
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.5\textwidth]{figures/takeover}
