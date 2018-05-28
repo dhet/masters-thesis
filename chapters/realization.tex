@@ -36,7 +36,7 @@ In this thesis' approach, services and their dependencies shall be encapsulated 
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.9\textwidth]{figures/docker-arch.pdf}
+  \includegraphics[width=0.7\textwidth]{figures/docker-arch.pdf}
   \caption[\docker\ architecture]{\docker\ architecture}\label{fig:docker-arch}
 \end{figure}
 
@@ -58,8 +58,8 @@ An example of a Dockerfile is depicted in \Cref{lst:dockerfile}. The first line 
 By running the command \ \mbox{\texttt{docker build -t IMAGENAME .}} \ in the directory of the Dockerfile, an image based on that Dockerfile would be built. Using the command \ \mbox{\texttt{docker run IMAGENAME}}, a new container of that image type would be launched.
 
 \paragraph{\docker\ Registries.}
-\docker\ images may be stored in \docker\ Registries,\footnote{\url{docs.docker.com/registry}} where they can be browsed, managed, and distributed. The command \ \mbox{\texttt{docker push IMAGENAME[:TAG]}} \ causes the image with the name \ \mbox{\texttt{IMAGENAME}} \ to be uploaded to a registry. Analogously, to download an image from a registry to the local computer, one would have to run the command \ \mbox{\texttt{docker pull IMAGENAME[:TAG]}}. \docker\ registries are implemented as a server software which exposes an HTTP API (\cf \Cref{fig:docker-arch}). The registry server is open source\footnote{\url{www.github.com/docker/distribution}} and may be deployed on any server that supports it. The \docker\ company itself hosts one of such registries, Docker Hub,\footnote{\url{hub.docker.com}} which is provided as a publicly available  and free-to-use service.
-
+\docker\ images may be stored in \docker\ Registries,\footnote{\url{docs.docker.com/registry}} where they can be browsed, managed, and distributed. The command \linebreak \texttt{docker push IMAGENAME[:TAG]} \ causes the image with the name \ \mbox{\texttt{IMAGENAME}} \ to be uploaded to a registry. Analogously, to download an image from a registry to the local computer, one would have to run the command \ \mbox{\texttt{docker pull IMAGENAME[:TAG]}}. \docker\ registries are implemented as a server software which exposes an HTTP API (\cf \Cref{fig:docker-arch}). The registry server is open source\footnote{\url{www.github.com/docker/distribution}} and may be deployed on any server that supports it. The \docker\ company itself hosts one of such registries, Docker Hub,\footnote{\url{hub.docker.com}} which is provided as a publicly available  and free-to-use service.
+\pagebreak
 \subsection{Multi-Platform Compatibility} \label{sec:multiplat}
 The primary purpose of containerization is to provide portable execution environments that allow software to run on a broad range of computing systems. A limitation of containers is that they only provide portability across \emph{operating systems}, and not \emph{hardware platforms}. In other words, containers do not provide binary compatibility. The reason for this is that containerized applications run directly on the kernel of the host system, and do not build on top of a virtualization layer as classic VMs do. As a result, a containerized binary built for an x86-based processor will not run on an ARM system, and vice versa. This is problematic especially in the context of embedded systems which often rely on particular hardware architectures that favor energy efficiency over performance. Computing nodes in a data centers, on the other hand, are typically based on architectures aimed at providing a maximum level of performance. As the presented approach intends containers to be deployed on both, vehicular on-board systems and in the cloud, this poses a challenge. Two approaches exist to tackle this problem.
 
@@ -67,21 +67,21 @@ The primary purpose of containerization is to provide portable execution environ
 The first approach relies on a thin platform compatibility layer that is put into the base of each container. This approach was popularized by resin.io, a company that specializes in containerization for IoT devices. On their Docker Hub page\footnote{\url{hub.docker.com/u/resin}} they provide \docker\ images which have the QEMU\footnote{\url{www.qemu.org}} machine emulator built in. Facilitated by QEMU's user emulation mode, binaries built for a given processor architecture may be executed on otherwise incompatible processors. QEMU achieves this by translating any guest system calls into host system calls. The previously mentioned images are built in a way that allows any arbitrary binary executed within such container to be run in the context of QEMU. Thus, the container may run on a multitude of hardware platforms.
 This approach simplifies the software build process tremendously as only one universal container per service needs to be built. This container can then be reused for all platforms.
 
-
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figures/manifest-pull}
-  \caption[Pulling \docker\ images via manifest file]{Two nodes request the same image name but receive different images which are specifically built for their respective processor architecture. Which node requires which image is determined by a look-up in the manifest file.}\label{fig:manifest-pull}
-\end{figure}
-
+\pagebreak
 \subsubsection{Manifest Lookup}
+
 The QEMU approach has a significant drawback: multicast is not well supported by QEMU, which is why the idea was discarded.
 Thus, another approach was leveraged to solve the multi-platform compatibility issue. This approach builds on Continuous Integration (CI) in accord with Docker Hub, and in particular, Docker Hub's \emph{image manifest} feature. The concept of image manifests builds on the following premise: by default, a \docker\ image name corresponds to exactly \emph{one} image. Thus, whenever an image with a given name is requested from the \docker\ registry, only that specific image is returned to the requester. Image manifests extend registries by the option to define \emph{multiple} images per image name. That way, several containers, each specifically built for a given platform, may be deployed under the same name. Depending on the requesting node's hardware architecture, a different image may be returned. \Cref{fig:manifest-pull} depicts an example for this. In the example, an x86-based machine requests the \ \mbox{\texttt{some/image:v1.0}} \ image from the registry. What is then returned from the registry is an image specifically made for x86 architectures. On the other hand, an ARM-based machine which requests the very same image, \ \mbox{\texttt{some/image:v1.0}}, receives an entirely different image as a response. This kind of behavior is achieved through an image lookup in the manifest file which is performed behind the scenes.
 
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figures/manifest-pull}
+  \caption[Pulling \docker\ images via manifest file]{Two nodes request the same image name but receive different images which are specifically built for their respective processor architecture. Which node requires which image is determined by a look-up in the manifest file.}\label{fig:manifest-pull}
+\end{figure}
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=\textwidth]{figures/manifest-push}
+  \includegraphics[width=0.7\textwidth]{figures/manifest-push}
   \caption[Pushing \docker\ images via CI]{A git push to a service's git repository triggers the build process in the CI platform: the code is compiled for several platforms and the resulting images are pushed to the \docker\ registry.}\label{fig:manifest-push}
 \end{figure}
 

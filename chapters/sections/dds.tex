@@ -41,14 +41,15 @@ As a wire protocol, RTPS is deliberately tailored to DCPS-style communication. A
 %
 %
 %
-\pagebreak
 \subsection{DDS Components}
+The DDS specification defines a number of components which are introduced in the following. \Cref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS.
+
+
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.8\textwidth]{figures/dds.pdf}
   \caption[An example of a distributed application connected via DDS]{An example of a distributed application connected via DDS}\label{fig:dds}
 \end{figure}
-The DDS specification defines a number of components which are introduced in the following. \Cref{fig:dds} depicts an example highlighting how the components are related. In the example, there are two hardware nodes connected by an unspecified computer network. Each node can execute multiple applications simultaneously. The applications communicate with each other by means of DDS.
 
 \paragraph{Topics.}
 \emph{Topics} form the basis on which peers communicate in the publish-subscribe paradigm. When a Publisher offers a certain kind of data, it does so by means of a Topic. When a data sample should be written, the Publisher pushes that data sample to a Topic appropriate for that sort of data. Conversely, when a Subscriber is interested in receiving data of a certain kind, then it subscribes to a Topic associated with that data. A Topic is uniquely defined by an identifier (name), a data type, and a set of QoS policies (see below). The data type represents the message format for data samples published on that Topic. For example, a suitable data type for a Topic concerned with temperature data would be a \texttt{struct} containing a single \texttt{float} value representing a temperature reading.
@@ -62,8 +63,7 @@ In \Cref{fig:dds} two Topics are depicted (Topic A and Topic B), each with a num
 
 \paragraph{Domains and Domain Participants.}
 \emph{Domains} are the DDS way of grouping together sets of coherent \emph{Domain Participants} and to separate those sets from each other. Speaking in terms of distributed systems, Domains are a mechanism to manage group memberships of nodes \cite{tanenbaum2017distributed}. Domain Participants are entities that belong to a particular Domain. Each Publisher, Subscriber and Topic is derived from one Domain Participant and is therefore dedicated to exactly that Domain. As a consequence, participants of different Domains are entirely separated from each other and there is no way for them to interface with each other. Depicted in \Cref{fig:dds} is only one Domain. However, there could just as well be other Domains.
-
-
+\pagebreak
 \subsection{Quality of Service}
 One of DDS's salient features is its intrinsic support for Quality of Service (QoS), which is realized by so-called ``QoS policies''. QoS policies specify attributes that can be used to control each component's behavior and quality properties. They make specifying a component's behavior a matter of \emph{configuration}, rather than \emph{implementation}. For example, consider a Data Writer which writes data to a Topic at a high rate. A Data Reader may be interested in that data but not at such a high rate, \eg\ because it runs on an embedded device powered by a battery and therefore needs to manage power consumption carefully. The Data Reader may now apply a \tbf , which instructs DDS to block all samples that exceed a specified frequency threshold. This way, the rate of incoming messages can be controlled via configuration. This is beneficial for the programmer as they do not need to accommodate for this at code level, but let the middleware take care of it.
 
@@ -71,6 +71,11 @@ QoS policies can be set for each Topic, Publisher, Subscriber, Data Writer and D
 In \Cref{tab:qos}, an excerpt of the available QoS policies is given. For the exhaustive list of all available QoS policies refer to the official standard \cite{dds-1.4-standard}.
 
 Another example of a QoS policy is the \deadline\ policy. It specifies the minimum sampling frequency of a Data Writer. If the deadline period of a hypothetical Data Writer is set to, e.g., 100 ms, then this Data Writer is obligated to send a data sample at least every 100 ms. If it fails to send samples at this rate, the Data Writer and all the respective Topic's readers will be notified about that circumstance and are free to act accordingly.
+
+In addition to specifying quality attributes, QoS policies may also serve as ``service contracts'' between interacting DDS components. These contracts specify non-functional requirements that the involved components must fulfill to be able to communicate with each other. For example, a Data Writer's \reliability\ policy may have been set to the \texttt{BEST\_EFFORT} level, thereby allowing the writer to drop samples. A Data Reader, on the other hand, may require the writer's policy to be set to \texttt{RELIABLE}, which prohibits the dropping of samples. Since the writer does not fulfill the reader's QoS requirements, the two components are considered incompatible, and thus, they cannot interact with each other.
+
+Despite their name, QoS policies do not only concern \emph{quality} attributes per se. They can also be used to specify the priority of data samples, their lifespan, \ie , how long they are valid, or how many data samples of a certain type are kept in local memory.
+
 
 \begin{table}[H]
   \caption[An excerpt of DDS QoS policies]{An excerpt of QoS policies}\label{tab:qos}
@@ -88,10 +93,6 @@ Another example of a QoS policy is the \deadline\ policy. It specifies the minim
     \bottomrule
   \end{tabular}
 \end{table}
-
-In addition to specifying quality attributes, QoS policies may also serve as ``service contracts'' between interacting DDS components. These contracts specify non-functional requirements that the involved components must fulfill to be able to communicate with each other. For example, a Data Writer's \reliability\ policy may have been set to the \texttt{BEST\_EFFORT} level, thereby allowing the writer to drop samples. A Data Reader, on the other hand, may require the writer's policy to be set to \texttt{RELIABLE}, which prohibits the dropping of samples. Since the writer does not fulfill the reader's QoS requirements, the two components are considered incompatible, and thus, they cannot interact with each other.
-
-Despite their name, QoS policies do not only concern \emph{quality} attributes per se. They can also be used to specify the priority of data samples, their lifespan, \ie , how long they are valid, or how many data samples of a certain type are kept in local memory.
 %
 %
 %
@@ -104,6 +105,7 @@ Despite their name, QoS policies do not only concern \emph{quality} attributes p
 %
 %
 %
+\pagebreak
 \subsection{Redundancy and Automatic Failover} \label{sec:failover}
 DDS has ways to ensure reliable communication---even over unreliable transmission channels. Part of reliability is failure transparency, \ie , the ability to quickly substitute failed components by backup components. The substitution process involves two steps: first, the failure needs to be detected. Second, a backup component needs to be instructed to take over. By means of the three QoS policies \ownership , \ostrength\ and \liveliness\ (\cf \Cref{tab:qos}), DDS may realize this process.
 

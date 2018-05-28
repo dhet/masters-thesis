@@ -6,14 +6,20 @@ In the two previous chapters, this thesis' main approach was presented and an ex
 
 As part of the \emph{OSBORNE}\footnote{OSBORNE is a BMW-internal project which aims to investigate future E/E architectures.} project a testbed was created which was made available for this thesis. The testbed aims to simulate a vehicular computing cluster consisting of a number of Linux nodes connected by an Ethernet switch. For this thesis, the testbed was extended by a network link to the Internet to enable cloud connectivity.
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[width=0.8\textwidth]{figures/network-setup}
-  \caption[Network topology of the experimental setup]{The experimental setup's network topology}\label{fig:network-topology}
-\end{figure}
 The test environment's network topology is depicted in \Cref{fig:network-topology}. The original testbed (``on-premise'') consists of three ARM-based SBCs\footnote{``Single-Board Computers''} (Raspberry Pi\footnote{\url{www.raspberrypi.org}} 3) whose network interfaces are connected by a Gigabit LAN switch (left-hand side in \Cref{fig:network-topology}). The three nodes represent on-board computing devices in a hypothetical vehicle. Furthermore, connected to the switch is also a workstation which fulfills the sole purpose of conducting the tests, \ie , it is not directly involved in the test execution per se. The local test environment is connected to the remote data center through a 100 Mbit/s broadband Internet connection.
 
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figures/network-setup}
+  \caption[Network topology of the experimental setup]{The experimental setup's network topology}\label{fig:network-topology}
+\end{figure}
 Representative of the ``cloud'' in the tests is a single root server supplied by the cloud provider DigitalOcean\footnote{\url{www.digitalocean.com}} (right-hand side in \Cref{fig:network-topology}). To ensure realistic latency values, a server location was chosen that was in the vicinity of the test setup---but not too close. Considering its vicinity to Munich, Frankfurt (Main) was a suitable choice. The two cities are about 300 km away from each other (as the crow flies).
+
+
+Throughout the whole study, the software composition remained unchanged. As DDS implementation OpenDDS\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (without service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL), by which messages are converted into type safe data structures, was used. The overhead caused by this is evaluated and discussed in \Cref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in \Cref{sec:failovertest}. Moreover, all benchmark programs were developed in the C++ language to maximize their run-time performance.
+
+Naturally, in the benchmarks concerned with the testing of \wnet , containers were connected by means of a \wnet\ overlay network. For the connection between all local nodes (on-premise), fast datapath forwarding mode was used. Due to the characteristics of the network between the local nodes and the cloud, fast datapath was not applicable for that connection. Consequently, local containers and cloud containers were connected via sleeve mode.
+The detailed specifications of the involved computing nodes and the employed software are given in \Cref{tab:test-specs}
 
 \begin{table}[H]
   \caption[Test environment specifications]{Test environment specifications}\label{tab:test-specs}
@@ -37,12 +43,6 @@ Representative of the ``cloud'' in the tests is a single root server supplied by
     \bottomrule
   \end{tabular}
 \end{table}
-
-Throughout the whole study, the software composition remained unchanged. As DDS implementation OpenDDS\footnote{\url{www.opendds.org}} was chosen. The middleware was configured to utilize dynamic service discovery (without service repository) and RTPS over UDP as wire protocol. The optional Data Local Reconstruction Layer (DLRL), by which messages are converted into type safe data structures, was used. The overhead caused by this is evaluated and discussed in \Cref{sec:ddslatency}. Generally, default QoS settings were used for the tests, except in cases where a point was made to explicitly deviate from the defaults, \eg , the \liveliness\ settings in \Cref{sec:failovertest}. Moreover, all benchmark programs were developed in the C++ language to maximize their run-time performance.
-
-Naturally, in the benchmarks concerned with the testing of \wnet , containers were connected by means of a \wnet\ overlay network. For the connection between all local nodes (on-premise), fast datapath forwarding mode was used. Due to the characteristics of the network between the local nodes and the cloud, fast datapath was not applicable for that connection. Consequently, local containers and cloud containers were connected via sleeve mode.
-The detailed specifications of the involved computing nodes and the employed software are given in \Cref{tab:test-specs}
-
 
 %
 %
@@ -139,14 +139,15 @@ The results of this benchmark are depicted in \Cref{fig:throughput}. The results
 
 \paragraph{Results.}
 \Cref{fig:cpu} depicts the test results. In the diagram, each data sample represents the average CPU utilization of the sending node during a particular test run. The Y-axis represents the overall CPU utilization of the sending machine (Raspberry Pi), and includes the cumulative load of all programs running on the system. Hence, the measurements include a bit of noise. The dashed horizontal line indicates the maximum load of a single core in a quad core CPU.
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[width=0.73\textwidth]{figures/cpu}
-  \caption[\weave\ CPU utilization test results]{In \weave\ overlays, CPU utilization increases linearly with network throughput. At around 21 Mbit/s, the test node reaches a computational limit (one of the four cores is fully utilized) such that the effective throughput stagnates (not displayed).}\label{fig:cpu}
-\end{figure}
 
 The results show that CPU utilization increases linearly with the target bandwidth. What is striking is that the point of full resource utilization of a single core is reached quite early, at around 21 Mbit/s target bandwidth (dotted vertical line). \wnet\ is a single-threaded program, and as such, experiences performance stagnation once the core it runs on is fully occupied. At this point, first throughput degradations become evident, so that the setup begins to fall short on delivering the desired bandwidth. The maximum observed bandwidth that the setup could achieve over numerous test runs was 23.6 Mbit/s.
 However, the maximum (theoretically) achievable throughput in the test setup was 100 Mbit/s. Thus, a large part of the network's capacity was left unused. This circumstance is a strong evidence that a CPU-bound wall was hit.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.65\textwidth]{figures/cpu}
+  \caption[\weave\ CPU utilization test results]{In \weave\ overlays, CPU utilization increases linearly with network throughput. At around 21 Mbit/s, the test node reaches a computational limit (one of the four cores is fully utilized) such that the effective throughput stagnates (not displayed).}\label{fig:cpu}
+\end{figure}
 %
 %
 %
@@ -157,7 +158,6 @@ However, the maximum (theoretically) achievable throughput in the test setup was
 %
 %
 %
-\pagebreak
 \subsection{DDS Latency Benchmark} \label{sec:ddslatency}
 
 \paragraph{Motivation.} So far, all experiments were concerned with \wnet\ exclusively and did not involve DDS. To the best of the author's knowledge, there are no empirical studies yet on how well DDS performs in overlay networks spanning over the Internet. Hence, benchmarks were conducted to evaluate latency overhead incurred by DDS in such scenarios.
@@ -217,7 +217,7 @@ The results of the benchmark are presented in \Cref{tab:dds-latency}. The overhe
 \paragraph{Method.} To test the performance of DDS's failover qualities an experiment was designed to replicate a scenario in which a service fails so that another, remote service must take over. In the test scenario, there are three services: two services which continuously produce data (\proda , \prodb) in the interval $t_i$, and one which consumes the data (\cons). \proda\ has precedence over \prodb\ (\ie\ it possesses a higher \ownership\ value) and is therefore the ``main supplier'', while \prodb\ is considered the ``backup supplier''. \proda\ and \cons\ are both deployed on two separate Raspberry Pis (representative of two ECUs in a vehicle), and \prodb\ is running in the cloud. A schematic of the experiment is depicted in \Cref{fig:failover}. It shall be noted that, contrary to what the figure suggests, communication is not point-to-point, but topic-based. \proda\ as well as \prodb\ publish data samples on the same topic and \cons\ is subscribed to that topic.
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.5\textwidth]{figures/takeover}
+  \includegraphics[width=0.55\textwidth]{figures/takeover}
   \caption[Failover experiment schematic]{Failover scenario: vehicular service \proda\ fails to supply \cons\ with data so that cloud-based service \prodb\ must take over}\label{fig:failover}
 \end{figure}
 

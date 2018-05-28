@@ -79,6 +79,7 @@ Middlewares are implemented as a software layer that sits between operating syst
 
 The need for middlewares becomes particularly evident in the example of messaging. Messages need to be sent over a physical mediums which are often, by nature, unreliable. To ensure reliability, many things need to be taken care of, \eg , error detection, QoS\footnote{``Quality of Service''} compliance measures, repetition mechanisms, etc. In addition, guarantees must be given that messages are delivered to the right receivers. Therefore, addressing and routing mechanisms must be in place. These are just a few examples of hard-to-solve problems related to messaging. Managing these things manually, and implementing according measures from the ground up is hardly feasible for programmers. Messaging middlewares greatly simplify this process.
 
+\pagebreak
 \begin{lstlisting}[caption={[Middleware send example]A code snippet demonstrating a broadcast dispatch via middleware}, label={lst:send}, language={C++}]
 auto& middleware = MW::register_by_name("Alice");
 middleware.broadcast("Hello, World!");
@@ -139,7 +140,7 @@ Distributed systems are often organized as \emph{overlay networks}\footnote{The 
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.8\textwidth]{figures/overlay.pdf}
+  \includegraphics[width=0.65\textwidth]{figures/overlay.pdf}
   \caption[Overlay networking concept]{An overlay network on top of a physical underlay network which consists of three sub-networks}\label{fig:overlay}
 \end{figure}
 
@@ -154,7 +155,7 @@ In contrast to VLAN, which is an intrinsic part of layer 2 protocol frames, VXLA
 Consequently, two types of packet switching need to be performed: once on a logical level, and once on a physical level. While physical switching is still performed inside physical network switches, an additional, logical type of switching needs to be introduced. Open~vSwitch~\cite{pfaff2015design} is an example of a virtual, software-based switch that performs packet switching in the data plane (within the Linux kernel).
 \begin{figure}[htpb]
   \centering
-  \includegraphics[width=0.83\textwidth]{figures/vxlan.pdf}
+  \includegraphics[width=0.6\textwidth]{figures/vxlan.pdf}
   \caption[VXLAN protocol stack]{VXLAN protocol stack exemplified by two logically connected applications}\label{fig:vxlan}
 \end{figure}
 Since VXLAN utilizes virtual MAC addresses that don't necessarily need to correspond to actual hardware addresses, addresses can be assigned at will for each process or virtual machine. This makes it possible to address single VM instances within an overlay network individually, regardless of physical locality and the underlying network design. An added benefit is that all endpoints may retain their logical address when migrating to other physical nodes. This allows for the creation of dynamically changing networks in which processes may move between different execution environments. Furthermore, VXLAN addresses the problem that WANs, in general, lack support for point-to-multipoint communication. In the context of an overlay network, peers may send messages to several receivers simultaneously, \eg\ by means of IP multicast, regardless of their physical location.
