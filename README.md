@@ -1,7 +1,7 @@
 # Enabling Ubiquitous Publish-Subscribe Communication in Cyber-Physical Systems
 A master's thesis composed by David Hettler.
 
-Handed in at Ludwid-Maximilian University of Munich on the 20th of May 2018.
+Handed in at Ludwig-Maximilian University of Munich on the 20th of May 2018.
 
 [Download as PDF](final/thesis-digital.pdf)
 
@@ -16,7 +16,7 @@ Cyber-Physical Systems, Automotive, IoT, Publish-Subscribe, Service Meshes, Cont
 @mastersthesis{hettler-cps,
   author       = {David Hettler}, 
   title        = {Enabling Ubiquitous Publish-Subscribe Communication in Cyber-Physical Systems},
-  school       = {Ludwig-Maximilian Unversity of Munich},
+  school       = {Ludwig-Maximilian University of Munich},
   year         = 2018,
   month        = 5
 }
